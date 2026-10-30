@@ -26,7 +26,7 @@ Jednou nainstalovat plugin (v aplikaci Claude Code nebo terminálu):
 /plugin marketplace add ~/TS-Studio/ts-library
 /plugin install ts-studio@ts-library
 ```
-Pak jsou v každém projektu dostupné skills `/ts-studio:library`, `/ts-studio:booking`, `/ts-studio:kit-core`, `/ts-studio:php-backend`, `/ts-studio:i18n` a hook při startu relace připomene knihovnu. Lokální plugin se načítá přímo ze složky – změny platí od další relace.
+Pak jsou v každém projektu dostupné skills `/ts-studio:library`, `/ts-studio:booking`, `/ts-studio:eshop`, `/ts-studio:kit-core`, `/ts-studio:php-backend`, `/ts-studio:i18n` a hook při startu relace připomene knihovnu. Lokální plugin se načítá přímo ze složky – změny platí od další relace.
 
 ## Zdroj
 Komponenty jsou extrahované z projektu tasstudio.eu (`tools/sources.json`), který se jen čte. Původ a kontrolní součty: `module.json → origin`.

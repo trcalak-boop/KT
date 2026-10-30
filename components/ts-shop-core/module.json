@@ -50,7 +50,7 @@
   "tests": [
     "tests/shop.test.html"
   ],
-  "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+  "skill": "claude-plugin/ts-studio/skills/eshop/SKILL.md",
   "api": "api/ts-shop-core.md",
   "license": "Interní – T&S Studio (vlastní kód)"
 }

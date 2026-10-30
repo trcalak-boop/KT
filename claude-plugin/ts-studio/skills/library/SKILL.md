@@ -11,7 +11,7 @@ Nástroj: `python3 -I /Users/krystof/TS-Studio/ts-library/tools/ts.py <příkaz>
 
 ## 1. Nejdřív hledej, potom programuj
 1. Přečti registr: `python3 -I …/tools/ts.py list` nebo `registry/components.json` (název, verze, stav, co funguje, co chybí).
-2. Pro vybranou komponentu přečti `components/<název>/README.md`, `api/<název>.md` a příslušný skill (`/ts-studio:booking`, `/ts-studio:kit-core`, `/ts-studio:php-backend`, `/ts-studio:i18n`).
+2. Pro vybranou komponentu přečti `components/<název>/README.md`, `api/<název>.md` a příslušný skill (`/ts-studio:booking`, `/ts-studio:eshop`, `/ts-studio:kit-core`, `/ts-studio:php-backend`, `/ts-studio:i18n`).
 3. Řekni uživateli, které komponenty použiješ a v jakém stavu jsou. Funkce, kterou knihovna má, se **znovu neprogramuje** – ani „zjednodušeně“, ani „jen pro tento projekt“.
 4. Když komponenta chybí nebo nestačí, navrhni rozšíření knihovny (nová verze komponenty) místo kopie kódu do projektu.
 
@@ -25,7 +25,7 @@ Nástroj: `python3 -I /Users/krystof/TS-Studio/ts-library/tools/ts.py <příkaz>
 | Přihlášení, CSRF, role, limit požadavků (PHP) | `ts-auth-php` |
 | E-maily, SMTP, fronta (PHP) | `ts-mailer-php` |
 | Poptávkový formulář → CRM | `ts-crm-intake` (reference) |
-| E-shop (košík, objednávky, sklad, slevy) | `ts-shop-core` (reference, DEMO) |
+| E-shop (košík, objednávky, sklad, slevy, faktury) | `ts-shop-core` (reference, DEMO) – skill `/ts-studio:eshop` |
 | Aktuality, jídelníček, akce, kroužky | `ts-cms-blocks` (reference, DEMO) |
 | Jazykové verze | `ts-i18n-demo`, `ts-i18n-build` |
 

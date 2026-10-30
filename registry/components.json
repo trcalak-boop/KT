@@ -1,6 +1,6 @@
 {
   "library": "ts-library",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "components": [
     {
       "name": "ts-auth-php",
@@ -317,7 +317,7 @@
       "dependencies": {
         "ts-kit-core": "^1.0.0"
       },
-      "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+      "skill": "claude-plugin/ts-studio/skills/eshop/SKILL.md",
       "api": "api/ts-shop-core.md",
       "works": [
         "Ukázka VRSTVA na tasstudio.eu: košík, objednávka, faktura PDF, administrace (642/642 testu projektu)."
@@ -331,5 +331,5 @@
       "path": "components/ts-shop-core"
     }
   ],
-  "generated": "2026-10-30T21:27:38"
+  "generated": "2026-10-30T22:05:38"
 }
