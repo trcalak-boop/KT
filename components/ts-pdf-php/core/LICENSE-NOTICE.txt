@@ -1,0 +1,7 @@
+tFPDF 1.34 (core/tfpdf.php) – třetí strana, převzato beze změny z administrace tasstudio.eu.
+Autoři: Ian Back <ianb@bpm1.com>, Tycho Veltmeijer <tfpdf@tychoveltmeijer.nl>. Licence: LGPL (dle hlavičky souboru, verze neuvedena).
+Vychází z FPDF (Olivier Plathey), volná licence bez omezení použití.
+
+Komerční použití v klientských projektech je možné: knihovnu používejte beze změn, ponechte hlavičku a tento soubor.
+Úpravy samotné knihovny by musely být zveřejněny pod LGPL – proto jsou core/ soubory zamčené.
+TODO (zjištěno v Etapě 1): přiložit plný text LGPL, oficiální zdroj: https://github.com/Setasign/tFPDF

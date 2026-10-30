@@ -1,0 +1,56 @@
+{
+  "name": "ts-shop-core",
+  "version": "1.0.0",
+  "kind": "reference",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "E-shop (logika ukázky VRSTVA): produkty, varianty barva/velikost, sklad, košík, doprava a platba, slevové kódy, objednávky a jejich stavy, faktura s DPH, vrácení a reklamace, hlídání naskladnění.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/ukazky/vrstva/data.js",
+        "to": "src/vrstva-data.js",
+        "sha256": "a4c4fe2c292a7fb3870a90c6252c569382029372d2449eb1f5ca7d006ca1cb90",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "clean"
+  },
+  "dependencies": {
+    "ts-kit-core": "^1.0.0"
+  },
+  "entrypoints": {
+    "js": "src/vrstva-data.js",
+    "globals": "window.VRSTVA"
+  },
+  "lockedFiles": [
+    "src/**/*"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "nic – referenční zdroj; pro použití vytvořit samostatnou komponentu s konfigurací (další etapa)"
+  ],
+  "aiProtected": [
+    "src/** – doslovná kopie, neupravovat"
+  ],
+  "works": [
+    "Ukázka VRSTVA na tasstudio.eu: košík, objednávka, faktura PDF, administrace (642/642 testu projektu)."
+  ],
+  "missingForProduction": [
+    "Žádný server, žádné platby ani sklad v databázi – vše v sessionStorage.",
+    "Platby (karta, QR) a doprava (Zásilkovna) jsou jen simulace – produkce vyžaduje samostatnou analýzu, platební bránu a schválení; platební údaje se nikdy neukládají.",
+    "Data ukázky, texty a pravidla jsou česky a pro jednu značku; zobecnění do konfigurace = další etapa.",
+    "DPH 21 % v kódu natvrdo."
+  ],
+  "tests": [
+    "tests/shop.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+  "api": "api/ts-shop-core.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

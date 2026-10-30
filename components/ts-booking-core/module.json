@@ -1,0 +1,90 @@
+{
+  "name": "ts-booking-core",
+  "version": "1.0.0",
+  "kind": "js-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Univerzální jádro rezervací: volné časy, zdroje (pracovníci, vozy, lékaři), sdílený pool, kapacita míst, kolize, založení rezervace, ICS. Bez DOM a bez úložiště; obory přes konfiguraci a rozšíření.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "web/ukazky/lokna/data.js",
+        "to": "core/booking-core.js",
+        "sha256": "890bc9f96b75e4f7a8f2becb9df7883547159b75d7c358eb40920b97de786e55",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/ukazky/motoria/data.js",
+        "to": "core/booking-core.js",
+        "sha256": "60280123aa321d87689ec5fa118b4e00379e4914c5f536bf495398b4cc0250de",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/ukazky/koren/data.js",
+        "to": "core/booking-core.js",
+        "sha256": "0209e1d170b35f93f56623a7ae166f7a12ed0a2e520bb982a2b1b9c1d680b2f6",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/ukazky/kit/kit.js",
+        "to": "core/booking-core.js",
+        "sha256": "560e5dfae131f8908bf67fb6f9b731635af01d4165ad6046117bb9050680b70a",
+        "mode": "adapted"
+      }
+    ]
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "js": "core/booking-core.js",
+    "store-demo": "adapters/store-demo-local.js",
+    "globals": "window.TSBooking"
+  },
+  "configSchema": "config/schema.json",
+  "lockedFiles": [
+    "core/*.js",
+    "adapters/*.js",
+    "config/schema.json"
+  ],
+  "customerFiles": [
+    "config/presets/*.json"
+  ],
+  "aiEditable": [
+    "konfigurace v ts-config/ts-booking-core/ (služby, zdroje, pracovní doba, pravidla)",
+    "rozšíření předaná v opts.extensions (oborová pravidla)",
+    "texty a vzhled v komponentě UI"
+  ],
+  "aiProtected": [
+    "core/booking-core.js – výpočet volných časů, kolizí a kapacity",
+    "adapters/* – rozhraní úložiště",
+    "config/schema.json – změna = nová hlavní verze"
+  ],
+  "works": [
+    "Rozdílové testy: identické výsledky jako originální logika ukázek Lokna (salon), Motoria (autosalon) a Kořen (restaurace) – 3 časové scénáře, přes 25 000 kombinací každý.",
+    "Režimy resources (zdroje s pracovní dobou, dovednostmi, nepřítomností, variantami služeb, doplňky, pauzou, předstihem), pool (souběh omezený počtem lidí), capacity (sdílená místa).",
+    "prepareBooking ověří termín a doplní zdroj, délku, cenu a člena poolu; rozšíření přidávají oborová pravidla bez úprav jádra.",
+    "Demo úložiště v localStorage s idempotencí (dvojklik nevytvoří dvě rezervace)."
+  ],
+  "missingForProduction": [
+    "Serverová část (PHP API + databáze), na serveru opakované ověření volného termínu v transakci – zatím neschváleno (Etapa 2).",
+    "Autentizace a role administrace, audit log, GDPR (souhlas, retence, export/smazání).",
+    "E-mailová oznámení (potvrzení, změna, připomínka) – napojení na ts-mailer-php.",
+    "Časová pásma: výpočty jsou v místním čase zařízení; server musí počítat v časovém pásmu provozovny.",
+    "Ordinace zatím jen předvolba – rozdílově neověřeno proti ukázce Ordinace.",
+    "Testy jen v Chromiu."
+  ],
+  "tests": [
+    "tests/unit.test.html",
+    "tests/differential.test.html",
+    "tests/differential-vikend.test.html",
+    "tests/differential-rano.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+  "api": "api/ts-booking-core.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

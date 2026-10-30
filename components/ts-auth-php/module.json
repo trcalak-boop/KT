@@ -1,0 +1,60 @@
+{
+  "name": "ts-auth-php",
+  "version": "1.0.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "PHP: relace s bezpečnými cookies, CSRF, hesla, ochrana proti hádání hesla, limit požadavků, role a oprávnění. Bez databáze, bez závislostí.",
+  "runtime": [
+    "php"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "web/admin/lib.php",
+        "to": "core/TsAuth.php",
+        "sha256": "5c2a1a6b206a0219ed3b672f9d84dd2e5feeeb4833d2e1f9974beab75213d576",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/admin/crm-poptavky.php",
+        "to": "core/TsAuth.php",
+        "sha256": "f40923357067fbeb7c88831e9198a2d3147b95594338b7f8902fe7abf7082f02",
+        "mode": "adapted"
+      }
+    ]
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "php": "core/TsAuth.php",
+    "class": "TsAuth"
+  },
+  "lockedFiles": [
+    "core/*.php"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "konfigurace v konstruktoru (dataDir, policy rolí, limity)"
+  ],
+  "aiProtected": [
+    "core/TsAuth.php – relace, CSRF, hesla, zámek, limity"
+  ],
+  "works": [
+    "Původní kód běží v produkci tasstudio.eu (administrace, CRM) – ověřeno testem projektu 642/642.",
+    "Knihovní třída: 21 jednotkových testů v PHP 8.5 (relace, CSRF, hesla, zámek, otisk IP, limit, role)."
+  ],
+  "missingForProduction": [
+    "Bezpečnostní revize zobecněné třídy a test na Active24 (cookies, session.save_path, HTTPS).",
+    "Oprávnění (can) jsou nová – v původním projektu nebyla; potřebují revizi a napojení na tabulku users.",
+    "Správa uživatelů a obnova hesla nejsou součástí (v projektu řeší CRM)."
+  ],
+  "tests": [
+    "tests/auth_test.php"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+  "api": "api/ts-auth-php.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

@@ -1,0 +1,335 @@
+{
+  "library": "ts-library",
+  "version": "0.1.0",
+  "components": [
+    {
+      "name": "ts-auth-php",
+      "version": "1.0.0",
+      "kind": "php-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "PHP: relace s bezpečnými cookies, CSRF, hesla, ochrana proti hádání hesla, limit požadavků, role a oprávnění. Bez databáze, bez závislostí.",
+      "runtime": [
+        "php"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+      "api": "api/ts-auth-php.md",
+      "works": [
+        "Původní kód běží v produkci tasstudio.eu (administrace, CRM) – ověřeno testem projektu 642/642.",
+        "Knihovní třída: 21 jednotkových testů v PHP 8.5 (relace, CSRF, hesla, zámek, otisk IP, limit, role)."
+      ],
+      "missingForProduction": [
+        "Bezpečnostní revize zobecněné třídy a test na Active24 (cookies, session.save_path, HTTPS).",
+        "Oprávnění (can) jsou nová – v původním projektu nebyla; potřebují revizi a napojení na tabulku users.",
+        "Správa uživatelů a obnova hesla nejsou součástí (v projektu řeší CRM)."
+      ],
+      "path": "components/ts-auth-php"
+    },
+    {
+      "name": "ts-booking-core",
+      "version": "1.0.0",
+      "kind": "js-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "Univerzální jádro rezervací: volné časy, zdroje (pracovníci, vozy, lékaři), sdílený pool, kapacita míst, kolize, založení rezervace, ICS. Bez DOM a bez úložiště; obory přes konfiguraci a rozšíření.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+      "api": "api/ts-booking-core.md",
+      "works": [
+        "Rozdílové testy: identické výsledky jako originální logika ukázek Lokna (salon), Motoria (autosalon) a Kořen (restaurace) – 3 časové scénáře, přes 25 000 kombinací každý.",
+        "Režimy resources (zdroje s pracovní dobou, dovednostmi, nepřítomností, variantami služeb, doplňky, pauzou, předstihem), pool (souběh omezený počtem lidí), capacity (sdílená místa).",
+        "prepareBooking ověří termín a doplní zdroj, délku, cenu a člena poolu; rozšíření přidávají oborová pravidla bez úprav jádra.",
+        "Demo úložiště v localStorage s idempotencí (dvojklik nevytvoří dvě rezervace)."
+      ],
+      "missingForProduction": [
+        "Serverová část (PHP API + databáze), na serveru opakované ověření volného termínu v transakci – zatím neschváleno (Etapa 2).",
+        "Autentizace a role administrace, audit log, GDPR (souhlas, retence, export/smazání).",
+        "E-mailová oznámení (potvrzení, změna, připomínka) – napojení na ts-mailer-php.",
+        "Časová pásma: výpočty jsou v místním čase zařízení; server musí počítat v časovém pásmu provozovny.",
+        "Ordinace zatím jen předvolba – rozdílově neověřeno proti ukázce Ordinace.",
+        "Testy jen v Chromiu."
+      ],
+      "path": "components/ts-booking-core"
+    },
+    {
+      "name": "ts-booking-widget",
+      "version": "1.0.1",
+      "kind": "js-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "Obecný veřejný rezervační formulář a přehled rezervací nad ts-booking-core: služba, varianta, pracovník/zdroj nebo počet osob, den, čas, kontakt, potvrzení s ICS.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {
+        "ts-booking-core": "^1.0.0"
+      },
+      "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+      "api": "api/ts-booking-widget.md",
+      "works": [
+        "Průchod rezervací pro režim resources (služba, varianta, zdroj nebo „kdokoli“) i capacity (počet osob).",
+        "Dvojí odeslání nevytvoří dvě rezervace; validace jména, e-mailu a souhlasu; potvrzení s .ics a Google Kalendářem.",
+        "Přehled rezervací s potvrzením a zrušením; texty cs/en; vzhled jen přes --tsb-*.",
+        "Testy UI v Chromu."
+      ],
+      "missingForProduction": [
+        "Serverové úložiště a odesílání e-mailů (dnes demo úložiště v prohlížeči).",
+        "Přehled rezervací nemá přihlášení – v produkci jen za autentizací administrace.",
+        "Ochrana proti robotům (skryté pole, časová kontrola, rate limit na serveru).",
+        "Texty jen cs/en; další jazyky přes ui.labels.",
+        "Automatický test přístupnosti, test Safari/Firefox."
+      ],
+      "path": "components/ts-booking-widget"
+    },
+    {
+      "name": "ts-cms-blocks",
+      "version": "1.0.0",
+      "kind": "reference",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "CMS bloky (logika ukázky Slunečnice): aktuality, jídelníček s alergeny, akce a školní kalendář (svátky, Velikonoce, prázdniny), personál, kroužky s kapacitou, zápis, ICS.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {
+        "ts-kit-core": "^1.0.0"
+      },
+      "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+      "api": "api/ts-cms-blocks.md",
+      "works": [
+        "Ukázka Slunečnice na tasstudio.eu včetně administrace."
+      ],
+      "missingForProduction": [
+        "Bez serveru a bez přihlášení – vše v sessionStorage.",
+        "České školní reálie (svátky, prázdniny) natvrdo – zobecnit podle země.",
+        "Zobecnění do samostatných bloků s konfigurací = další etapa."
+      ],
+      "path": "components/ts-cms-blocks"
+    },
+    {
+      "name": "ts-crm-intake",
+      "version": "1.0.0",
+      "kind": "reference",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "Napojení webového formuláře na CRM: poptávka → lead (stav Nový, nepřiřazený), idempotence submission_id, marketingový zdroj (UTM, referrer, click-id bez hodnoty), fronta oznámení, ochrana proti robotům a zahlcení.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {
+        "ts-auth-php": "^1.0.0",
+        "ts-mailer-php": "^1.0.0"
+      },
+      "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+      "api": "api/ts-crm-intake.md",
+      "works": [
+        "Běží v produkci tasstudio.eu (migrace CRM 5, poptávkový formulář ve 3 krocích)."
+      ],
+      "missingForProduction": [
+        "Vázané na databázové schéma CRM T&S (leads, lead_inquiries, lead_attribution, lead_notifications) a na admin/lib.php.",
+        "Pro jiný projekt: samostatný adaptér nad ts-auth-php a ts-mailer-php + migrace (další etapa).",
+        "GDPR retence leadů není v kódu definovaná."
+      ],
+      "path": "components/ts-crm-intake"
+    },
+    {
+      "name": "ts-i18n-build",
+      "version": "1.0.0",
+      "kind": "tool",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "Generátor vícejazyčného statického webu (Python): stránky z anglických textů + slovníky i18n/web/<jazyk>.json, hreflang, kanonické adresy, sitemap, registr 18 jazyků (jazyky.json) s RTL.",
+      "runtime": [
+        "python"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/i18n/SKILL.md",
+      "api": "api/ts-i18n.md",
+      "works": [
+        "Generuje hlavní web tasstudio.eu v 18 jazycích (en + 17)."
+      ],
+      "missingForProduction": [
+        "Skript je psaný pro strukturu webu tasstudio.eu (cesty, šablony v kódu) – pro jiný projekt nutné oddělit konfiguraci (další etapa).",
+        "Překlady kromě cs/en neověřil rodilý mluvčí."
+      ],
+      "path": "components/ts-i18n-build"
+    },
+    {
+      "name": "ts-i18n-demo",
+      "version": "1.0.0",
+      "kind": "js-library",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "Překladová vrstva ukázek: přeloží zobrazený český text do zvoleného jazyka podle slovníků (klíč = český text), včetně dat, čísel a obsahu doplněného skripty (MutationObserver).",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/i18n/SKILL.md",
+      "api": "api/ts-i18n.md",
+      "works": [
+        "Ve všech 7 ukázkách tasstudio.eu: 8 236 přeložených textů en/de, kontrola sběrem chybějících klíčů (?i18n=sber)."
+      ],
+      "missingForProduction": [
+        "Seznam jazyků je v kódu natvrdo ['en', 'cs', 'de'] – pro další jazyky je potřeba konfigurace (nová verze).",
+        "Překlad nad DOM je vhodný pro ukázky; produkční weby mají mít texty v šabloně / generátoru (viz ts-i18n-build).",
+        "Výchozí jazyk čte localStorage ts-lang sdílený s webem tasstudio.eu."
+      ],
+      "path": "components/ts-i18n-demo"
+    },
+    {
+      "name": "ts-kit-core",
+      "version": "1.0.0",
+      "kind": "js-library",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "Společný frontendový základ ukázek T&S: utility, datum a čas, ikony, modální okna, toast, formuláře, shell administrace, simulované e-maily, kalendářová mřížka, ICS a PDF (jsPDF).",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/kit-core/SKILL.md",
+      "api": "api/ts-kit-core.md",
+      "works": [
+        "Ověřeno v 7 ukázkách tasstudio.eu (642 kontrol testu projektu, Chromium).",
+        "TS.cal.free / overlaps / grid / gcal / ics, TS.pdf (líné načtení jsPDF a písem), TS.admin (moduly, koncepty, odhlášení), TS.f (pole formulářů), TS.toast, TS.openModal (fokus, Esc), TS.mode (tmavý režim), TS.money/int (cs-CZ)."
+      ],
+      "missingForProduction": [
+        "Úložiště TS.data/TS.save je sessionStorage okna – pro produkci nahradit serverovým API (adaptér úložiště).",
+        "Přihlášení v TS.admin je jen příznak v sessionStorage (TS.flag('login')) – žádná autentizace.",
+        "TS.mail jen ukládá e-maily do ukázkové schránky, nic neodesílá.",
+        "Texty rozhraní a formáty jsou česky natvrdo (překlad zajišťuje ts-i18n-demo nad DOM).",
+        "Lišta ukázky (.ts-demobar, .ts-pill) a ICS PRODID/UID s doménou ukazka.tasstudio.eu jsou vázané na portfolio T&S.",
+        "Testováno jen v Chromiu; chybí testy Safari/Firefox a automatický test přístupnosti."
+      ],
+      "path": "components/ts-kit-core"
+    },
+    {
+      "name": "ts-mailer-php",
+      "version": "1.0.0",
+      "kind": "php-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "PHP: e-maily přes SMTP (STARTTLS/SSL, AUTH LOGIN) nebo mail() hostingu, HTML + text, Reply-To, fronta s opakováním, zámkem a idempotencí.",
+      "runtime": [
+        "php"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+      "api": "api/ts-mailer-php.md",
+      "works": [
+        "Původní kód běží v produkci tasstudio.eu (oznámení o poptávkách přes mail(); SMTP zatím bez přístupů).",
+        "Knihovna: testy proti lokálnímu falešnému SMTP serveru (obálka, AUTH, tečky, odmítnutí, nedostupnost), fronta (idempotence, opakování, selhání)."
+      ],
+      "missingForProduction": [
+        "Ověření TLS/STARTTLS proti skutečnému SMTP serveru (Active24) a SPF/DKIM/DMARC domény odesílatele.",
+        "Zpracování fronty bez cronu jen „při další akci“ – na hostingu ověřit cron.",
+        "Odhlášení z marketingových e-mailů není řešeno (jen transakční e-maily)."
+      ],
+      "path": "components/ts-mailer-php"
+    },
+    {
+      "name": "ts-pdf-php",
+      "version": "1.0.0",
+      "kind": "php-library",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "PHP: tvorba PDF s UTF-8 (čeština) přes tFPDF 1.34 – doslovná kopie z administrace tasstudio.eu (souhlasy GDPR v PDF).",
+      "runtime": [
+        "php"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+      "api": "api/ts-pdf-php.md",
+      "works": [
+        "V produkci tasstudio.eu generuje PDF souhlasů GDPR (crm-souhlas-pdf.php).",
+        "Test: PDF s českou diakritikou a vloženým písmem v PHP 8.5."
+      ],
+      "missingForProduction": [
+        "Licence LGPL: v původním projektu chybí plný text licence – přiložit LGPL (verze 2.1 nebo 3 podle autora) a ponechat hlavičku; úpravy knihovny by musely zůstat pod LGPL.",
+        "Složka unifont musí být zapisovatelná (mezipaměť metrik písma) – na hostingu ověřit.",
+        "Šablony dokumentů (faktura, doklad) v PHP zatím nejsou – jen knihovna."
+      ],
+      "path": "components/ts-pdf-php"
+    },
+    {
+      "name": "ts-receipts-core",
+      "version": "1.0.0",
+      "kind": "js-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "Výpočty dokladů a faktur (položky, sleva, DPH ze ceny vč. DPH, rozpad DPH po řádcích), číselné řady bez opakování čísel, líné načtení jsPDF a písem pro PDF v prohlížeči.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+      "api": "api/ts-receipts-core.md",
+      "works": [
+        "Rozdílově shodné s L.rcCalc ukázky Lokna (63 kombinací položek, slev a DPH).",
+        "Číselné řady (roční, s prefixem), rozpad DPH po řádcích, PDF s českým písmem přes jsPDF."
+      ],
+      "missingForProduction": [
+        "Číslování musí v produkci hlídat server v transakci (souběh dvou pokladen).",
+        "Daňové náležitosti dokladů a faktur ověřit s účetní (zjednodušený daňový doklad, EET/účetní software).",
+        "Šablony rozvržení dokladu/faktury nejsou obecné – jsou v ts-ref-lokna a ts-shop-core."
+      ],
+      "path": "components/ts-receipts-core"
+    },
+    {
+      "name": "ts-ref-lokna",
+      "version": "1.0.0",
+      "kind": "reference",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "Úplná referenční šablona salonu Lokna (web + administrace + e-maily + doklady): HTML stránky, web.js, admin.js, data.js, styl. Vzor bohatého UI nad rezervační logikou.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {
+        "ts-kit-core": "^1.0.0"
+      },
+      "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+      "api": "api/ts-booking-core.md",
+      "works": [
+        "Ukázka Lokna na tasstudio.eu (web, rezervace po stylistkách, kalendář, doklady PDF, ICS feed)."
+      ],
+      "missingForProduction": [
+        "Logika rezervací v src/ je originál ukázky – v nových projektech používat ts-booking-core + ts-booking-widget, ne kopii této logiky.",
+        "Odkazy na hlavní web tasstudio.eu, fiktivní značka, sessionStorage."
+      ],
+      "path": "components/ts-ref-lokna"
+    },
+    {
+      "name": "ts-shop-core",
+      "version": "1.0.0",
+      "kind": "reference",
+      "status": "demo",
+      "maturity": "extracted",
+      "summary": "E-shop (logika ukázky VRSTVA): produkty, varianty barva/velikost, sklad, košík, doprava a platba, slevové kódy, objednávky a jejich stavy, faktura s DPH, vrácení a reklamace, hlídání naskladnění.",
+      "runtime": [
+        "browser"
+      ],
+      "dependencies": {
+        "ts-kit-core": "^1.0.0"
+      },
+      "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+      "api": "api/ts-shop-core.md",
+      "works": [
+        "Ukázka VRSTVA na tasstudio.eu: košík, objednávka, faktura PDF, administrace (642/642 testu projektu)."
+      ],
+      "missingForProduction": [
+        "Žádný server, žádné platby ani sklad v databázi – vše v sessionStorage.",
+        "Platby (karta, QR) a doprava (Zásilkovna) jsou jen simulace – produkce vyžaduje samostatnou analýzu, platební bránu a schválení; platební údaje se nikdy neukládají.",
+        "Data ukázky, texty a pravidla jsou česky a pro jednu značku; zobecnění do konfigurace = další etapa.",
+        "DPH 21 % v kódu natvrdo."
+      ],
+      "path": "components/ts-shop-core"
+    }
+  ],
+  "generated": "2026-10-30T21:27:38"
+}

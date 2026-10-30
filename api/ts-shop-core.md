@@ -1,0 +1,3 @@
+# API: ts-shop-core (referenční, `window.VRSTVA`)
+Doslovná logika e-shopu ukázky VRSTVA nad `ts-kit-core`. Hlavní funkce: katalog `prod, visible, badges, priceInfo, saleOn`; sklad `colorStock, totalStock, lastFew, moveStock, moveLog`; košík `lines, cartCount, calc(D, lines, shipId, payId, code)`; doprava a platba `delivery, shipOf, payLabel`; slevy `findCode, checkCode, codeState, genCode`; objednávky `placeOrder, advance, next, isOpen, needsAction, statusLabel, orderByNo`; faktura `issueInvoice, invLines, invoiceHTML, invoicePdf`; vrácení `addReturn, retItems, rmail`; hlídání `addWatch, checkWatch`.
+**Stav DEMO**: žádný server, platby a doprava jen simulace. Před produkcí samostatná analýza a schválení.

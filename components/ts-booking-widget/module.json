@@ -1,0 +1,88 @@
+{
+  "name": "ts-booking-widget",
+  "version": "1.0.1",
+  "kind": "js-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Obecný veřejný rezervační formulář a přehled rezervací nad ts-booking-core: služba, varianta, pracovník/zdroj nebo počet osob, den, čas, kontakt, potvrzení s ICS.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "(nový kód T&S Studio)",
+        "to": "core/booking-widget.js",
+        "sha256": "f21c746705d335eb3daa9a85e2098911fe9f053cfc21111ca821610f4f9a6261",
+        "mode": "new"
+      }
+    ]
+  },
+  "dependencies": {
+    "ts-booking-core": "^1.0.0"
+  },
+  "entrypoints": {
+    "js": "core/booking-widget.js",
+    "css": "core/booking-widget.css",
+    "globals": "window.TSBookingWidget"
+  },
+  "themeTokens": [
+    "--tsb-bg",
+    "--tsb-surface",
+    "--tsb-ink",
+    "--tsb-muted",
+    "--tsb-line",
+    "--tsb-accent",
+    "--tsb-accent-ink",
+    "--tsb-accent-soft",
+    "--tsb-free",
+    "--tsb-full",
+    "--tsb-warn-bg",
+    "--tsb-warn-ink",
+    "--tsb-font",
+    "--tsb-font-head",
+    "--tsb-r",
+    "--tsb-r-btn",
+    "--tsb-gap"
+  ],
+  "lockedFiles": [
+    "core/*.js",
+    "core/*.css"
+  ],
+  "customerFiles": [
+    "theme/tokens.css"
+  ],
+  "aiEditable": [
+    "theme/tokens.css",
+    "ui volby (texty, štítky, jazyk, pole formuláře, zobrazení cen)",
+    "okolní HTML stránky"
+  ],
+  "aiProtected": [
+    "core/booking-widget.js",
+    "core/booking-widget.css",
+    "výpočet termínů (vždy přes ts-booking-core)",
+    "povinný souhlas a demo upozornění"
+  ],
+  "works": [
+    "Průchod rezervací pro režim resources (služba, varianta, zdroj nebo „kdokoli“) i capacity (počet osob).",
+    "Dvojí odeslání nevytvoří dvě rezervace; validace jména, e-mailu a souhlasu; potvrzení s .ics a Google Kalendářem.",
+    "Přehled rezervací s potvrzením a zrušením; texty cs/en; vzhled jen přes --tsb-*.",
+    "Testy UI v Chromu."
+  ],
+  "missingForProduction": [
+    "Serverové úložiště a odesílání e-mailů (dnes demo úložiště v prohlížeči).",
+    "Přehled rezervací nemá přihlášení – v produkci jen za autentizací administrace.",
+    "Ochrana proti robotům (skryté pole, časová kontrola, rate limit na serveru).",
+    "Texty jen cs/en; další jazyky přes ui.labels.",
+    "Automatický test přístupnosti, test Safari/Firefox."
+  ],
+  "tests": [
+    "tests/widget.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+  "api": "api/ts-booking-widget.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

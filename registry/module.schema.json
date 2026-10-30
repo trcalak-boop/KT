@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ts-library/module.schema.json",
+  "title": "Manifest komponenty T&S Studio (module.json)",
+  "type": "object",
+  "required": ["name", "version", "kind", "status", "maturity", "summary", "origin", "dependencies", "entrypoints", "lockedFiles", "aiEditable", "aiProtected", "works", "missingForProduction"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string", "pattern": "^ts-[a-z0-9-]+$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9a-z.-]+)?$" },
+    "kind": { "enum": ["js-library", "css", "php-library", "template", "tool", "reference"], "description": "reference = doslovná kopie logiky ukázky pro další extrakci, ne samostatně použitelný modul" },
+    "status": { "enum": ["demo", "production-ready"], "description": "production-ready jen po splnění knowledge/demo-vs-produkce.md" },
+    "maturity": { "enum": ["extracted", "tested", "approved", "deprecated"] },
+    "summary": { "type": "string", "maxLength": 300 },
+    "runtime": { "type": "array", "items": { "enum": ["browser", "php", "python"] } },
+    "origin": {
+      "type": "object",
+      "required": ["project", "commit", "files"],
+      "properties": {
+        "project": { "type": "string" },
+        "commit": { "type": "string" },
+        "workingTree": { "type": "string", "description": "clean | dirty – zda zdroj obsahoval necommitnuté změny" },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "sha256", "mode"],
+            "properties": {
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "mode": { "enum": ["verbatim", "adapted", "new"] }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": { "type": "object", "additionalProperties": { "type": "string" } },
+    "entrypoints": { "type": "object", "additionalProperties": { "type": "string" } },
+    "configSchema": { "type": "string" },
+    "themeTokens": { "type": "array", "items": { "type": "string" } },
+    "lockedFiles": { "type": "array", "items": { "type": "string" }, "description": "jádro; v projektu se nesmí ručně měnit (hlídá LOCKED.sha256 a ts-components.lock.json)" },
+    "customerFiles": { "type": "array", "items": { "type": "string" }, "description": "šablony vzhledu a konfigurace; do projektu se zkopírují jednou a aktualizace je nepřepíše" },
+    "aiEditable": { "type": "array", "items": { "type": "string" } },
+    "aiProtected": { "type": "array", "items": { "type": "string" } },
+    "works": { "type": "array", "items": { "type": "string" } },
+    "missingForProduction": { "type": "array", "items": { "type": "string" } },
+    "tests": { "type": "array", "items": { "type": "string" } },
+    "skill": { "type": "string" },
+    "api": { "type": "string" },
+    "license": { "type": "string" }
+  }
+}

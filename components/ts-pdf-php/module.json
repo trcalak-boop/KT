@@ -1,0 +1,68 @@
+{
+  "name": "ts-pdf-php",
+  "version": "1.0.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "PHP: tvorba PDF s UTF-8 (čeština) přes tFPDF 1.34 – doslovná kopie z administrace tasstudio.eu (souhlasy GDPR v PDF).",
+  "runtime": [
+    "php"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/admin/lib/tfpdf.php",
+        "to": "core/tfpdf.php",
+        "sha256": "beced50c8a34354436c48e53f11b27001245776a314efdcca34e283d8d3d96ad",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/admin/lib/tfpdf-README.txt",
+        "to": "core/tfpdf-README.txt",
+        "sha256": "978cdadb55a99835feee4d35ce4afe00896b03a92b27320a2f8ba5a3d1665d49",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/admin/lib/font/unifont/ttfonts.php",
+        "to": "core/ttfonts.php",
+        "sha256": "113790ec67ad76f084fdb6dc244d420c6fc1e0769139d70396977278d1d6ef36",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "clean"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "php": "core/tfpdf.php",
+    "class": "tFPDF"
+  },
+  "lockedFiles": [
+    "core/*.php",
+    "core/*.txt"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "rozvržení konkrétních dokumentů v kódu projektu",
+    "písma projektu (TTF s licencí OFL) ve složce FPDF_FONTPATH/unifont"
+  ],
+  "aiProtected": [
+    "core/tfpdf.php – knihovna třetí strany (LGPL), neupravovat"
+  ],
+  "works": [
+    "V produkci tasstudio.eu generuje PDF souhlasů GDPR (crm-souhlas-pdf.php).",
+    "Test: PDF s českou diakritikou a vloženým písmem v PHP 8.5."
+  ],
+  "missingForProduction": [
+    "Licence LGPL: v původním projektu chybí plný text licence – přiložit LGPL (verze 2.1 nebo 3 podle autora) a ponechat hlavičku; úpravy knihovny by musely zůstat pod LGPL.",
+    "Složka unifont musí být zapisovatelná (mezipaměť metrik písma) – na hostingu ověřit.",
+    "Šablony dokumentů (faktura, doklad) v PHP zatím nejsou – jen knihovna."
+  ],
+  "tests": [
+    "tests/pdf_test.php"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+  "api": "api/ts-pdf-php.md",
+  "license": "tFPDF 1.34 – LGPL (verze v souboru neuvedena), autoři Ian Back, Tycho Veltmeijer; vychází z FPDF (Olivier Plathey, volná licence)"
+}

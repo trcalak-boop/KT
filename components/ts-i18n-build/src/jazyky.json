@@ -1,0 +1,30 @@
+{
+  "_popis": "Registr jazyků webu T&S. 'stav': 'aktivni' = generuje se a publikuje, 'priprava' = slovník existuje, ale stránky se negenerují. 'overeno': false = překlad zatím nezkontroloval rodilý mluvčí (na webu se neoznačuje, ale hlásí se ve STAV.md). 'cesta' = prefix adres ('' = kořen webu, výchozí jazyk). Nový jazyk: doplnit sem, vytvořit i18n/web/<kod>.json a spustit skripty/web/build.py.",
+  "vychozi": "en",
+  "jazyky": [
+    {"kod": "en", "nazev": "English", "nativni": "English", "zkratka": "EN", "dir": "ltr", "locale": "en_GB", "intl": "en-GB", "cesta": "", "stav": "aktivni", "overeno": true},
+    {"kod": "cs", "nazev": "Czech", "nativni": "Čeština", "zkratka": "CS", "dir": "ltr", "locale": "cs_CZ", "intl": "cs-CZ", "cesta": "cs/", "stav": "aktivni", "overeno": true},
+    {"kod": "de", "nazev": "German", "nativni": "Deutsch", "zkratka": "DE", "dir": "ltr", "locale": "de_DE", "intl": "de-DE", "cesta": "de/", "stav": "aktivni", "overeno": false},
+    {"kod": "es", "nazev": "Spanish", "nativni": "Español", "zkratka": "ES", "dir": "ltr", "locale": "es_ES", "intl": "es-ES", "cesta": "es/", "stav": "aktivni", "overeno": false},
+    {"kod": "fr", "nazev": "French", "nativni": "Français", "zkratka": "FR", "dir": "ltr", "locale": "fr_FR", "intl": "fr-FR", "cesta": "fr/", "stav": "aktivni", "overeno": false},
+    {"kod": "pt", "nazev": "Portuguese", "nativni": "Português", "zkratka": "PT", "dir": "ltr", "locale": "pt_PT", "intl": "pt-PT", "cesta": "pt/", "stav": "aktivni", "overeno": false},
+    {"kod": "it", "nazev": "Italian", "nativni": "Italiano", "zkratka": "IT", "dir": "ltr", "locale": "it_IT", "intl": "it-IT", "cesta": "it/", "stav": "aktivni", "overeno": false},
+    {"kod": "pl", "nazev": "Polish", "nativni": "Polski", "zkratka": "PL", "dir": "ltr", "locale": "pl_PL", "intl": "pl-PL", "cesta": "pl/", "stav": "aktivni", "overeno": false},
+    {"kod": "nl", "nazev": "Dutch", "nativni": "Nederlands", "zkratka": "NL", "dir": "ltr", "locale": "nl_NL", "intl": "nl-NL", "cesta": "nl/", "stav": "aktivni", "overeno": false},
+    {"kod": "uk", "nazev": "Ukrainian", "nativni": "Українська", "zkratka": "UK", "dir": "ltr", "locale": "uk_UA", "intl": "uk-UA", "cesta": "uk/", "stav": "aktivni", "overeno": false},
+    {"kod": "ar", "nazev": "Arabic", "nativni": "العربية", "zkratka": "AR", "dir": "rtl", "locale": "ar_AR", "intl": "ar", "cesta": "ar/", "stav": "aktivni", "overeno": false, "pismo": "Arabské písmo: doplnit webový font (např. IBM Plex Sans Arabic) a zkontrolovat zrcadlení rozvržení."},
+    {"kod": "hi", "nazev": "Hindi", "nativni": "हिन्दी", "zkratka": "HI", "dir": "ltr", "locale": "hi_IN", "intl": "hi-IN", "cesta": "hi/", "stav": "aktivni", "overeno": false, "pismo": "Dévanágarí: doplnit webový font (např. Noto Sans Devanagari)."},
+    {"kod": "zh-CN", "nazev": "Simplified Chinese", "nativni": "简体中文", "zkratka": "中文", "dir": "ltr", "locale": "zh_CN", "intl": "zh-CN", "cesta": "zh/", "stav": "aktivni", "overeno": false, "pismo": "Čínské znaky: systémová písma, vlastní font zvážit kvůli velikosti."},
+    {"kod": "ja", "nazev": "Japanese", "nativni": "日本語", "zkratka": "JA", "dir": "ltr", "locale": "ja_JP", "intl": "ja-JP", "cesta": "ja/", "stav": "aktivni", "overeno": false, "pismo": "Japonské písmo: systémová písma."},
+    {"kod": "ko", "nazev": "Korean", "nativni": "한국어", "zkratka": "KO", "dir": "ltr", "locale": "ko_KR", "intl": "ko-KR", "cesta": "ko/", "stav": "aktivni", "overeno": false, "pismo": "Hangul: systémová písma."},
+    {"kod": "tr", "nazev": "Turkish", "nativni": "Türkçe", "zkratka": "TR", "dir": "ltr", "locale": "tr_TR", "intl": "tr-TR", "cesta": "tr/", "stav": "aktivni", "overeno": false},
+    {"kod": "id", "nazev": "Indonesian", "nativni": "Bahasa Indonesia", "zkratka": "ID", "dir": "ltr", "locale": "id_ID", "intl": "id-ID", "cesta": "id/", "stav": "aktivni", "overeno": false},
+    {"kod": "ru", "nazev": "Russian", "nativni": "Русский", "zkratka": "RU", "dir": "ltr", "locale": "ru_RU", "intl": "ru-RU", "cesta": "ru/", "stav": "aktivni", "overeno": false}
+  ],
+  "stranky": {
+    "_popis": "Lokalizované adresy stránek. Jazyky bez záznamu použijí anglické adresy pod svým prefixem.",
+    "en": {"home": "", "work": "work.html", "case": "case-study.html", "services": "services.html", "svc-a": "services-branding.html", "svc-b": "services-design.html", "svc-c": "services-web.html", "svc-d": "services-ai.html", "svc-e": "services-partnership.html", "studio": "studio.html", "contact": "contact.html", "privacy": "privacy.html", "404": "404.html"},
+    "cs": {"home": "", "work": "reference.html", "case": "projekt.html", "services": "sluzby.html", "svc-a": "sluzby-branding.html", "svc-b": "sluzby-design.html", "svc-c": "sluzby-web.html", "svc-d": "sluzby-ai.html", "svc-e": "sluzby-partnerstvi.html", "studio": "studio.html", "contact": "kontakt.html", "privacy": "ochrana-osobnich-udaju.html", "404": "404.html"},
+    "de": {"home": "", "work": "arbeiten.html", "case": "projekt.html", "services": "leistungen.html", "svc-a": "leistungen-branding.html", "svc-b": "leistungen-design.html", "svc-c": "leistungen-web.html", "svc-d": "leistungen-ki.html", "svc-e": "leistungen-partnerschaft.html", "studio": "studio.html", "contact": "kontakt.html", "privacy": "datenschutz.html", "404": "404.html"}
+  }
+}

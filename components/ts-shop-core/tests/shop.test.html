@@ -1,0 +1,16 @@
+<!doctype html><html lang="cs"><head><meta charset="utf-8"><title>ts-shop-core – kontrola</title><script src="../../../tools/testlib.js"></script></head><body>
+<script>
+/* Referenční kopie: načte se nad ts-kit-core a základní funkce dávají rozumné výsledky (bez úprav kódu). */
+T.freeze('2026-11-04T09:00:00');
+T.run(function () {
+  return T.scripts([T.lib('components/ts-kit-core/core/kit.js'), T.lib('components/ts-shop-core/src/vrstva-data.js')]).then(function () {
+    var V = window.VRSTVA, D = V.defaults();
+    T.ok(D.products && D.products.length > 5, 'katalog produktů: ' + (D.products || []).length);
+    var p = D.products[0];
+    T.ok(typeof V.totalStock(p) === 'number' && V.priceInfo(D, p) != null, 'sklad a cena produktu');
+    T.ok(Array.isArray(V.lines(D, [])) || V.lines, 'košík (V.lines)');
+    T.ok(typeof V.genCode === 'function' && typeof V.placeOrder === 'function' && typeof V.issueInvoice === 'function', 'API objednávek a faktur');
+    T.ok(D.orders && D.orders.length > 0 && D.orders.every(function (o) { return o.no && o.totals; }), 'ukázkové objednávky mají číslo a součty');
+  });
+});
+</script></body></html>

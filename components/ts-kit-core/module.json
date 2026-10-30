@@ -1,0 +1,105 @@
+{
+  "name": "ts-kit-core",
+  "version": "1.0.0",
+  "kind": "js-library",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "Společný frontendový základ ukázek T&S: utility, datum a čas, ikony, modální okna, toast, formuláře, shell administrace, simulované e-maily, kalendářová mřížka, ICS a PDF (jsPDF).",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/ukazky/kit/kit.js",
+        "to": "core/kit.js",
+        "sha256": "560e5dfae131f8908bf67fb6f9b731635af01d4165ad6046117bb9050680b70a",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/kit/kit.css",
+        "to": "core/kit.css",
+        "sha256": "3d9f2ca53d236ede13eb23ab494f8aa0135a7e88a83e0f359f9f8a421f89ace5",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "clean"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "js": "core/kit.js",
+    "css": "core/kit.css",
+    "globals": "window.TS"
+  },
+  "themeTokens": [
+    "--k-bg",
+    "--k-surface",
+    "--k-surface-2",
+    "--k-ink",
+    "--k-ink-2",
+    "--k-ink-3",
+    "--k-line",
+    "--k-line-2",
+    "--k-accent",
+    "--k-accent-ink",
+    "--k-accent-soft",
+    "--k-ok",
+    "--k-ok-soft",
+    "--k-warn",
+    "--k-warn-soft",
+    "--k-bad",
+    "--k-bad-soft",
+    "--k-chrome",
+    "--k-chrome-ink",
+    "--k-chrome-2",
+    "--k-font",
+    "--k-font-disp",
+    "--k-disp-weight",
+    "--k-disp-style",
+    "--k-disp-track",
+    "--k-r",
+    "--k-r-lg",
+    "--k-shadow",
+    "--k-shadow-lg",
+    "--k-scrim",
+    "--k-btn-r"
+  ],
+  "lockedFiles": [
+    "core/*.js",
+    "core/*.css"
+  ],
+  "customerFiles": [
+    "theme/tokens.css"
+  ],
+  "aiEditable": [
+    "theme/tokens.css (hodnoty proměnných --k-*)",
+    "texty a štítky předávané do TS.admin / TS.f",
+    "vlastní ikony přes TS.addIcons"
+  ],
+  "aiProtected": [
+    "core/kit.js",
+    "core/kit.css",
+    "escapování TS.esc",
+    "chování modálních oken a fokusu (přístupnost)"
+  ],
+  "works": [
+    "Ověřeno v 7 ukázkách tasstudio.eu (642 kontrol testu projektu, Chromium).",
+    "TS.cal.free / overlaps / grid / gcal / ics, TS.pdf (líné načtení jsPDF a písem), TS.admin (moduly, koncepty, odhlášení), TS.f (pole formulářů), TS.toast, TS.openModal (fokus, Esc), TS.mode (tmavý režim), TS.money/int (cs-CZ)."
+  ],
+  "missingForProduction": [
+    "Úložiště TS.data/TS.save je sessionStorage okna – pro produkci nahradit serverovým API (adaptér úložiště).",
+    "Přihlášení v TS.admin je jen příznak v sessionStorage (TS.flag('login')) – žádná autentizace.",
+    "TS.mail jen ukládá e-maily do ukázkové schránky, nic neodesílá.",
+    "Texty rozhraní a formáty jsou česky natvrdo (překlad zajišťuje ts-i18n-demo nad DOM).",
+    "Lišta ukázky (.ts-demobar, .ts-pill) a ICS PRODID/UID s doménou ukazka.tasstudio.eu jsou vázané na portfolio T&S.",
+    "Testováno jen v Chromiu; chybí testy Safari/Firefox a automatický test přístupnosti."
+  ],
+  "tests": [
+    "tests/kit-core.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/kit-core/SKILL.md",
+  "api": "api/ts-kit-core.md",
+  "license": "Interní – T&S Studio"
+}

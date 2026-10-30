@@ -1,0 +1,61 @@
+{
+  "name": "ts-i18n-demo",
+  "version": "1.0.0",
+  "kind": "js-library",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "Překladová vrstva ukázek: přeloží zobrazený český text do zvoleného jazyka podle slovníků (klíč = český text), včetně dat, čísel a obsahu doplněného skripty (MutationObserver).",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/ukazky/kit/i18n.js",
+        "to": "core/i18n.js",
+        "sha256": "4ac0ee32807247af76a16ec22588dd56a370f89e8f3dd5b1801d2b67d49aa14d",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/kit/i18n-kit.js",
+        "to": "core/i18n-kit.js",
+        "sha256": "2e10d225f9bba08ee99c006cbc8e2c82b9108d2941e5de18467e61f5361e1b10",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "dirty: web/ukazky/kit/i18n.js"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "js": "core/i18n.js",
+    "dictionaryKit": "core/i18n-kit.js",
+    "globals": "window.TSI18N"
+  },
+  "lockedFiles": [
+    "core/*.js"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "slovníky projektu (TSI18N.add(jazyk, {…}) v samostatném souboru)"
+  ],
+  "aiProtected": [
+    "core/i18n.js",
+    "core/i18n-kit.js (generovaný slovník společných textů kitu)"
+  ],
+  "works": [
+    "Ve všech 7 ukázkách tasstudio.eu: 8 236 přeložených textů en/de, kontrola sběrem chybějících klíčů (?i18n=sber)."
+  ],
+  "missingForProduction": [
+    "Seznam jazyků je v kódu natvrdo ['en', 'cs', 'de'] – pro další jazyky je potřeba konfigurace (nová verze).",
+    "Překlad nad DOM je vhodný pro ukázky; produkční weby mají mít texty v šabloně / generátoru (viz ts-i18n-build).",
+    "Výchozí jazyk čte localStorage ts-lang sdílený s webem tasstudio.eu."
+  ],
+  "tests": [
+    "tests/i18n.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/i18n/SKILL.md",
+  "api": "api/ts-i18n.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

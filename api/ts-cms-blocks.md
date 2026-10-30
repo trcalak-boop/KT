@@ -1,0 +1,2 @@
+# API: ts-cms-blocks (referenční, `window.SLUN`)
+Logika ukázky Slunečnice: aktuality (`postCard, art`), jídelníček (`lunchDay, allergens, weekStatus`), školní kalendář (`easter, schoolYear, isSchoolDay, nextSchoolDay, volnoOn`), akce (`events, upcoming(D, from, n, filter), evWhen, ics(D, list), gcal`), kroužky (`clubFree, clubTaken, clubWait, clubPrice`), lidé (`people, personById`). Vše DEMO (sessionStorage), české reálie natvrdo.

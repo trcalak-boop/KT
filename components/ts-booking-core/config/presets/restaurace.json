@@ -1,0 +1,17 @@
+{
+  "$comment": "Předvolba: restaurace – sdílená kapacita míst. Rezervace má počet hostů (units), délka podle druhu rezervace.",
+  "mode": "capacity",
+  "step": 30, "activeStatuses": ["pending", "confirmed"],
+  "hours": [
+    { "open": true, "from": 690, "to": 960 },
+    { "open": false, "from": 690, "to": 1320 },
+    { "open": true, "from": 690, "to": 1320 },
+    { "open": true, "from": 690, "to": 1320 },
+    { "open": true, "from": 690, "to": 1320 },
+    { "open": true, "from": 690, "to": 1380 },
+    { "open": true, "from": 690, "to": 1380 }
+  ],
+  "closures": [{ "from": "2026-12-24", "to": "2026-12-26", "note": "Zavřeno" }],
+  "services": [{ "id": "stul", "name": "Stůl", "durations": [120] }, { "id": "degustace", "name": "Degustační menu", "durations": [180] }],
+  "capacity": { "units": 40, "step": 30, "sampleMin": 15, "lastBeforeCloseMin": 90, "todayLeadMin": 60, "serviceStart": { "degustace": 1080 } }
+}

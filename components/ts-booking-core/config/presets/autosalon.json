@@ -1,0 +1,23 @@
+{
+  "$comment": "Předvolba: autosalon – testovací jízdy. Zdroj = konkrétní vůz, souběh jízd omezuje počet prodejců (pool). Předstih platí jen pro dnešek.",
+  "mode": "resources",
+  "step": 30, "minStep": 1, "gap": 0, "leadMin": 120, "leadScope": "today-only", "adminMinStart": "now", "maxDays": 21,
+  "fullDayBlockCloses": false, "blocksIncludeBuffer": false,
+  "activeStatuses": ["pending", "confirmed"],
+  "hours": [
+    { "open": false, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 720 }
+  ],
+  "closures": [],
+  "services": [{ "id": "testovaci-jizda", "name": "Testovací jízda", "durations": [30], "buffer": 15 }],
+  "resources": [
+    { "id": "vuz-1", "name": "Vůz 1", "services": "*" },
+    { "id": "vuz-2", "name": "Vůz 2", "services": "*" }
+  ],
+  "pool": { "members": ["prodejce-1", "prodejce-2"] }
+}
