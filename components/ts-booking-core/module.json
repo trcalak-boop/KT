@@ -1,6 +1,6 @@
 {
   "name": "ts-booking-core",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "js-library",
   "status": "demo",
   "maturity": "tested",
@@ -43,7 +43,8 @@
   "entrypoints": {
     "js": "core/booking-core.js",
     "store-demo": "adapters/store-demo-local.js",
-    "globals": "window.TSBooking"
+    "globals": "window.TSBooking",
+    "store-http": "adapters/store-http.js"
   },
   "configSchema": "config/schema.json",
   "lockedFiles": [
@@ -68,15 +69,16 @@
     "Rozdílové testy: identické výsledky jako originální logika ukázek Lokna (salon), Motoria (autosalon) a Kořen (restaurace) – 3 časové scénáře, přes 25 000 kombinací každý.",
     "Režimy resources (zdroje s pracovní dobou, dovednostmi, nepřítomností, variantami služeb, doplňky, pauzou, předstihem), pool (souběh omezený počtem lidí), capacity (sdílená místa).",
     "prepareBooking ověří termín a doplní zdroj, délku, cenu a člena poolu; rozšíření přidávají oborová pravidla bez úprav jádra.",
-    "Demo úložiště v localStorage s idempotencí (dvojklik nevytvoří dvě rezervace)."
+    "Demo úložiště v localStorage s idempotencí (dvojklik nevytvoří dvě rezervace).",
+    "Adaptér store-http.js pro ts-booking-server (veřejná dostupnost bez osobních údajů, rezervace s idempotenčním klíčem, správa s přihlášením a CSRF)."
   ],
   "missingForProduction": [
-    "Serverová část (PHP API + databáze), na serveru opakované ověření volného termínu v transakci – zatím neschváleno (Etapa 2).",
     "Autentizace a role administrace, audit log, GDPR (souhlas, retence, export/smazání).",
     "E-mailová oznámení (potvrzení, změna, připomínka) – napojení na ts-mailer-php.",
     "Časová pásma: výpočty jsou v místním čase zařízení; server musí počítat v časovém pásmu provozovny.",
     "Ordinace zatím jen předvolba – rozdílově neověřeno proti ukázce Ordinace.",
-    "Testy jen v Chromiu."
+    "Testy jen v Chromiu.",
+    "Serverová část ts-booking-server je hotová, ale zatím netestovaná na hostingu Active24 (stav DEMO)."
   ],
   "tests": [
     "tests/unit.test.html",

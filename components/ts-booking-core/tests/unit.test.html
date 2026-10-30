@@ -75,6 +75,13 @@ T.run(function () {
     var Ec2 = B.create({ mode: 'capacity', step: 30, hours: week, services: [{ id: 's', durations: [120] }], capacity: { units: 10, todayLeadMin: 90 } }, { bookings: [] });
     T.eq(Ec2.capacityTimes('2026-11-04', 1, 's').slice(0, 3).map(function (x) { return x.ok; }), [false, true, true], 'capacity: dnes předstih 90 min');
 
+    /* rezervace bez id (veřejná dostupnost ze serveru) se počítají jako obsazené */
+    var En = B.create(cfg, { bookings: [{ date: '2026-11-04', resource: 'r1', service: 'a', start: 600, dur: 60, status: 'confirmed' }], blocks: [] });
+    T.ok(En.freeTimes('2026-11-04', 'r1', 'a').indexOf(600) < 0 && En.freeTimes('2026-11-04', 'r1', 'a').indexOf(570) < 0, 'rezervace bez id blokuje čas (bez except)');
+    T.eq(En.conflicts('2026-11-04', 600, 30, 0, 'r1').items.length, 1, 'conflicts vidí rezervaci bez id');
+    var Ecn = B.create({ mode: 'capacity', step: 30, hours: week, services: [{ id: 's', durations: [120] }], capacity: { units: 4 } }, { bookings: [{ date: '2026-11-05', service: 's', start: 600, units: 4, status: 'confirmed' }] });
+    T.ok(!Ecn.capacityTimes('2026-11-05', 1, 's').find(function (x) { return x.t === 600; }).ok, 'kapacita vidí rezervaci bez id');
+
     /* ICS a Google Kalendář */
     var ics = E.ics({ uid: 'x1', title: 'Střih', date: '2026-11-04', start: 600, end: 660 });
     T.ok(ics.indexOf('UID:x1@booking.local') > 0 && ics.indexOf('TRIGGER:-PT2H') > 0 && ics.indexOf('DTSTART;TZID=Europe/Prague:20261104T100000') > 0, 'ics: výchozí nastavení');

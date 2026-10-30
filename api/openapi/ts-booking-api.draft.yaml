@@ -1,9 +1,10 @@
 openapi: 3.1.0
 info:
-  title: ts-booking-server – NÁVRH serverového API rezervací (neimplementováno)
+  title: ts-booking-server – původní NÁVRH z Etapy 1 (nahrazeno)
   version: 0.0.0-draft
   description: |
-    Návrh kontraktu pro budoucí serverový adaptér úložiště ts-booking-core (Etapa 2, vyžaduje samostatné schválení).
+    NAHRAZENO: implementované API je popsané v api/ts-booking-server.md (ts-booking-server 1.0.0, směrování ?r=…).
+    Tento soubor zůstává jen jako záznam původního návrhu.
     Server musí volné časy počítat stejným jádrem (nebo jeho PHP portem ověřeným rozdílovými testy) a termín
     ověřit znovu v transakci těsně před zápisem. Nic z tohoto souboru zatím neexistuje.
 paths:

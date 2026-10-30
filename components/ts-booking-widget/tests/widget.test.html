@@ -45,7 +45,7 @@ T.run(function () {
     }).then(function () {
       var a = $('#a1');
       T.ok(/Jana Testová/.test(a.textContent) && /Čeká na potvrzení/.test(a.textContent), 'přehled rezervací');
-      $('[data-confirm]', a).click();
+      $('[data-status="confirmed"]', a).click();
       return new Promise(function (r) { setTimeout(r, 30); });
     }).then(function () {
       T.eq(store.state.bookings[0].status, 'confirmed', 'potvrzení v přehledu');

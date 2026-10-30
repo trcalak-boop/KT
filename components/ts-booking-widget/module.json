@@ -1,6 +1,6 @@
 {
   "name": "ts-booking-widget",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "kind": "js-library",
   "status": "demo",
   "maturity": "tested",
@@ -22,7 +22,7 @@
     ]
   },
   "dependencies": {
-    "ts-booking-core": "^1.0.0"
+    "ts-booking-core": "^1.1.0"
   },
   "entrypoints": {
     "js": "core/booking-widget.js",
@@ -70,14 +70,14 @@
     "Průchod rezervací pro režim resources (služba, varianta, zdroj nebo „kdokoli“) i capacity (počet osob).",
     "Dvojí odeslání nevytvoří dvě rezervace; validace jména, e-mailu a souhlasu; potvrzení s .ics a Google Kalendářem.",
     "Přehled rezervací s potvrzením a zrušením; texty cs/en; vzhled jen přes --tsb-*.",
-    "Testy UI v Chromu."
+    "Testy UI v Chromu.",
+    "Serverový režim: chyba „obsazeno“ od serveru, přihlášení do správy (role, odhlášení), zrušení rezervace odkazem (mountCancel)."
   ],
   "missingForProduction": [
-    "Serverové úložiště a odesílání e-mailů (dnes demo úložiště v prohlížeči).",
-    "Přehled rezervací nemá přihlášení – v produkci jen za autentizací administrace.",
     "Ochrana proti robotům (skryté pole, časová kontrola, rate limit na serveru).",
     "Texty jen cs/en; další jazyky přes ui.labels.",
-    "Automatický test přístupnosti, test Safari/Firefox."
+    "Automatický test přístupnosti, test Safari/Firefox.",
+    "Serverový režim zatím ověřený jen lokálně (php -S), ne na hostingu."
   ],
   "tests": [
     "tests/widget.test.html"

@@ -1,6 +1,6 @@
 <?php
 /* Minimální testovací běh pro tests/*_test.php (spouští tools/ts.py test). Poslední řádek výstupu: RESULT pass=N fail=M */
-$GLOBALS['__pass'] = 0; $GLOBALS['__fail'] = 0;
+ob_start(); $GLOBALS["__pass"] = 0; $GLOBALS["__fail"] = 0;   /* výstup do bufferu: relace PHP v CLI se jinak po prvním výpisu nespustí */
 function t_ok($c, string $msg): bool { if ($c) $GLOBALS['__pass']++; else { $GLOBALS['__fail']++; echo "FAIL $msg\n"; } return (bool) $c; }
 function t_eq($a, $b, string $msg): bool { $s = $a === $b; if ($s) $GLOBALS['__pass']++; else { $GLOBALS['__fail']++; echo 'FAIL ' . $msg . ' | dostal ' . substr(var_export($a, true), 0, 300) . ' | čekal ' . substr(var_export($b, true), 0, 300) . "\n"; } return $s; }
 function t_tmpdir(): string { $d = sys_get_temp_dir() . '/tsphp-' . bin2hex(random_bytes(5)); mkdir($d, 0700, true); register_shutdown_function(function () use ($d) { t_rm($d); }); return $d; }

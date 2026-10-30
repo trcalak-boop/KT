@@ -16,6 +16,9 @@ Zdroj: audit Fáze 0 (30. 10. 2026), kód projektu, záznam nasazení. **Ověře
 | HTTPS přesměrování | v `.htaccess` **zakomentované** – před nasazením formulářů s osobními údaji zapnout |
 | Staging | neexistuje; nasazení ručně přes FileZillu, rollback skripty projektu |
 
+## Rezervace se serverem
+Postup nasazení a kontrolní seznam: `postupy/nasazeni-rezervaci.md`.
+
 ## Pravidla pro komponenty
 - Bez composeru, npm a dlouho běžících procesů; čisté PHP 8.x + statické soubory.
 - Data a tajemství mimo webroot nebo za `Require all denied`; `admin/data/` se na serveru nikdy nepřepisuje.

@@ -17,7 +17,7 @@ Nástroj: `python3 -I /Users/krystof/TS-Studio/ts-library/tools/ts.py <příkaz>
 
 | Potřeba | Komponenta |
 |---|---|
-| Rezervace, volné termíny, kapacita, směny, testovací jízdy, objednání k lékaři | `ts-booking-core` + `ts-booking-widget` |
+| Rezervace, volné termíny, kapacita, směny, testovací jízdy, objednání k lékaři | `ts-booking-core` + `ts-booking-widget`; se serverem a databází + `ts-booking-server` |
 | Bohaté UI salonu (kalendář po pracovnících, doklady, ICS feed) jako vzor | `ts-ref-lokna` (jen reference, logika přes ts-booking-core) |
 | Modální okna, toast, formuláře, shell administrace, ikony, datum, kalendářová mřížka | `ts-kit-core` |
 | Doklady, faktury, DPH, číselné řady, PDF v prohlížeči | `ts-receipts-core` (+ jsPDF) |

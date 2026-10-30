@@ -42,6 +42,9 @@
 .tsb-count{font-size:.85rem; color:var(--tsb-muted)}
 .tsb-table{width:100%; border-collapse:collapse; font-size:.92rem}
 .tsb-table th,.tsb-table td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--tsb-line); vertical-align:top}
-.tsb-act{display:flex; gap:6px; flex-wrap:wrap}
+.tsb-act{white-space:nowrap}
+.tsb-act .tsb-btn{margin:0 6px 4px 0}
 .tsb-live{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
 @media (max-width:560px){ .tsb-table thead{display:none} .tsb-table tr{display:grid; grid-template-columns:auto 1fr; gap:2px 10px; padding:8px 0; border-bottom:1px solid var(--tsb-line)} .tsb-table td{border:0; padding:0} }
+.tsb-link{font:inherit; color:var(--tsb-accent); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline}
+.tsb-login{max-width:360px}

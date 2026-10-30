@@ -15,7 +15,7 @@
    ========================================================================== */
 (function (root) {
   'use strict';
-  var B = root.TSBooking = { version: '1.0.0' };
+  var B = root.TSBooking = { version: '1.1.0' };
 
   /* ---------- datum: řetězce YYYY-MM-DD, místní čas, poledne kvůli změně času (shodně s ts-kit-core) ---------- */
   function pad(n) { return String(n).padStart(2, '0'); }
@@ -102,6 +102,8 @@
     function blocks() { return S.blocks || []; }
     function active(b) { return c.activeStatuses.indexOf(b.status) >= 0; }
     function blockAll(k) { return k.resource == null || k.resource === 'all'; }
+    /* rezervace vynechaná při úpravě (except); bez except se nevynechává nic – ani rezervace bez id (veřejná dostupnost ze serveru) */
+    function skip(b, id) { return id != null && b.id === id; }
     E.isActive = active;
 
     E.service = function (id) { return (c.services || []).find(function (s) { return s.id === id; }) || null; };
@@ -150,7 +152,7 @@
     E.busy = function (resId, date, exceptId) {
       var out = [];
       bookings().forEach(function (b) {
-        if (b.date !== date || b.resource !== resId || !active(b) || b.id === exceptId) return;
+        if (b.date !== date || b.resource !== resId || !active(b) || skip(b, exceptId)) return;
         out.push([b.start, b.start + b.dur + (b.buffer || 0) + c.gap]);
       });
       return out;
@@ -174,7 +176,7 @@
       var step = Math.max(c.minStep, c.step), dur = k.dur, after = k.buffer + c.gap;
       var ms = E.minStart(date, o.admin), busy = E.busy(resId, date, o.except), blk = E.blocksFor(resId, date);
       var pool = c.pool && c.pool.members ? c.pool.members.length || 1 : 0;
-      var all = pool ? bookings().filter(function (b) { return b.date === date && active(b) && b.id !== o.except; }) : [];
+      var all = pool ? bookings().filter(function (b) { return b.date === date && active(b) && !skip(b, o.except); }) : [];
       var out = [];
       for (var t = w[0]; t + dur <= w[1]; t += step) {
         var why = '', end = t + dur + after;
@@ -206,7 +208,7 @@
     };
     /* člen poolu (prodejce, sestra) volný v daném čase, nejméně vytížený ten den; '' = nikdo */
     E.pickPoolMember = function (date, time, dur, exceptId) {
-      var ds = bookings().filter(function (b) { return b.date === date && active(b) && b.id !== exceptId; });
+      var ds = bookings().filter(function (b) { return b.date === date && active(b) && !skip(b, exceptId); });
       var free = ((c.pool && c.pool.members) || []).filter(function (m) { return !ds.some(function (b) { return b.poolMember === m && time < b.start + b.dur && b.start < time + dur; }); });
       free.sort(function (a, b) { return ds.filter(function (d) { return d.poolMember === a; }).length - ds.filter(function (d) { return d.poolMember === b; }).length; });
       return free[0] || '';
@@ -234,7 +236,7 @@
     /* kontrola ručně zadaného termínu (administrace): kolize, mimo pracovní dobu, nepřítomnost */
     E.conflicts = function (date, start, dur, buffer, resId, exceptId) {
       var end = start + dur + (buffer || 0), items = [];
-      bookings().forEach(function (b) { if (b.date === date && b.resource === resId && active(b) && b.id !== exceptId && start < b.start + b.dur + (b.buffer || 0) && b.start < end) items.push({ type: 'booking', id: b.id, start: b.start, name: b.name || '' }); });
+      bookings().forEach(function (b) { if (b.date === date && b.resource === resId && active(b) && !skip(b, exceptId) && start < b.start + b.dur + (b.buffer || 0) && b.start < end) items.push({ type: 'booking', id: b.id, start: b.start, name: b.name || '' }); });
       blocks().forEach(function (k) { if (k.date === date && (k.resource === resId || blockAll(k)) && start < k.to && k.from < end) items.push({ type: 'block', reason: k.reason || '' }); });
       var r = E.resource(resId), w = E.window(r, date);
       return { items: items, inHours: !!w && start >= w[0] && start + dur <= w[1], away: r ? E.away(r, date) : null };
@@ -244,7 +246,7 @@
     function capDur(svcId) { var s = E.service(svcId); return s ? s.durations[0] : 0; }
     E.capacityLoad = function (date, t, dur, exceptId) {
       var cap = c.capacity || {}, sample = cap.sampleMin || 15, max = 0;
-      var bs = bookings().filter(function (b) { return b.date === date && active(b) && b.id !== exceptId; });
+      var bs = bookings().filter(function (b) { return b.date === date && active(b) && !skip(b, exceptId); });
       for (var m = t; m < t + dur; m += sample) {
         var s = 0; bs.forEach(function (b) { var e = b.start + capDur(b.service); if (b.start <= m && m < e) s += b.units || 1; });
         if (s > max) max = s;

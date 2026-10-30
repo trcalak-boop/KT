@@ -6,7 +6,11 @@ when_to_use: „Vytvoř web pro kadeřnictví/autosalon/restauraci/ordinaci a po
 
 # Rezervace: ts-booking-core + ts-booking-widget
 
-Stav: **DEMO** (logika ověřená rozdílovými testy proti ukázkám Lokna, Motoria, Kořen; chybí serverová část). V demo režimu se rezervace ukládají jen v prohlížeči – widget to sám oznámí, upozornění neodstraňuj.
+Stav: **DEMO** (logika ověřená rozdílovými testy proti ukázkám Lokna, Motoria, Kořen; serverová část `ts-booking-server` je hotová a otestovaná lokálně, ale ještě ne na hostingu).
+
+Dva režimy:
+- **Demo / prototyp** – `TSBooking.stores.demoLocal` (data jen v prohlížeči; widget sám zobrazí upozornění – neodstraňuj ho).
+- **Server** – `ts-booking-server` (PHP 8 + SQLite/MySQL) + `TSBooking.stores.http`: databáze, e-maily, správa s přihlášením, zrušení odkazem. Postup níže v části „Serverový režim“.
 
 ## Vrstvy (nemíchat)
 | Vrstva | Kde | Smíš měnit? |
@@ -40,6 +44,16 @@ fetch('ts-config/ts-booking-core/salon-vlna.json').then(r => r.json()).then(func
 5. Vzhled přizpůsob jen v `tokens.css` (barvy, písma, zaoblení) a okolním HTML.
 6. Přehled rezervací: `TSBookingWidget.mountAdmin(el, { config, store })` – v produkci jen za přihlášením.
 
+## Serverový režim (ts-booking-server)
+1. `ts.py add ts-booking-server <projekt>/web` a `ts.py add ts-booking-widget <projekt>/web` (webroot = `web/`).
+2. Vedle webrootu vytvoř `private/` (mimo web, ne do gitu): `booking-server.php` z `web/vendor/ts/ts-booking-server/config/server.example.php`, `rezervace-config.json` (konfigurace oboru), složka `data/`.
+3. `web/api/rezervace.php` z `config/api.example.php` (jen cesty).
+4. Uživatel správy: `php web/vendor/ts/ts-booking-server/bin/create-user.php private/booking-server.php majitel admin "Jméno"`.
+5. Stránky: formulář `TSBooking.stores.http('api/rezervace.php')` + `store.config()` → `TSBookingWidget.mount`; správa `TSBooking.stores.httpAdmin(...)` → `mountAdmin` (přihlášení); stránka zrušení `mountCancel` (adresa v `notify.cancelUrl`).
+6. Lokálně: `~/TS-Studio/tools/php/php -S localhost:8103 -t web`. Vzor: `/Users/krystof/TS-Studio/demo-projekty/kadernictvi-vlna-server`.
+7. **Nasazení na hosting jen se souhlasem uživatele** a po kontrole `knowledge/postupy/nasazeni-rezervaci.md` (HTTPS, cron, SMTP, zálohy, právní texty).
+API a konfigurace: `/Users/krystof/TS-Studio/ts-library/api/ts-booking-server.md`.
+
 ## Parametry
 Úplný seznam: `/Users/krystof/TS-Studio/ts-library/api/ts-booking-core.md` (konfigurace, stav, funkce) a `api/ts-booking-widget.md` (volby `ui`). Schéma: `components/ts-booking-core/config/schema.json`.
 
@@ -53,10 +67,11 @@ TSBookingWidget.mount(el, { config, store, extensions: [obed] });
 ## Bezpečnost a zakázané úpravy
 - Nepiš vlastní výpočet volných časů ani kolizí; nekopíruj kód jádra do projektu.
 - Neupravuj `vendor/ts/**`; `ts.py verify <projekt>` musí hlásit „jádro beze změny“.
-- Demo úložiště není databáze: neslibuj klientovi ukládání, e-maily ani administraci s přihlášením. Produkční backend (PHP API, DB, e-maily přes ts-mailer-php, role přes ts-auth-php) je samostatná etapa se schválením – návrh kontraktu: `api/openapi/ts-booking-api.draft.yaml`.
-- Na serveru se termín musí ověřit znovu (`prepareBooking`) v transakci.
+- Demo úložiště není databáze: v demo režimu neslibuj ukládání, e-maily ani správu s přihlášením – pro to je serverový režim.
+- Serverový režim: termín ověřuje server znovu v transakci (TsBookingStore::create) – nikdy nezapisuj rezervace jinou cestou; neposílej osobní údaje do veřejné dostupnosti; konfigurace s hesly jen v `private/`.
+- Nové rozšíření (oborové pravidlo) musí existovat v JS (`extensions` widgetu) i v PHP (`extensions` serverové konfigurace) se stejnou logikou, jinak server odmítne termíny, které formulář nabízí.
 
 ## Testování
-- Knihovna: `python3 -I …/tools/ts.py test ts-booking-core ts-booking-widget` (rozdílové + jednotkové + UI testy, Chrome bez okna).
+- Knihovna: `python3 -I …/tools/ts.py test ts-booking-core ts-booking-widget ts-booking-server` (rozdílové JS↔originály a PHP↔JS, jednotkové, UI, API, HTTP včetně souběhu).
 - Projekt: otevři stránku, projdi službu → den → čas → kontakt → potvrzení; ověř, že obsazený čas zmizí; `ts.py verify <projekt>`.
-- Vzory hotových integrací: `/Users/krystof/TS-Studio/demo-projekty/kadernictvi-vlna` a `/Users/krystof/TS-Studio/demo-projekty/autosalon-dynamo`.
+- Vzory hotových integrací: `/Users/krystof/TS-Studio/demo-projekty/kadernictvi-vlna` a `autosalon-dynamo` (demo režim), `kadernictvi-vlna-server` (serverový režim).

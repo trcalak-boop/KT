@@ -7,7 +7,7 @@ Jen standardní knihovna Pythonu (3.9+). Spouštějte s -I, ať se nenačítají
     python3 -I tools/ts.py validate --origin        # navíc shoda doslovných kopií se zdrojovým projektem
     python3 -I tools/ts.py registry                 # vygeneruje registry/components.json z manifestů
     python3 -I tools/ts.py lock <komponenta>        # přepočítá LOCKED.sha256 (jen při vývoji knihovny)
-    python3 -I tools/ts.py test [komponenta…]       # testy v Chromu bez okna a v lokálním PHP
+    python3 -I tools/ts.py test [komponenta…]       # testy v Chromu bez okna, v lokálním PHP a Python testy (tests/*_test.py)
     python3 -I tools/ts.py list                     # přehled komponent a jejich stavu
 
     python3 -I tools/ts.py add <komponenta> <projekt>      # vloží komponentu (i závislosti) do projektu
@@ -276,19 +276,33 @@ def run_php_tests(files, log):
     return res
 
 
+def run_py_tests(files, log):
+    res = []
+    for f in files:
+        p = subprocess.run([sys.executable, '-I', '-B', f], capture_output=True, text=True, timeout=1200)
+        out = p.stdout.strip().splitlines()
+        m = re.match(r'^RESULT pass=(\d+) fail=(\d+)$', out[-1] if out else '')
+        r = {'file': os.path.relpath(f, LIB), 'pass': int(m.group(1)) if m else 0, 'fail': int(m.group(2)) if m else 1,
+             'log': [l for l in out[:-1] if l.startswith(('FAIL', 'INFO'))] + ([p.stderr.strip()[:2000]] if p.returncode and p.stderr.strip() else [])}
+        res.append(r)
+        log(r)
+    return res
+
+
 def cmd_test(args):
     names = [a for a in args if not a.startswith('-')] or list(manifests().keys())
-    pages, php = [], []
+    pages, php, py = [], [], []
     for n in names:
         cdir = os.path.join(COMP, n)
         pages += sorted(glob.glob(os.path.join(cdir, 'tests', '*.test.html')))
         php += sorted(glob.glob(os.path.join(cdir, 'tests', '*_test.php')))
+        py += sorted(glob.glob(os.path.join(cdir, 'tests', '*_test.py')))
 
     def log(r):
         print(('OK    ' if not r['fail'] else 'CHYBA ') + '%-62s %4d ok %3d chyb' % (r['file'], r['pass'], r['fail']))
         for l in r.get('log', [])[:25]:
             print('      ' + str(l)[:300])
-    res = (run_browser_tests(pages, log) if pages else []) + (run_php_tests(php, log) if php else [])
+    res = (run_browser_tests(pages, log) if pages else []) + (run_php_tests(php, log) if php else []) + (run_py_tests(py, log) if py else [])
     tp = sum(r['pass'] for r in res); tf = sum(r['fail'] for r in res)
     print('Celkem %d kontrol, %d chyb' % (tp + tf, tf))
     os.makedirs(os.path.join(LIB, 'reports'), exist_ok=True)
