@@ -32,6 +32,11 @@ return [
     'allowedOrigins' => ['https://www.example.cz'],      // prázdné = jen stejný původ (Host)
     'retention' => ['conversationDays' => 30, 'leadDays' => 90],
 
+    /* hlas persony (volitelné, placené): ElevenLabs – komerčně až od plánu Starter. Bez klíče/hlasu čte widget hlasem prohlížeče.
+       Strop monthlyChars hlídá brána (měsíc UTC), nastavte ho pod kredity plánu; namluvené odpovědi se ukládají do cacheDir (mazání jako konverzace). */
+    // 'speech' => ['provider' => 'elevenlabs', 'apiKeyFile' => $private . '/elevenlabs-klic.txt', 'voiceIdFile' => $private . '/elevenlabs-hlas.txt',
+    //     'model' => 'eleven_flash_v2_5', 'monthlyChars' => 25000, 'perIp10min' => 20, 'perConversation' => 30, 'maxChars' => 1200, 'cacheDir' => $private . '/data/hlas'],
+
     /* lead: souhlas se ukládá s textem, který návštěvník viděl */
     'consentText' => 'Souhlasím se zpracováním údajů z formuláře a této konverzace za účelem odpovědi na poptávku.',
     'notify' => ['to' => 'poptavky@example.cz', 'subject' => 'Nová poptávka z AI asistenta'],

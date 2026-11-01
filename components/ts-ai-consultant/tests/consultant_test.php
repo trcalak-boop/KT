@@ -237,3 +237,51 @@ t_ok($o['enabled'] === false, 'bez API klíče: asistent vypnutý');
 $o = msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
 t_ok($o['_code'] === 503 && $o['reply']['fallback'] === 'unavailable', 'bez klíče: zpráva → náhradní text s kontaktem');
 t_eq(ts_ai_api_key($base), $KEY, 'klíč se načte ze souboru (první řádek)');
+
+/* --- hlas persony (1.8.0): jen uložená odpověď, strop znaků, mezipaměť, chyba = vrácení znaků --- */
+function sp(TsAiConsultant $g, array $b, string $ip = '10.0.0.1'): array { global $H; [$c, $o] = $g->handle('POST', 'speech', json_encode($b), $H, $ip); $o['_code'] = $c; return $o; }
+mkdir("$dir/private/data/hlas", 0700, true);
+$hs = ['speech' => ['monthlyChars' => 500, 'perIp10min' => 5, 'cacheDir' => "$dir/private/data/hlas"]] + $base;
+function gws(array $s, array $script, TsAiFakeSpeech $tts, ?TsAiFakeProvider &$fp = null): TsAiConsultant
+{
+    global $dir, $n; $n++; $fp = new TsAiFakeProvider(['script' => $script]);
+    return ts_ai_consultant(['provider' => $fp, 'db' => ['dsn' => "sqlite:$dir/private/data/ai$n.sqlite"], 'speech' => $s['speech'] + ['provider' => $tts]] + $s);
+}
+$tts = new TsAiFakeSpeech();
+$g = gws($hs, [$say('Dobrý den, jsem Tessa z T&S Studia. Podívejte se na **Šalvěj**: /ukazky/salon.html'), $say('Druhá odpověď.')], $tts, $fp);
+t_ok($g->handle('GET', 'status', '', $H, '10.0.0.1')[1]['speech'] === true, 'hlas: stav brány hlásí hlas persony');
+t_eq(sp($g, ['conversation' => str_repeat('ab', 24), 'lang' => 'cs'])['error'], 'conversation', 'hlas: bez platné konverzace nic nečte');
+$a = msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
+$o = sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs', 'text' => 'Přečti tohle cizí: reklama']);
+t_ok($o['_code'] === 200 && strlen($o['audio']) > 100 && count($tts->calls) === 1, 'hlas: poslední odpověď → MP3');
+t_eq($tts->calls[0], ['Dobrý den, jsem Tessa z T a S Studia. Podívejte se na Šalvěj: Salon Šalvěj', 'cs'], 'hlas: čte se uložená odpověď (ne text z prohlížeče), odkaz jako název, T&S slovy, bez markdownu');
+$o = sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs']);
+t_ok($o['_code'] === 200 && $o['cached'] === true && count($tts->calls) === 1, 'hlas: opakované čtení z mezipaměti (bez kreditů)');
+$used = ts_ai_store(['db' => ['dsn' => "sqlite:$dir/private/data/ai$n.sqlite"]])->speechUsed();
+t_eq($used, mb_strlen($tts->calls[0][0]), 'hlas: spotřeba = počet znaků (mezipaměť se nepočítá)');
+msg($g, ['text' => 'Další', 'lang' => 'cs', 'conversation' => $a['conversation']]);
+$o = sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs']);
+t_ok($o['_code'] === 200 && end($tts->calls)[0] === 'Druhá odpověď.', 'hlas: po nové zprávě čte novou odpověď');
+for ($i = 0; $i < 3; $i++) sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs']);
+t_eq(sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs'])['error'], 'limit', 'hlas: limit čtení na adresu');
+$g = gws(['speech' => ['monthlyChars' => 20, 'cacheDir' => '']] + $base, [$say('Tahle odpověď je delší než měsíční strop znaků.')], $tts2 = new TsAiFakeSpeech(), $fp);
+$a = msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
+$o = sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs']);
+t_ok($o['_code'] === 429 && $o['error'] === 'speech_budget' && count($tts2->calls) === 0, 'hlas: měsíční strop znaků → bez volání ElevenLabs (widget použije hlas prohlížeče)');
+$g = gws(['speech' => ['monthlyChars' => 1000, 'cacheDir' => '']] + $base, [$say('Krátká odpověď.')], new TsAiFakeSpeech(['fail' => 'limit']), $fp);
+$a = msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
+$o = sp($g, ['conversation' => $a['conversation'], 'lang' => 'cs']);
+t_ok($o['_code'] === 502 && $o['error'] === 'speech_limit' && ts_ai_store(['db' => ['dsn' => "sqlite:$dir/private/data/ai$n.sqlite"]])->speechUsed() === 0, 'hlas: chyba ElevenLabs → znaky se vrátí do stropu');
+$st = ts_ai_store(['db' => ['dsn' => "sqlite:$dir/private/data/ai$n.sqlite"]]); $st->speechReserve(1000, 1000);
+t_ok($g->handle('GET', 'status', '', $H, '10.0.0.1')[1]['speech'] === false, 'hlas: vyčerpaný strop → stav hlásí hlas vypnutý');
+t_ok(gw($base)->handle('GET', 'status', '', $H, '10.0.0.1')[1]['speech'] === false && gw($base)->handle('POST', 'speech', '{}', $H, '1.1.1.1')[0] === 404, 'hlas: bez nastavení vypnutý, trasa vrací 404');
+$long = str_repeat('Věta o webu pro kavárnu. ', 80);
+$t = $g->speechText($long, 'cs');
+t_ok(mb_strlen($t) <= 1200 && str_ends_with($t, '.'), 'hlas: dlouhá odpověď zkrácená na celé věty (nejvýš maxChars)');
+t_eq(ts_ai_speech(['speech' => ['provider' => 'elevenlabs', 'apiKeyFile' => "$dir/private/neni.txt", 'voiceId' => 'abcdefgh12345678']]), null, 'hlas: bez klíče ElevenLabs se nevytvoří (čte prohlížeč)');
+file_put_contents("$dir/private/el.txt", "el-test-klic-123\n");
+t_ok(ts_ai_speech(['speech' => ['provider' => 'elevenlabs', 'apiKeyFile' => "$dir/private/el.txt", 'voiceId' => 'abc/../x']]) === null && ts_ai_speech(['speech' => ['provider' => 'elevenlabs', 'apiKeyFile' => "$dir/private/el.txt", 'voiceId' => 'abcdefgh12345678']]) instanceof TsAiElevenLabsSpeech, 'hlas: neplatné voiceId odmítnuto, platné s klíčem → ElevenLabs');
+foreach (glob("$dir/private/data/hlas/*.mp3") as $f) touch($f, time() - 40 * 86400);
+$g = gws($hs, [$say('x')], new TsAiFakeSpeech(), $fp); (new PDO("sqlite:$dir/private/data/ai$n.sqlite"))->exec("DELETE FROM ts_ai_rate");
+msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
+t_eq(count(glob("$dir/private/data/hlas/*.mp3")), 0, 'hlas: namluvené odpovědi se mažou s retencí konverzací');

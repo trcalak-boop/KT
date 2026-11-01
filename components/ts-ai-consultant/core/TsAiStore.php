@@ -97,6 +97,26 @@ final class TsAiStore
             'conversations' => (int) $this->q('SELECT COUNT(DISTINCT conv_id) FROM ts_ai_usage WHERE month = ?', [$m])->fetchColumn()];
     }
 
+    /* ---------- hlas: měsíční strop znaků (UTC měsíc) – rezervace před voláním, vrácení při chybě ---------- */
+    public function speechUsed(?string $month = null): int
+    {
+        return (int) ($this->q('SELECT chars FROM ts_ai_speech WHERE month = ?', [$month ?? gmdate('Y-m')])->fetchColumn() ?: 0);
+    }
+    public function speechReserve(int $chars, int $limit): bool
+    {
+        return $this->tx(function () use ($chars, $limit) {
+            $m = gmdate('Y-m'); $used = $this->q('SELECT chars FROM ts_ai_speech WHERE month = ?', [$m])->fetchColumn();
+            if ((int) $used + $chars > $limit) return false;
+            if ($used === false) $this->q('INSERT INTO ts_ai_speech (month, chars, requests) VALUES (?, ?, 1)', [$m, $chars]);
+            else $this->q('UPDATE ts_ai_speech SET chars = chars + ?, requests = requests + 1 WHERE month = ?', [$chars, $m]);
+            return true;
+        });
+    }
+    public function speechRefund(int $chars): void
+    {
+        $this->q('UPDATE ts_ai_speech SET chars = CASE WHEN chars > ? THEN chars - ? ELSE 0 END WHERE month = ?', [$chars, $chars, gmdate('Y-m')]);
+    }
+
     /* ---------- konverzace ---------- */
     public function conversation(string $id): ?array { $r = $this->q('SELECT * FROM ts_ai_conversations WHERE id = ?', [$id])->fetch(); return $r ?: null; }
     public function createConversation(string $id, string $lang, string $ipHash, string $page): void

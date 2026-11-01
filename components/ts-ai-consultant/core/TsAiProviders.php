@@ -114,7 +114,6 @@ final class TsAiOpenAICompatProvider implements TsAiProvider
             CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json', 'Authorization: Bearer ' . $this->c['apiKey']],
             CURLOPT_TIMEOUT => (int) $this->c['timeout'], CURLOPT_CONNECTTIMEOUT => (int) $this->c['connectTimeout']]);
         $raw = curl_exec($ch); $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE); $err = curl_errno($ch);
-        curl_close($ch);
         if ($raw === false || $err) throw new TsAiProviderError('connection', 'spojení (curl ' . $err . ')');
         $j = json_decode((string) $raw, true);
         if ($code === 401 || $code === 403) throw new TsAiProviderError('auth', 'http ' . $code);
@@ -154,5 +153,63 @@ final class TsAiFakeProvider implements TsAiProvider
         }
         $t = '(Zkušební režim bez AI) Napsali jste: ' . mb_substr($c, 0, 300);
         return ['stop' => 'end', 'text' => $t, 'tools' => [], 'assistant' => $t, 'usage' => $u];
+    }
+}
+
+/* ==========================================================================
+   Převod textu na řeč (hlas persony). Brána zná jen rozhraní TsAiSpeech:
+   synth(string $text, string $lang) → MP3 (bajty); chyby TsAiProviderError jako u modelů.
+   ========================================================================== */
+interface TsAiSpeech
+{
+    public function synth(string $text, string $lang): string;
+    public function voice(): string;
+}
+
+/* ElevenLabs Text to Speech přes cURL (bez SDK). Klíč jen ze serverové konfigurace, nikdy do prohlížeče.
+   'voiceId' => hlas z knihovny účtu (např. navržený ve Voice Design), 'model' => 'eleven_flash_v2_5' (rychlý, 32 jazyků vč. češtiny).
+   Komerční použití vyžaduje placený plán ElevenLabs (Starter a výš) – ověřit v podmínkách. */
+final class TsAiElevenLabsSpeech implements TsAiSpeech
+{
+    private array $c;
+    public function __construct(array $c)
+    {
+        $this->c = $c + ['model' => 'eleven_flash_v2_5', 'baseUrl' => 'https://api.elevenlabs.io', 'format' => 'mp3_44100_64', 'timeout' => 25, 'connectTimeout' => 6,
+            'settings' => ['stability' => 0.5, 'similarity_boost' => 0.75, 'style' => 0.0, 'use_speaker_boost' => true, 'speed' => 1.0]];
+        if (empty($this->c['apiKey'])) throw new TsAiProviderError('auth', 'chybí API klíč ElevenLabs');
+        if (!preg_match('/^[A-Za-z0-9]{8,40}$/', (string) ($this->c['voiceId'] ?? ''))) throw new TsAiProviderError('other', 'chybí nebo neplatné voiceId');
+        if (!function_exists('curl_init')) throw new TsAiProviderError('other', 'chybí rozšíření curl');
+    }
+    public function voice(): string { return $this->c['voiceId'] . '|' . $this->c['model']; }
+    public function synth(string $text, string $lang): string
+    {
+        $body = ['text' => $text, 'model_id' => $this->c['model'], 'voice_settings' => $this->c['settings']];
+        if (preg_match('/_v2_5$/', $this->c['model'])) $body['language_code'] = substr($lang, 0, 2);      /* jazyk vynutit (Flash/Turbo v2.5) */
+        $ch = curl_init(rtrim($this->c['baseUrl'], '/') . '/v1/text-to-speech/' . rawurlencode($this->c['voiceId']) . '?output_format=' . rawurlencode($this->c['format']));
+        curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: audio/mpeg', 'xi-api-key: ' . $this->c['apiKey']],
+            CURLOPT_TIMEOUT => (int) $this->c['timeout'], CURLOPT_CONNECTTIMEOUT => (int) $this->c['connectTimeout']]);
+        $raw = curl_exec($ch); $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE); $type = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE); $err = curl_errno($ch);
+        if ($raw === false || $err) throw new TsAiProviderError('connection', 'spojení (curl ' . $err . ')');
+        if ($code === 200 && stripos($type, 'audio') !== false && strlen((string) $raw) > 100) return (string) $raw;
+        $j = json_decode((string) $raw, true); $st = is_array($j) ? (string) ($j['detail']['status'] ?? $j['detail']['code'] ?? '') : '';
+        if ($code === 401 || $code === 403) throw new TsAiProviderError($st === 'quota_exceeded' ? 'limit' : 'auth', 'http ' . $code . ' ' . $st);
+        if ($code === 429 || $code === 402 || $st === 'quota_exceeded') throw new TsAiProviderError('limit', 'http ' . $code . ' ' . $st);
+        if ($code >= 500) throw new TsAiProviderError('overloaded', 'http ' . $code);
+        throw new TsAiProviderError('request', 'http ' . $code . ' ' . mb_substr($st, 0, 80));
+    }
+}
+
+/* Falešný hlas pro testy: krátké platné MP3 ticho, nikam se nepřipojuje; 'fail' => 'limit' simuluje chybu. */
+final class TsAiFakeSpeech implements TsAiSpeech
+{
+    public array $calls = []; private array $c;
+    public function __construct(array $c = []) { $this->c = $c; }
+    public function voice(): string { return 'fake|fake'; }
+    public function synth(string $text, string $lang): string
+    {
+        $this->calls[] = [$text, $lang];
+        if (!empty($this->c['fail'])) throw new TsAiProviderError($this->c['fail'], 'simulovaná chyba hlasu');
+        return base64_decode('SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRBqpAAAAAAD/+1DEAAPH3Yz0AAR8CPqyIEABp6AxjG/4x/XiInE4lfQDFwIGRZ8uf/+1DEGAPKZYJ0AAR8CL1yYMACT8AAAQBBAQBAQBAQBAQBAQBAQBAQBA');
     }
 }

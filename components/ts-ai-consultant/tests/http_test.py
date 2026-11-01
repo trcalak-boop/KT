@@ -37,6 +37,9 @@ class Mock(http.server.BaseHTTPRequestHandler):
             txt = 'Dobrý den, podobný je Salon Šalvěj: /ukazky/salon.html' if 'kontakt' not in str(body['messages'][-1]['content']).lower() else 'Rádi se ozveme.\n[[KONTAKT: Web pro kavárnu]]'
             return self.reply(200, {'id': 'chatcmpl-1', 'object': 'chat.completion', 'model': body['model'], 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': txt}, 'finish_reason': 'stop'}],
                                     'usage': {'prompt_tokens': 2000, 'completion_tokens': 60, 'total_tokens': 2060}})
+        if '/v1/text-to-speech/' in self.path:                       # napodobenina ElevenLabs TTS
+            if MODE.get('tts') == '401': return self.reply(401, {'detail': {'status': 'invalid_api_key', 'message': 'Invalid API key'}})
+            b = b'ID3' + b'\x00' * 400; self.send_response(200); self.send_header('content-type', 'audio/mpeg'); self.send_header('content-length', str(len(b))); self.end_headers(); self.wfile.write(b); return
         if MODE['v'] == '529': return self.reply(529, {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}})
         if MODE['v'] == '401': return self.reply(401, {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}})
         last = body['messages'][-1]; c = last['content']
@@ -79,6 +82,11 @@ return ['timezone' => 'Europe/Prague', 'business' => 'Studio Test', 'contactEmai
   'knowledgeFile' => __DIR__ . '/znalosti.json', 'db' => ['dsn' => 'sqlite:' . __DIR__ . '/data/cf.sqlite'], 'salt' => 'x'];
 ''' % MOCK)
 open(os.path.join(PR, 'cf-token.txt'), 'w').write('CF-TOKEN-FALESNY-0000\n')
+ELKEY = 'el-FALESNY-klic-elevenlabs-0000'; VOICE_ID = 'TessaVoice0123456789'
+open(os.path.join(PR, 'el-klic.txt'), 'w').write(ELKEY + '\n'); open(os.path.join(PR, 'el-hlas.txt'), 'w').write(VOICE_ID + '\n')
+open(os.path.join(PR, 'ai-el.php'), 'w').write(open(os.path.join(PR, 'ai-cf.php')).read().replace("/data/cf.sqlite'], 'salt' => 'x'];",
+    "/data/el.sqlite'], 'salt' => 'x', 'speech' => ['provider' => 'elevenlabs', 'apiKeyFile' => __DIR__ . '/el-klic.txt', 'voiceIdFile' => __DIR__ . '/el-hlas.txt', "
+    "'baseUrl' => 'http://127.0.0.1:%d', 'monthlyChars' => 5000, 'cacheDir' => __DIR__ . '/data/hlas']];" % MOCK))
 api = open(os.path.join(COMP, 'config', 'api.example.php')).read()
 api = api.replace("'paths' => [__DIR__ . '/../..', $private]", "'paths' => [__DIR__ . '/../..', $private, %r]" % os.path.dirname(os.path.dirname(SDK)))
 open(os.path.join(W, 'api', 'ai', 'chat.php'), 'w').write(api)
@@ -107,6 +115,15 @@ idx = open(os.path.join(W, 'index.html')).read()
 open(os.path.join(W, 'voice.html'), 'w').write(idx.replace('<script>window.TS_AI_CONFIG', STUB + '<script>window.TS_AI_CONFIG'))
 open(os.path.join(W, 'novoice.html'), 'w').write(idx.replace('<script>window.TS_AI_CONFIG', '<script>window.SpeechRecognition=undefined;window.webkitSpeechRecognition=undefined;</script><script>window.TS_AI_CONFIG'))
 open(os.path.join(W, 'mascot.html'), 'w').write(idx.replace('<script>window.TS_AI_CONFIG', STUB + '<script>window.TS_AI_CONFIG').replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', mascot: true, avatar: '/tessa.png' };"))
+open(os.path.join(W, 'api', 'ai', 'chat-el.php'), 'w').write(api.replace('/ai-consultant.php', '/ai-el.php'))
+AUDIO = '''<script>
+window.__played=[]; window.Audio=function(){ var a=this; a.paused=true; a.play=function(){ var s=a.src; if(!/^data:/.test(s)) window.__played.push(s); a.paused=false;
+  if(!/^data:/.test(s)) setTimeout(function(){ a.onplaying&&a.onplaying(); setTimeout(function(){ a.paused=true; a.onended&&a.onended(); }, 150); }, 20); return Promise.resolve(); };
+  a.pause=function(){ a.paused=true; }; }; window.AudioContext=undefined; window.webkitAudioContext=undefined;
+</script>'''
+el = idx.replace('/api/ai/chat.php', '/api/ai/chat-el.php').replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', mascot: true };")
+open(os.path.join(W, 'premium.html'), 'w').write(el.replace('<script>window.TS_AI_CONFIG', STUB + AUDIO + '<script>window.TS_AI_CONFIG'))
+open(os.path.join(W, 'premium-ff.html'), 'w').write(el.replace('<script>window.TS_AI_CONFIG', AUDIO + '<script>window.SpeechRecognition=undefined;window.webkitSpeechRecognition=undefined;Object.defineProperty(window,"speechSynthesis",{configurable:true,value:undefined});</script><script>window.TS_AI_CONFIG'))
 open(os.path.join(W, 'down.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("/api/ai/chat.php", "/api/neexistuje.php"))
 srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1.2)
 
@@ -260,6 +277,33 @@ try:
         r = br.js("const R=document.querySelector('.tsai'); R.setAttribute('data-state','speaking'); const a=[getComputedStyle(document.querySelector('.tsai-head-face .tsai-bot-fly')).animationName, getComputedStyle(document.querySelector('.tsai-head-face .tsai-bot-mouth rect')).animationName]; R.setAttribute('data-state','error'); a.push(getComputedStyle(document.querySelector('.tsai-head-face .tsai-bot-x')).opacity); R.setAttribute('data-state','idle'); return a")
         ok(r[0] == 'none' and r[1] == 'none' and r[2] == '1', 'maskot: omezený pohyb (prefers-reduced-motion) → bez animací, stav chyby stále vidět', r)
         br.call('Emulation.setEmulatedMedia', features=[])
+        br.js("sessionStorage.clear()")
+        # ---------- hlas persony přes ElevenLabs (napodobenina) ----------
+        st = json.loads(urllib.request.urlopen(BASE + '/api/ai/chat-el.php?r=status').read())
+        ok(st.get('speech') is True, 'hlas persony: stav brány hlásí hlas (klíč a hlas nastavené)', st)
+        n0 = len(REQS)
+        req = urllib.request.Request(BASE + '/api/ai/chat-el.php?r=message', data=json.dumps({'text': 'Ahoj', 'lang': 'cs'}).encode(), headers={'Content-Type': 'application/json'})
+        cv = json.loads(urllib.request.urlopen(req).read())['conversation']
+        req = urllib.request.Request(BASE + '/api/ai/chat-el.php?r=speech', data=json.dumps({'conversation': cv, 'lang': 'cs'}).encode(), headers={'Content-Type': 'application/json'})
+        with urllib.request.urlopen(req) as rs: ct, body, cc = rs.headers.get('content-type'), rs.read(), rs.headers.get('cache-control')
+        tr = [x for x in REQS[n0:] if '/v1/text-to-speech/' in x['path']]
+        ok(ct == 'audio/mpeg' and body.startswith(b'ID3') and 'no-store' in cc, 'hlas persony: brána vrátí MP3 (bez sdílené mezipaměti)', [ct, cc])
+        ok(len(tr) == 1 and tr[0]['path'] == '/v1/text-to-speech/%s?output_format=mp3_44100_64' % VOICE_ID and tr[0]['headers'].get('xi-api-key') == ELKEY
+           and tr[0]['body']['model_id'] == 'eleven_flash_v2_5' and tr[0]['body']['language_code'] == 'cs' and '/ukazky/' not in tr[0]['body']['text'] and 'Salon Šalvěj' in tr[0]['body']['text'],
+           'hlas persony: ElevenLabs dostane hlas, klíč v hlavičce, model Flash v2.5, češtinu a text bez adres', tr[0] if tr else REQS[n0:])
+        br.size(1280, 900); br.go(BASE + '/premium.html', wait=.5); br.js("sessionStorage.clear()"); br.go(BASE + '/premium.html', wait=1.5)
+        html = br.js("return document.documentElement.outerHTML")
+        ok(ELKEY not in html and VOICE_ID not in html, 'hlas persony: klíč ani ID hlasu nejsou v prohlížeči')
+        br.js("TSAiWidget.open(); document.querySelector('.tsai-mute').click(); TSAiWidget.send('Hledám web')", wait=2.5)
+        r = br.js("return [window.__played.length, window.__spoken.length, window.__events.filter(e=>['processing','speaking','idle'].includes(e))]")
+        ok(r[0] == 1 and r[1] == 0 and r[2][:3] == ['processing', 'speaking', 'idle'], 'widget: odpověď čte hlas persony (ne prohlížeč), stavy processing → speaking → idle', r)
+        MODE['tts'] = '401'; br.js("window.__played=[]; TSAiWidget.send('Chci kontakt')", wait=2.5); MODE['tts'] = None
+        r = br.js("return [window.__played.length, window.__spoken.length]")
+        ok(r[0] == 0 and r[1] >= 1, 'widget: chyba ElevenLabs → odpověď přečte hlas prohlížeče', r)
+        br.js("sessionStorage.clear()"); br.go(BASE + '/premium-ff.html', wait=1.5); br.js("TSAiWidget.open()", wait=.3)
+        ok(br.js("return !document.querySelector('.tsai-mic') && !document.querySelector('.tsai-mute').hidden"), 'prohlížeč bez hlasových funkcí (Firefox): bez mikrofonu, ale s předčítáním hlasem persony')
+        br.js("document.querySelector('.tsai-mute').click(); TSAiWidget.send('Ahoj')", wait=2.5)
+        ok(br.js("return window.__played.length") == 1, 'Firefox: odpověď zazní hlasem persony')
         br.js("sessionStorage.clear()")
         br.size(1280, 900); br.go(BASE + '/down.html', wait=1.2)
         ok(br.js("return document.querySelector('.tsai').hidden === true"), 'nedostupná brána: tlačítko asistenta se vůbec neukáže')

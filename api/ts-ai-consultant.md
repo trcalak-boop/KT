@@ -61,6 +61,7 @@ Odkazy v odpovědích projdou jen tehdy, když jsou v `references[].url`, `pages
 
 ## Widget
 `window.TS_AI_CONFIG = { api, business, email, privacyUrl: 'url' | { cs: '…', '*': '…' }, lang?, maxChars?, checkStatus?, name?, mascot?, avatar?, texts?: { cs: { role, intro, … }, '*': {…} } }`; `window.TSAiWidget.open() / close() / send(text)`. Jazyk z `<html lang>`, přepínač 18 jazyků (arabština RTL). Stav konverzace v `sessionStorage` (jen v záložce).
+Hlas persony (1.8.0): konfigurace `'speech' => ['provider' => 'elevenlabs', 'apiKeyFile', 'voiceIdFile' | 'voiceId', 'model' => 'eleven_flash_v2_5', 'monthlyChars', 'perIp10min', 'perConversation', 'maxChars', 'cacheDir']`; brána `POST ?r=speech {conversation, lang}` → `audio/mpeg` poslední odpovědi, stav `speech: true|false`. Widget pak čte hlasem persony, jinak hlasem prohlížeče.
 `mascot: true` = animovaný robůtek místo portrétu (SVG + CSS, stavy z `data-state` na `.tsai`: idle, listening, processing, speaking, error; třída `tsai-beat` na hranici slova). `avatar` = URL statického portrétu, použije se jen bez maskota.
 
 ## Databáze

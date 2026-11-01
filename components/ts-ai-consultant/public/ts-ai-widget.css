@@ -126,3 +126,6 @@
 .tsai[data-state=error] .tsai-bot-x{opacity:1}
 .tsai[data-state=error] .tsai-bot-fly{animation:tsai-shake .5s ease-in-out 2}
 @keyframes tsai-shake{25%{transform:translateX(-2px) rotate(-4deg)}75%{transform:translateX(2px) rotate(4deg)}}
+/* hlas persony (1.8.0): ústa podle skutečné hlasitosti přehrávaného zvuku (--tsai-mouth nastavuje widget) */
+.tsai-live[data-state=speaking] .tsai-bot-mouth rect{animation:none;transform:scaleY(var(--tsai-mouth,1))}
+.tsai-live[data-state=speaking] .tsai-bot-mouth rect:nth-child(2){transform:scaleY(calc(var(--tsai-mouth,1) * 1.3))}

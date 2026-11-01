@@ -1,5 +1,11 @@
 # ts-ai-consultant – změny
 
+## 1.8.0 – 2026-11-01
+- Hlas persony přes ElevenLabs (volitelný, placený plán): trasa `?r=speech` převede **poslední uloženou odpověď** konverzace na MP3 (cizí text nejde přečíst, kredity nelze zneužít). Měsíční strop znaků (`speech.monthlyChars`, rezervace před voláním, vrácení při chybě), limity na adresu a konverzaci, mezipaměť namluvených odpovědí (`cacheDir`, mazání s retencí konverzací), text bez adres a značek (odkazy jako názvy, T&S slovy), nejvýš `maxChars` celých vět. Stav brány hlásí `speech`.
+- Adaptér `TsAiElevenLabsSpeech` (cURL, model `eleven_flash_v2_5`, jazyk vynucený, klíč v hlavičce `xi-api-key` jen na serveru) a `TsAiFakeSpeech` pro testy; `ts_ai_speech()` v zavaděči (`speech.provider = 'elevenlabs'`, `apiKeyFile`, `voiceId`/`voiceIdFile`).
+- Widget: když brána hlas nabízí, odpovědi čte hlas persony; ústa maskota podle skutečné hlasitosti (Web Audio, `--tsai-mouth`). Strop, výpadek nebo zablokované přehrávání → hlas prohlížeče. Předčítání funguje i v prohlížečích bez rozpoznání řeči (Firefox). Odemknutí zvuku v kliknutí (iOS/Safari).
+- Odstraněno zastaralé `curl_close()` (PHP 8.5 hlásilo upozornění).
+
 ## 1.7.1 – 2026-11-01
 - Maskot: anténa a podstavec trysky v barvě textu widgetu (`--ink`), takže jsou vidět i v tmavém režimu. Zjištěno na stagingu: v tmavé hlavičce splývaly s pozadím.
 

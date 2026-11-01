@@ -5,6 +5,9 @@
    POST ?r=message  { conversation?, text, lang, page? }             → { ok, conversation, reply: { text, links, actions, summary? } }
    POST ?r=lead     { conversation?, submission_id, name, email, phone?, company?, website?, message, consent: true, lang, hp: '', openedMs }
                     → { ok, duplicate? }   (osobní údaje jdou jen sem, nikdy k poskytovateli AI)
+   POST ?r=speech   { conversation, lang }  → audio/mpeg: poslední odpověď asistenta převedená na řeč (hlas persony, 'speech')
+                    Číst jde jen odpověď, kterou brána sama uložila – cizí text nikdo nepřečte (kredity hlasu nejdou zneužít).
+                    Chyba, strop nebo vypnutý hlas → JSON { ok: false, error } a widget použije hlas prohlížeče.
 
    Bezpečnost:
    - historie konverzace je jen na serveru (prohlížeč posílá token a novou zprávu, nemůže podstrčit odpovědi asistenta),
@@ -26,7 +29,7 @@ final class TsAiConsultant
         '@cf/meta/llama-3.3-70b-instruct-fp8-fast' => [26668.0, 204805.0, 0.0, 0.0],
     ];
 
-    private array $c; private TsAiStore $store; private ?TsAiProvider $provider; private ?TsMailQueue $queue; private ?array $k = null;
+    private array $c; private TsAiStore $store; private ?TsAiProvider $provider; private ?TsMailQueue $queue; private ?array $k = null; private ?TsAiSpeech $tts;
 
     public function __construct(array $c)
     {
@@ -41,7 +44,9 @@ final class TsAiConsultant
         /* rozpočet: placené služby měsíčně v USD (monthlyBudgetUsd), bezplatné denní kvóty ('budget' => ['limit' => 9500, 'period' => 'day', 'unit' => 'neuron']) */
         $this->c['budget'] = ($c['budget'] ?? []) + ['limit' => (float) $this->c['monthlyBudgetUsd'], 'period' => 'month', 'unit' => 'USD'];
         $this->c += ['contactMode' => 'tool', 'knowledgeMaxChars' => 0];
-        $this->store = $c['store']; $this->provider = $c['provider'] ?? null; $this->queue = $c['queue'] ?? null;
+        /* hlas persony: 'speech' => ['monthlyChars' => 25000, 'perIp10min' => 20, 'perConversation' => 30, 'maxChars' => 1200, 'cacheDir' => …, 'replace' => […]] */
+        $this->c['speech'] = (array) ($c['speech'] ?? []) + ['monthlyChars' => 25000, 'perIp10min' => 20, 'perConversation' => 30, 'maxChars' => 1200, 'cacheDir' => '', 'replace' => []];
+        $this->store = $c['store']; $this->provider = $c['provider'] ?? null; $this->queue = $c['queue'] ?? null; $this->tts = $c['tts'] ?? null;
         $this->store->setPeriod($this->c['budget']['period']);
     }
 
@@ -54,6 +59,10 @@ final class TsAiConsultant
         if (isset($_SERVER['CONTENT_TYPE'])) $h['content-type'] = $_SERVER['CONTENT_TYPE'];
         [$code, $out] = $this->handle($m, (string) ($_GET['r'] ?? ''), $raw, $h, (string) ($_SERVER['REMOTE_ADDR'] ?? ''));
         http_response_code($code);
+        if (isset($out['audio'])) {                     /* řeč: MP3 jen pro tento prohlížeč, neukládat do sdílených mezipamětí */
+            header('Content-Type: audio/mpeg'); header('Content-Length: ' . strlen($out['audio'])); header('Cache-Control: private, no-store'); header('X-Content-Type-Options: nosniff');
+            echo $out['audio']; return;
+        }
         header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); header('X-Content-Type-Options: nosniff'); header('Referrer-Policy: same-origin');
         echo json_encode($out, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if ($this->queue && $this->c['processQueue'] > 0) {
@@ -67,15 +76,18 @@ final class TsAiConsultant
     {
         try {
             if (!$this->accessOk($headers)) return [403, ['ok' => false, 'error' => 'access']];     /* neveřejný staging: bez přístupové cookie nic */
-            if ($route === 'status' && $method === 'GET') return [200, ['ok' => true, 'enabled' => $this->enabled(), 'langs' => TsAiTexts::LANGS]];
-            if (!in_array($route, ['message', 'lead'], true)) return [404, ['ok' => false, 'error' => 'route']];
+            if ($route === 'status' && $method === 'GET') return [200, ['ok' => true, 'enabled' => $this->enabled(), 'langs' => TsAiTexts::LANGS, 'speech' => $this->enabled() && $this->speechOn()]];
+            if (!in_array($route, ['message', 'lead', 'speech'], true)) return [404, ['ok' => false, 'error' => 'route']];
             if ($method !== 'POST') return [405, ['ok' => false, 'error' => 'method']];
             if (!$this->originOk($headers)) return [403, ['ok' => false, 'error' => 'origin']];
             if (stripos($headers['content-type'] ?? '', 'application/json') !== 0) return [415, ['ok' => false, 'error' => 'type']];
             $b = json_decode($raw, true);
             if (!is_array($b)) return [400, ['ok' => false, 'error' => 'json']];
-            if ($this->store->hit('cleanup', 1, 86400)) $this->store->cleanup(      /* retence jednou denně, i bez cronu */
-                (int) $this->c['retention']['conversationDays'], (int) $this->c['retention']['leadDays']);
+            if ($this->store->hit('cleanup', 1, 86400)) {                       /* retence jednou denně, i bez cronu */
+                $this->store->cleanup((int) $this->c['retention']['conversationDays'], (int) $this->c['retention']['leadDays']);
+                $this->speechCleanup((int) $this->c['retention']['conversationDays']);
+            }
+            if ($route === 'speech') return $this->speech($b, $ip);
             return $route === 'message' ? $this->message($b, $ip) : $this->lead($b, $ip);
         } catch (Throwable $e) {
             error_log('ts-ai: ' . get_class($e) . ': ' . $this->redact($e->getMessage()));
@@ -280,12 +292,17 @@ final class TsAiConsultant
     }
 
     /* Odkazy: povolené zůstanou a vrátí se zvlášť (widget je udělá klikací), ostatní se z textu odstraní. */
-    public function filterLinks(string $t): array
+    private function allowedLinks(): array
     {
         $allowed = [];
         foreach ($this->knowledge()['links'] ?? [] as $l) $allowed[$l['url']] = $l['title'] ?? $l['url'];
         foreach ($this->knowledge()['references'] ?? [] as $r) if (!empty($r['url'])) $allowed[$r['url']] = $r['title'];
         foreach ($this->knowledge()['pages'] ?? [] as $p) foreach ($p['urls'] ?? [] as $u) $allowed[$u] = $p['title'];
+        return $allowed;
+    }
+    public function filterLinks(string $t): array
+    {
+        $allowed = $this->allowedLinks();
         $found = [];
         $t = preg_replace_callback('~\(?(https?://[^\s<>()"\']+|/[a-z0-9][a-z0-9/_\-.]*\.html(?:\?[a-z0-9=&_\-]+)?)\)?~iu', function ($m) use ($allowed, &$found) {
             $u = rtrim($m[1], '.,;:!?');
@@ -295,6 +312,58 @@ final class TsAiConsultant
         }, $t);
         $t = preg_replace('/\[([^\]]+)\]\(\s*\)/u', '$1', $t);           /* markdown odkaz bez povolené adresy → jen text */
         return [trim(preg_replace('/[ \t]{2,}/', ' ', $t)), array_values($found)];
+    }
+
+    /* ---------- hlas persony (převod odpovědi na řeč) ---------- */
+    public function speechOn(): bool
+    {
+        return $this->tts !== null && $this->store->speechUsed() < (int) $this->c['speech']['monthlyChars'];
+    }
+    private function speech(array $b, string $ip): array
+    {
+        if (!$this->c['enabled'] || $this->tts === null) return [404, ['ok' => false, 'error' => 'speech_off']];
+        $S = $this->c['speech']; $lang = TsAiTexts::lang($b['lang'] ?? '', $this->c['defaultLang']);
+        $token = (string) ($b['conversation'] ?? '');
+        $conv = preg_match('/^[a-f0-9]{48}$/', $token) ? hash('sha256', $token) : '';
+        if ($conv === '' || !$this->store->conversation($conv)) return [404, ['ok' => false, 'error' => 'conversation']];
+        $last = null; foreach ($this->store->messages($conv, 4) as $m) if ($m['role'] === 'assistant') $last = $m;
+        if ($last === null) return [404, ['ok' => false, 'error' => 'nothing']];
+        $text = $this->speechText((string) $last['text'], $lang);
+        if ($text === '') return [422, ['ok' => false, 'error' => 'empty']];
+        $iph = $this->ipHash($ip);
+        if (!$this->store->hit('sp10:' . $iph, (int) $S['perIp10min'], 600) || !$this->store->hit('spconv:' . $conv, (int) $S['perConversation'], 86400)) return [429, ['ok' => false, 'error' => 'limit']];
+        $file = $S['cacheDir'] !== '' ? rtrim($S['cacheDir'], '/') . '/' . hash('sha256', $this->tts->voice() . '|' . $lang . '|' . $text) . '.mp3' : '';
+        if ($file !== '' && is_file($file) && filesize($file) > 0) return [200, ['audio' => (string) file_get_contents($file), 'cached' => true]];
+        $n = mb_strlen($text);
+        if (!$this->store->speechReserve($n, (int) $S['monthlyChars'])) return [429, ['ok' => false, 'error' => 'speech_budget']];
+        try { $mp3 = $this->tts->synth($text, $lang); }
+        catch (TsAiProviderError $e) {
+            $this->store->speechRefund($n);
+            error_log('ts-ai: hlas ' . $e->kind . ': ' . $this->redact($e->getMessage()));
+            return [502, ['ok' => false, 'error' => 'speech_' . $e->kind]];
+        }
+        if ($file !== '') { if (!is_dir(dirname($file))) @mkdir(dirname($file), 0700, true); @file_put_contents($file, $mp3, LOCK_EX); }
+        return [200, ['audio' => $mp3, 'cached' => false]];
+    }
+    /* text pro čtení: odkazy → jejich názvy, bez značek markdownu, zkratky (T&S) slovy, nejvýš maxChars (celé věty) */
+    public function speechText(string $t, string $lang): string
+    {
+        $allowed = $this->allowedLinks();
+        $t = preg_replace_callback('~\(?(https?://[^\s<>()"\']+|/[a-z0-9][a-z0-9/_\-.]*\.html(?:\?[a-z0-9=&_\-]+)?)\)?~iu', function ($m) use ($allowed) {
+            $u = rtrim($m[1], '.,;:!?'); return ($allowed[$u] ?? '') . substr($m[1], strlen($u));
+        }, $t);
+        $amp = ['cs' => ' a ', 'de' => ' und ', 'es' => ' y ', 'fr' => ' et ', 'pt' => ' e ', 'it' => ' e ', 'pl' => ' i ', 'nl' => ' en ', 'uk' => ' і ', 'ru' => ' и ', 'tr' => ' ve ', 'id' => ' dan '][$lang] ?? ' and ';
+        foreach ((array) $this->c['speech']['replace'] as $a => $b) $t = str_replace((string) $a, (string) $b, $t);
+        $t = preg_replace('/T\s*&\s*S/u', 'T' . $amp . 'S', $t); $t = str_replace('&', $amp, $t);
+        $t = preg_replace(['/[*#_`•]+/u', '/\[([^\]]*)\]\([^)]*\)/u', '/[()\[\]„“"»«]/u', '/\s+[–—-]\s+/u', '/\s+/u'], ['', '$1', ' ', ', ', ' '], $t);
+        $t = trim((string) $t); $max = (int) $this->c['speech']['maxChars'];
+        if (mb_strlen($t) > $max) { $cut = mb_substr($t, 0, $max); $p = max(mb_strrpos($cut, '. ') ?: 0, mb_strrpos($cut, '? ') ?: 0, mb_strrpos($cut, '! ') ?: 0); $t = $p > $max / 2 ? mb_substr($cut, 0, $p + 1) : $cut; }
+        return $t;
+    }
+    private function speechCleanup(int $days): void
+    {
+        $d = $this->c['speech']['cacheDir']; if ($d === '' || !is_dir($d)) return;
+        foreach (glob(rtrim($d, '/') . '/*.mp3') ?: [] as $f) if (filemtime($f) < time() - $days * 86400) @unlink($f);
     }
 
     /* ---------- znalosti a systémový prompt ---------- */

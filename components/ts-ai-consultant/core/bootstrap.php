@@ -55,15 +55,32 @@ function ts_ai_provider(array $s): ?TsAiProvider
     catch (Throwable $e) { error_log('ts-ai: poskytovatel nejde vytvořit: ' . get_class($e)); return null; }
 }
 
+/* Hlas persony: 'speech' => ['provider' => 'elevenlabs', 'apiKeyFile' => …, 'voiceId' => … | 'voiceIdFile' => …, 'model' => 'eleven_flash_v2_5', 'monthlyChars' => 25000]
+   Bez klíče nebo hlasu → null: widget dál čte hlasem prohlížeče. */
+function ts_ai_speech(array $s): ?TsAiSpeech
+{
+    $o = $s['speech'] ?? null;
+    if (!is_array($o) || empty($o['provider'])) return null;
+    if ($o['provider'] instanceof TsAiSpeech) return $o['provider'];
+    if ($o['provider'] === 'fake') return new TsAiFakeSpeech($o['fake'] ?? []);
+    if ($o['provider'] !== 'elevenlabs') return null;
+    $key = ts_ai_api_key(['apiKeyFile' => $o['apiKeyFile'] ?? '']);
+    $voice = (string) ($o['voiceId'] ?? '');
+    if ($voice === '' && !empty($o['voiceIdFile'])) $voice = ts_ai_api_key(['apiKeyFile' => $o['voiceIdFile']]);
+    if ($key === '' || $voice === '') return null;
+    try { return new TsAiElevenLabsSpeech(['apiKey' => $key, 'voiceId' => $voice] + array_intersect_key($o, array_flip(['model', 'baseUrl', 'format', 'timeout', 'connectTimeout', 'settings']))); }
+    catch (Throwable $e) { error_log('ts-ai: hlas nejde vytvořit: ' . $e->getMessage()); return null; }
+}
+
 function ts_ai_consultant(array $s): TsAiConsultant
 {
     $store = ts_ai_store($s);
     $queue = null;
     if (!empty($s['mail']['from'])) { TsMailQueue::migrate($store->pdo()); $queue = new TsMailQueue($store->pdo(), new TsMailer($s['mail']), $s['mailQueue'] ?? []); }
-    $key = ts_ai_api_key($s);
+    $key = ts_ai_api_key($s); $skey = ts_ai_api_key(['apiKeyFile' => $s['speech']['apiKeyFile'] ?? '']);
     return new TsAiConsultant([
-        'store' => $store, 'provider' => ts_ai_provider($s), 'queue' => $queue,
-        'redact' => array_values(array_filter([$key, $s['mail']['smtp_pass'] ?? null, $s['db']['pass'] ?? null])),
+        'store' => $store, 'provider' => ts_ai_provider($s), 'queue' => $queue, 'tts' => ts_ai_speech($s),
+        'redact' => array_values(array_filter([$key, $skey, $s['mail']['smtp_pass'] ?? null, $s['db']['pass'] ?? null])),
     ] + array_diff_key($s, array_flip(['db', 'mail', 'mailQueue', 'provider', 'apiKeyFile', 'sdkAutoload', 'claude', 'cloudflare', 'openai', 'fake'])));
 }
 

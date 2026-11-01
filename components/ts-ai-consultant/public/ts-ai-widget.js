@@ -64,6 +64,7 @@
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     var SS = window.speechSynthesis && window.SpeechSynthesisUtterance ? window.speechSynthesis : null;
     var VOICE = C.voice !== false && typeof SR === 'function';      /* Firefox aj. bez rozpoznání řeči: jen text */
+    var PREM = C.voice !== false && C.speech === true;               /* hlas persony z brány (ElevenLabs); potvrdí ho stav brány */
 
     function pick(l) { l = String(l || '').toLowerCase().slice(0, 2); return LANGS.indexOf(l) >= 0 ? l : null; }
     var store = { get: function (k) { try { return sessionStorage.getItem('tsai:' + k); } catch (e) { return null; } }, set: function (k, v) { try { v === null ? sessionStorage.removeItem('tsai:' + k) : sessionStorage.setItem('tsai:' + k, v); } catch (e) { } } };
@@ -194,6 +195,7 @@
     function send(text, mode) {
       text = String(text || '').trim(); if (!text || busy) return;
       if (text.length > MAX) { status.textContent = t('limit'); return; }
+      if (speakOn) unlockAudio();
       busy = true; sendBtn.disabled = true; input.value = ''; grow(); add('user', text);
       log.setAttribute('aria-busy', 'true'); status.textContent = t('typing'); root.classList.add('tsai-busy'); stopSpeak(); state('processing');
       post('message', { conversation: conv || undefined, text: text, lang: lang, page: location.pathname, mode: mode === 'voice' ? 'voice' : undefined })
@@ -218,7 +220,7 @@
     var rec = null, listening = false, speakOn = store.get('speak') === '1', queued = false;    /* queued: předčítání čeká na začátek zvuku */
     function state(s, d) { root.setAttribute('data-state', s); try { root.dispatchEvent(new CustomEvent('tsai:state', { bubbles: true, detail: Object.assign({ state: s }, d || {}) })); } catch (e) { } }
     function syncMute() {
-      muteBtn.hidden = !(VOICE && SS); muteBtn.innerHTML = SVG_SPK; muteBtn.classList.toggle('tsai-off', !speakOn);
+      muteBtn.hidden = !((VOICE && SS) || PREM); muteBtn.innerHTML = SVG_SPK; muteBtn.classList.toggle('tsai-off', !speakOn);
       muteBtn.setAttribute('aria-pressed', speakOn ? 'true' : 'false'); var l = speakOn ? vt('mute') : vt('unmute'); muteBtn.setAttribute('aria-label', l); muteBtn.title = l;
     }
     function stopListen() { if (rec && listening) { try { rec.abort(); } catch (e) { } } }
@@ -227,6 +229,7 @@
       if (listening) { try { rec.stop(); } catch (e) { } return; }
       stopSpeak();
       if (SS) { try { SS.speak(new SpeechSynthesisUtterance('')); } catch (e) { } }      /* iOS: odemknout předčítání během kliknutí */
+      unlockAudio();
       var fin = '';
       rec = new SR(); rec.lang = LOC[lang] || 'en-US'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
       rec.onstart = function () { listening = true; micBtn.setAttribute('aria-pressed', 'true'); micBtn.setAttribute('aria-label', vt('micStop')); root.classList.add('tsai-listening'); status.textContent = vt('listening'); state('listening'); };
@@ -236,7 +239,7 @@
         listening = false; root.classList.remove('tsai-listening'); micBtn.setAttribute('aria-pressed', 'false'); micBtn.setAttribute('aria-label', vt('mic'));
         if (status.textContent === vt('listening')) status.textContent = '';
         var txt = (fin || input.value).trim();
-        if (txt) { if (SS && !speakOn) { speakOn = true; store.set('speak', '1'); syncMute(); } send(txt, 'voice'); }
+        if (txt) { if ((SS || PREM) && !speakOn) { speakOn = true; store.set('speak', '1'); syncMute(); } send(txt, 'voice'); }
         else if (root.getAttribute('data-state') === 'listening') state('idle');
       };
       try { rec.start(); } catch (e) { status.textContent = vt('denied'); state('error', { error: 'start' }); }
@@ -271,8 +274,51 @@
     }
     var beatT = 0;                             /* maskot: krátké „vyslovení“ na každou hranici slova */
     function beat() { if (!C.mascot) return; root.classList.add('tsai-beat'); clearTimeout(beatT); beatT = setTimeout(function () { root.classList.remove('tsai-beat'); }, 170); }
-    function stopSpeak() { var was = queued; queued = false; if (SS && (SS.speaking || SS.pending || was)) { SS.cancel(); if (/speaking|processing/.test(root.getAttribute('data-state') || '') && was) state('idle'); } }
+    /* ---------- hlas persony z brány: MP3 poslední odpovědi, ústa maskota podle hlasitosti (Web Audio) ---------- */
+    var audio = null, actx = null, meterSrc = null, an = null, raf = 0, seq = 0, playing = false;
+    var SILENT = 'data:audio/wav;base64,UklGRjQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YRAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    function unlockAudio() {                   /* v kliknutí: iOS a Safari pak dovolí přehrát odpověď, i když přijde později */
+      if (!PREM) return;
+      if (!audio) { audio = new Audio(); audio.preload = 'auto'; try { audio.src = SILENT; var pr = audio.play(); if (pr && pr.catch) pr.catch(function () { }); } catch (e) { } }
+      try { var AC = window.AudioContext || window.webkitAudioContext; if (AC && !actx) actx = new AC(); if (actx && actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; }
+    }
+    function meter() {
+      cancelAnimationFrame(raf);
+      var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!C.mascot || reduce || !actx || actx.state !== 'running') return;     /* bez analýzy: ústa dál animuje CSS */
+      try { if (!meterSrc) { meterSrc = actx.createMediaElementSource(audio); an = actx.createAnalyser(); an.fftSize = 256; meterSrc.connect(an); an.connect(actx.destination); } } catch (e) { return; }
+      var buf = new Uint8Array(an.fftSize); root.classList.add('tsai-live');
+      (function tick() {
+        if (!playing) { root.classList.remove('tsai-live'); root.style.removeProperty('--tsai-mouth'); return; }
+        an.getByteTimeDomainData(buf); var sum = 0; for (var i = 0; i < buf.length; i++) { var x = (buf[i] - 128) / 128; sum += x * x; }
+        root.style.setProperty('--tsai-mouth', (1 + Math.min(2.2, Math.sqrt(sum / buf.length) * 9)).toFixed(2)); raf = requestAnimationFrame(tick);
+      })();
+    }
+    function speakPremium(text, links) {
+      var id = ++seq; queued = true; unlockAudio();
+      fetch(API + (API.indexOf('?') < 0 ? '?' : '&') + 'r=speech', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' }, body: JSON.stringify({ conversation: conv, lang: lang }) })
+        .then(function (r) { if (!r.ok || !/audio/.test(r.headers.get('content-type') || '')) throw new Error('speech ' + r.status); return r.blob(); })
+        .then(function (b) {
+          if (id !== seq || !speakOn) return;
+          var url = URL.createObjectURL(b), end = function () { playing = false; queued = false; URL.revokeObjectURL(url); if (/speaking|processing/.test(root.getAttribute('data-state') || '')) state('idle'); };
+          audio.onplaying = function () { if (id !== seq) return; queued = false; playing = true; state('speaking', { voice: 'persona' }); meter(); };
+          audio.onended = end; audio.onerror = function () { end(); if (id === seq) speakBrowser(text, links); };
+          audio.src = url; var pr = audio.play(); if (pr && pr.catch) pr.catch(function () { end(); if (id === seq) speakBrowser(text, links); });
+        })
+        .catch(function () { if (id !== seq) return; queued = false; speakBrowser(text, links); });      /* strop, výpadek: hlas prohlížeče */
+    }
+    function stopSpeak() {
+      var was = queued; queued = false; seq++;
+      if (audio && playing) { try { audio.pause(); } catch (e) { } playing = false; was = true; }
+      if (SS && (SS.speaking || SS.pending || was)) SS.cancel();
+      if (was && /speaking|processing/.test(root.getAttribute('data-state') || '')) state('idle');
+    }
     function speak(text, links) {
+      if (!speakOn) return;
+      if (PREM && conv) return speakPremium(text, links);
+      speakBrowser(text, links);
+    }
+    function speakBrowser(text, links) {
       if (!VOICE || !SS || !speakOn) return;
       var v = pickVoice(); if (!v) { status.textContent = vt('novoice'); return; }
       var map = {}; (links || []).forEach(function (l) { map[l.url] = l.title || ''; });
@@ -341,7 +387,7 @@
     closeBtn.addEventListener('click', close);
     newBtn.addEventListener('click', function () { stopSpeak(); conv = ''; history = []; store.set('conv', null); store.set('hist', null); if (form) { form.remove(); form = null; } render(); input.focus(); });
     langSel.addEventListener('change', function () { lang = pick(langSel.value) || 'en'; store.set('lang', lang); label(); langSel.focus(); });
-    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); if (listening) stopListen(); else if (SS && (SS.speaking || SS.pending)) stopSpeak(); else close(); } });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); if (listening) stopListen(); else if (playing || queued || (SS && (SS.speaking || SS.pending))) stopSpeak(); else close(); } });
     input.addEventListener('input', grow);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); } });
     composer.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });
@@ -353,11 +399,11 @@
       var show = function () { root.hidden = false; if (store.get('open') === '1' && window.innerWidth > 640) open(); };
       if (C.checkStatus === false) return show();
       fetch(API + (API.indexOf('?') < 0 ? '?' : '&') + 'r=status', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
-        .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.enabled) show(); }, function () { });
+        .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.enabled) { PREM = C.voice !== false && !!j.speech; syncMute(); show(); } }, function () { });
     }
     if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
     micBtn.addEventListener('click', listen);
-    muteBtn.addEventListener('click', function () { speakOn = !speakOn; store.set('speak', speakOn ? '1' : null); if (!speakOn) stopSpeak(); syncMute(); });
+    muteBtn.addEventListener('click', function () { unlockAudio(); speakOn = !speakOn; store.set('speak', speakOn ? '1' : null); if (!speakOn) stopSpeak(); syncMute(); });
     if (SS && SS.getVoices) { try { SS.getVoices(); } catch (e) { } }
     window.TSAiWidget = { open: open, close: close, send: send, listen: listen, speak: speak };
   } catch (e) { if (window.console) console.warn('ts-ai-widget:', e); }
