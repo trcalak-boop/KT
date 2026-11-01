@@ -1,23 +1,17 @@
 {
-  "at": "2026-11-01T20:38:18",
-  "pass": 208,
+  "at": "2026-11-01T22:02:54",
+  "pass": 101,
   "fail": 0,
   "files": [
     {
-      "file": "components/ts-ai-consultant/tests/check_test.php",
-      "pass": 12,
+      "file": "components/ts-site-audit/tests/audit_test.php",
+      "pass": 50,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-ai-consultant/tests/consultant_test.php",
-      "pass": 123,
-      "fail": 0,
-      "log": []
-    },
-    {
-      "file": "components/ts-ai-consultant/tests/http_test.py",
-      "pass": 73,
+      "file": "components/ts-site-audit/tests/url_test.php",
+      "pass": 51,
       "fail": 0,
       "log": []
     }

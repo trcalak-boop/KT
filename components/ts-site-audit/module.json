@@ -1,0 +1,66 @@
+{
+  "name": "ts-site-audit",
+  "version": "1.0.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Audit existujícího webu: Lighthouse přes Google PageSpeed (mobil i desktop, snímky), vizuální hodnocení AI odděleně od měření, kontrola adresy proti SSRF, úloha po krocích pro sdílený hosting, cache, limity, retence.",
+  "runtime": [
+    "php"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "d91bc4b",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "(nový kód; plán docs/ai/07-audit-webu-plan.md)",
+        "to": "core/TsSiteAudit.php",
+        "mode": "new",
+        "sha256": "26d2f05c83b4ea0628a6eb9dabad5cc5de00cd88372655b4de1ebc87733d0497"
+      }
+    ]
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "php": "core/bootstrap.php",
+    "api": "ts_site_audit(settings)->serve()",
+    "classes": "TsSiteAudit, TsAuditUrl, TsAuditStore, TsAuditMeter (TsAuditPageSpeed, TsAuditFakeMeter), TsAuditVision (TsAuditCloudflareVision, TsAuditFakeVision)"
+  },
+  "lockedFiles": [
+    "core/*.php",
+    "core/.htaccess",
+    "migrations/*.sql",
+    "migrations/.htaccess",
+    "config/*.php",
+    "config/.htaccess"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "serverová konfigurace projektu: kopie config/audit.example.php MIMO webroot (zdroj admin/public, limity, model, cache, retence)",
+    "vstupní bod API (jen cesty) a jeho ochrana (u administrace přihlášení)",
+    "texty a zobrazení reportu v administraci nebo widgetu (klíče notes: lab, single, aiSubjective)"
+  ],
+  "aiProtected": [
+    "core/TsAuditUrl.php – ochrana proti SSRF",
+    "core/TsSiteAudit.php – oddělení faktů a AI, zahazování čísel z AI, limity, zámek kroků, snímky jen s tokenem",
+    "migrations/* – změna = nová migrace + rollback"
+  ],
+  "works": [
+    "51 testů kontroly adresy (interní sítě IPv4/IPv6, zvláštní zápisy IP, přihlašovací údaje, porty, lokální domény, IDN).",
+    "50 testů auditu s falešným měřením a hodnocením: kroky úlohy, report, snímky jen s tokenem, cache a sdílení, limity, chyby a opakování, strop AI, zámek, retence; adaptér PageSpeed proti lokální napodobenině."
+  ],
+  "missingForProduction": [
+    "Ověření se skutečným klíčem Google: přítomnost snímků v odpovědi, doba měření na hostingu, kvóta.",
+    "Ověření formátu obrázku a modelu pro Cloudflare (image_url s data URI, Gemma 4), počet neuronů na hodnocení, kvalita češtiny.",
+    "Administrace „Audity“ a napojení na Tessu (etapy 5.2 a 5.3).",
+    "Zásady ochrany údajů: Google LLC jako příjemce adresy auditovaného webu (před veřejnou variantou)."
+  ],
+  "tests": [
+    "tests/url_test.php",
+    "tests/audit_test.php"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/ai-consultant/SKILL.md",
+  "api": "api/ts-site-audit.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

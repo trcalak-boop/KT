@@ -404,7 +404,32 @@
         "DPH 21 % v kódu natvrdo."
       ],
       "path": "components/ts-shop-core"
+    },
+    {
+      "name": "ts-site-audit",
+      "version": "1.0.0",
+      "kind": "php-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "Audit existujícího webu: Lighthouse přes Google PageSpeed (mobil i desktop, snímky), vizuální hodnocení AI odděleně od měření, kontrola adresy proti SSRF, úloha po krocích pro sdílený hosting, cache, limity, retence.",
+      "runtime": [
+        "php"
+      ],
+      "dependencies": {},
+      "skill": "claude-plugin/ts-studio/skills/ai-consultant/SKILL.md",
+      "api": "api/ts-site-audit.md",
+      "works": [
+        "51 testů kontroly adresy (interní sítě IPv4/IPv6, zvláštní zápisy IP, přihlašovací údaje, porty, lokální domény, IDN).",
+        "50 testů auditu s falešným měřením a hodnocením: kroky úlohy, report, snímky jen s tokenem, cache a sdílení, limity, chyby a opakování, strop AI, zámek, retence; adaptér PageSpeed proti lokální napodobenině."
+      ],
+      "missingForProduction": [
+        "Ověření se skutečným klíčem Google: přítomnost snímků v odpovědi, doba měření na hostingu, kvóta.",
+        "Ověření formátu obrázku a modelu pro Cloudflare (image_url s data URI, Gemma 4), počet neuronů na hodnocení, kvalita češtiny.",
+        "Administrace „Audity“ a napojení na Tessu (etapy 5.2 a 5.3).",
+        "Zásady ochrany údajů: Google LLC jako příjemce adresy auditovaného webu (před veřejnou variantou)."
+      ],
+      "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-01T20:38:27"
+  "generated": "2026-11-01T22:03:05"
 }
