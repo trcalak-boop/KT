@@ -211,6 +211,30 @@
       "path": "components/ts-crm-intake"
     },
     {
+      "name": "ts-design-studio",
+      "version": "0.1.0",
+      "kind": "php-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "AI Design Studio (jen administrace): projekty webů ze šablon, obsah ve slotech a barvy/písma v tokenech, každá změna jako nová verze, kontroly (syntax, odkazy, bezpečnost, kontrast, velikost), rozdíly, náhled pro iframe se sandboxem, export ZIP. Šablony restaurace a salon.",
+      "runtime": [
+        "php"
+      ],
+      "dependencies": {},
+      "skill": null,
+      "api": "api/ts-design-studio.md",
+      "works": [
+        "74 testů bez sítě: šablonovací jazyk (vše escapované), čištění obsahu a tokenů (délky, adresy, e-mail, telefon, barvy), diff, kontroly HTML/CSS/JS a kontrastu, ZIP, verze (kandidát/přijatá/zamítnutá, návrat, úprava souborů), náhled s CSP, oprávnění, záznam akcí.",
+        "Šablony restaurace (Kořen) a salon (Lokna): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku."
+      ],
+      "missingForProduction": [
+        "AI vrstva (6.2): generování obsahu a tokenů modelem, test kvality Gemma 4 na 3 návrzích, limity neuronů.",
+        "Administrace (6.3) s přihlášením a rolemi; bez funkce can() je výchozí vše povoleno – v konfiguraci projektu vždy nastavit.",
+        "Schvalování a předání klientovi (6.4), další šablony (6.5)."
+      ],
+      "path": "components/ts-design-studio"
+    },
+    {
       "name": "ts-i18n-build",
       "version": "1.0.0",
       "kind": "tool",
@@ -433,5 +457,5 @@
       "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-01T22:57:33"
+  "generated": "2026-11-01T23:48:49"
 }

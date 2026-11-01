@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="p-index">
+<svg class="svg-defs" aria-hidden="true" focusable="false"><symbol id="portret" viewBox="0 0 300 380"><defs><linearGradient id="pt-a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A3E2C"></stop><stop offset=".5" stop-color="#C98F5A"></stop><stop offset="1" stop-color="#7A3E2C"></stop></linearGradient><clipPath id="pt-ab"><path d="M96 150C92 96 118 70 150 70C182 70 208 96 204 150C206 210 222 270 238 330C214 344 190 336 184 300L116 300C110 336 86 344 62 330C78 270 94 210 96 150Z"></path></clipPath><clipPath id="pt-af"><path d="M104 168C98 112 120 84 154 84C188 86 206 112 198 168C192 132 176 114 150 112C128 120 112 140 104 168Z"></path></clipPath><clipPath id="pt-al"><path d="M106 150C96 200 96 262 108 338C118 332 124 318 126 300C122 260 118 210 116 168ZM194 150C204 200 204 262 192 338C182 332 176 318 174 300C178 260 182 210 184 168Z"></path></clipPath></defs><rect class="pt-bg" width="300" height="380"></rect><path class="pt-sun" d="M0 0h120L0 150Z"></path><path d="M96 150C92 96 118 70 150 70C182 70 208 96 204 150C206 210 222 270 238 330C214 344 190 336 184 300L116 300C110 336 86 344 62 330C78 270 94 210 96 150Z" fill="url(#pt-a)"></path><path d="M96 150C92 96 118 70 150 70C182 70 208 96 204 150C206 210 222 270 238 330C214 344 190 336 184 300L116 300C110 336 86 344 62 330C78 270 94 210 96 150Z" fill="none" stroke="rgba(30,12,20,.2)" stroke-width="1.2"></path><rect class="pt-skin2" x="132" y="206" width="36" height="96"></rect><path class="pt-garment" d="M28 384C38 318 96 292 150 292C204 292 262 318 272 384Z"></path><path class="pt-line" d="M128 294L150 326L172 294"></path><ellipse class="pt-skin" cx="150" cy="170" rx="46" ry="58"></ellipse><path d="M104 168C98 112 120 84 154 84C188 86 206 112 198 168C192 132 176 114 150 112C128 120 112 140 104 168Z" fill="url(#pt-a)"></path><path d="M106 150C96 200 96 262 108 338C118 332 124 318 126 300C122 260 118 210 116 168ZM194 150C204 200 204 262 192 338C182 332 176 318 174 300C178 260 182 210 184 168Z" fill="url(#pt-a)"></path><circle class="pt-ear" cx="104" cy="198" r="4.5"></circle></symbol></svg>
+<a class="skip" href="#main">Přeskočit na obsah</a>
+<header class="mast" id="top">
+  <div class="wrap mast-line">
+    <span class="mast-issue">{{issue}}{{#season}}<span class="mast-season"> · {{season}}</span>{{/season}}</span>
+    <span class="mast-where">{{where}}</span>
+    <span class="mast-act">
+      <a href="#obsah" class="mast-toc">Obsah</a>
+      <a href="{{cta_url}}" class="mast-book">{{cta_label}}</a>
+      <button class="mode-btn" type="button" data-mode-btn aria-label="Přepnout režim"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu"><span>Obsah</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </span>
+  </div>
+  <div class="wrap mast-bar">
+    <a href="#top" class="word" aria-label="{{brand}} – úvod">{{logo_pre}}{{logo_accent}}{{logo_post}}</a>
+    <nav class="toc" id="menu" aria-label="Obsah webu">
+      <span class="toc-h" aria-hidden="true">V tomto čísle</span>
+      <a href="#top" class="toc-home" aria-current="page"><i>01</i><span>Titulní strana</span></a>
+      <a href="#cenik"><i>04</i><span>Služby a ceník</span></a><a href="#odstiny"><i>12</i><span>Odstíny</span></a><a href="#tym"><i>18</i><span>Tým</span></a><a href="#rezervace"><i>26</i><span>Rezervace</span></a><a href="#navsteva"><i>32</i><span>Návštěva</span></a>
+      <p class="toc-foot">{{address_short}}<br>{{hours_short}}</p>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="cover" aria-labelledby="coverT">
+  <div class="wrap">
+    <h1 class="logotype" id="coverT"><span aria-hidden="true">{{logo_pre}}{{#logo_accent}}<span class="o">{{logo_accent}}</span>{{/logo_accent}}{{logo_post}}</span><span class="k-sr">{{logo_text}}</span></h1>
+    <div class="cover-grid">
+      <div class="cover-lines">
+        <a class="cl" href="#tym"><span class="kicker">Rozhovor · <i>str. 18</i></span><span class="cl-t cl-q">{{cover_quote}}</span><span class="cl-s">{{cover_quote_by}}</span></a>
+        <a class="cl" href="#cenik"><span class="kicker">Ceník · <i>str. 04</i></span><span class="cl-t">{{cover_price_title}}</span><span class="cl-s">{{cover_price_note}}</span></a>
+      </div>
+      <figure class="cover-art">
+        <svg viewBox="-60 0 420 400" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Ilustrace: dlouhé vlasy v odstínu z našeho vzorníku"><defs><clipPath id="cvClip"><path d="M150 38C102 38 74 72 72 120C70 160 68 196 62 232C54 280 42 318 44 352C46 378 58 392 72 404L228 404C242 392 254 378 256 352C258 318 246 280 238 232C232 196 230 160 228 120C226 72 198 38 150 38Z"></path></clipPath><radialGradient id="cvShine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".42"></stop><stop offset="1" stop-color="#fff" stop-opacity="0"></stop></radialGradient><linearGradient id="cvHair" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e4329"/><stop offset=".35" stop-color="#c98f5a"/><stop offset=".55" stop-color="#e0b07a"/><stop offset="1" stop-color="#7a4a2e"/></linearGradient></defs><rect class="cv-bg" x="-60" width="420" height="400"></rect><path class="cv-sun" d="M170 0h190v230Z"></path><path class="cv-garment" d="M-70 404L-70 372C-10 330 70 306 118 300L182 300C230 306 310 330 370 372L370 404Z"></path><path class="cv-strap" d="M96 304C104 330 112 360 116 404M204 304C196 330 188 360 184 404"></path><g clip-path="url(#cvClip)"><rect class="cv-hairbase" x="-60" width="420" height="400" style="fill:url(#cvHair)"></rect><path d="M110 60C96 160 92 280 100 404M150 46C146 160 146 280 150 404M190 60C204 160 208 280 200 404M128 52C118 170 116 290 124 404M172 52C182 170 184 290 176 404" fill="none" stroke="#5a341f" stroke-opacity=".35" stroke-width="3"></path><ellipse cx="150" cy="130" rx="60" ry="80" fill="url(#cvShine)"></ellipse><path class="cv-edge" d="M150 38C102 38 74 72 72 120C70 160 68 196 62 232C54 280 42 318 44 352C46 378 58 392 72 404L228 404C242 392 254 378 256 352C258 318 246 280 238 232C232 196 230 160 228 120C226 72 198 38 150 38Z"></path></g><rect class="cv-clip" x="176" y="98" width="36" height="9" transform="rotate(-24 194 102)"></rect></svg>
+        {{#cover_caption}}<figcaption><a href="#odstiny">{{cover_caption}}</a></figcaption>{{/cover_caption}}
+        <span class="cover-strip" aria-hidden="true">{{cover_strip}}</span>
+      </figure>
+      <div class="cover-lines">
+        <a class="cl" href="#odstiny"><span class="kicker">Vzorník · <i>str. 12</i></span><span class="cl-t"><em>{{cover_shades}}</em></span></a>
+        <a class="cl" href="#rezervace"><span class="kicker">Rezervace · <i>str. 26</i></span><span class="cl-t">{{cover_book_title}}</span><span class="cl-s">{{cover_book_note}}</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="toc-sec" id="obsah" aria-labelledby="tocT">
+  <div class="wrap toc-grid">
+    <h2 id="tocT">V tomto<br><em>čísle</em></h2>
+    <nav class="toc-big" aria-label="V tomto čísle">
+      <a href="#cenik"><i>04</i><b>Služby a ceník</b><span>{{toc_services}}</span></a>
+      <a href="#odstiny"><i>12</i><b>Odstíny</b><span>vzorník a péče o barvu</span></a>
+      <a href="#tym"><i>18</i><b>Tým</b><span>{{toc_team}}</span></a>
+      <a href="#rezervace"><i>26</i><b>Rezervace</b><span>telefonem a e-mailem</span></a>
+      <a href="#navsteva"><i>32</i><b>Návštěva</b><span>{{hours_short}}</span></a>
+    </nav>
+  </div>
+</section>
+
+<section class="sec editorial" aria-labelledby="edT">
+  <div class="wrap">
+    <div class="runhead"><span>Úvodník</span><span class="rh-mid">{{ed_running}}</span><i>str. 02</i></div>
+    <div class="ed-grid">
+      <div>
+        <h2 id="edT" class="ed-h">{{ed_title}} <em>{{ed_em}}</em></h2>
+        {{#ed_pull}}<div class="ed-side"><blockquote class="pull">{{ed_pull}}<cite>{{ed_pull_by}}</cite></blockquote></div>{{/ed_pull}}
+      </div>
+      <div class="ed-body">
+        <p class="dropcap ed-lead">{{ed_lead}}</p>
+        <ul class="ed-meta">
+          <li><span class="kicker">Adresa</span><span>{{address_short}}</span></li>
+          <li><span class="kicker">Otevřeno</span><span>{{hours_short}}</span></li>
+        </ul>
+        <p class="ed-cta"><a href="{{cta_url}}" class="btn">{{cta_label}} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="#cenik" class="tlink">Ceník</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec price-sec" id="cenik" aria-labelledby="prT">
+  <div class="wrap pr-grid">
+    <div class="pr-intro">
+      <span class="kicker">Ceník · <i>str. 04</i></span>
+      <h2 id="prT">{{price_title}} <em>{{price_em}}</em> {{price_title_end}}</h2>
+      <p class="dropcap">{{price_text}}</p>
+    </div>
+    <div class="pr-table">
+      <table class="ptab ptab--teaser"><caption class="k-sr">Ceny podle délky vlasů</caption>
+        <thead><tr><th scope="col">Služba</th><th scope="col" class="lc">{{col_1}}</th><th scope="col" class="lc on">{{col_2}}</th><th scope="col" class="lc">{{col_3}}</th></tr></thead>
+        <tbody>{{#prices}}<tr><th scope="row">{{name}}</th><td class="pc"><span class="pl" aria-hidden="true">{{col_1}}</span>{{p1}}</td><td class="pc on"><span class="pl" aria-hidden="true">{{col_2}}</span>{{p2}}</td><td class="pc"><span class="pl" aria-hidden="true">{{col_3}}</span>{{p3}}</td></tr>{{/prices}}</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec quick-sec" id="rezervace" aria-labelledby="quickTitle">
+  <div class="wrap">
+    <div class="runhead"><span>Rezervace</span><span class="rh-mid">{{brand}}</span><i>str. 26</i></div>
+    <div class="quick">
+      <div class="quick-copy">
+        <h2 id="quickTitle">{{book_title}} <em>{{book_em}}</em> {{book_title_end}}</h2>
+        <p>{{book_text}}</p>
+      </div>
+      <div class="quick-slots">
+        <ul class="next-list">
+          <li><a class="next-slot" href="{{phone_href}}"><span class="d">Telefon</span><span class="t">{{phone}}</span><span class="w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+          <li><a class="next-slot" href="mailto:{{email}}"><span class="d">E-mail</span><span class="t t--sm">{{email}}</span><span class="w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+        </ul>
+        {{#book_note}}<p class="quick-note">{{book_note}}</p>{{/book_note}}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="shade-spread" id="odstiny" aria-labelledby="shT">
+  <div class="wrap spread-head">
+    <span class="kicker">Vzorník · <i>str. 12</i></span>
+    <h2 id="shT">{{shades_title}} <em>{{shades_em}}</em></h2>
+    <p>{{shades_text}}</p>
+  </div>
+  <div class="bands">{{#shades}}<div class="band{{#light_text}} lt{{/light_text}}" style="background:linear-gradient(180deg,{{top}},{{bottom}})"><span class="b-c">{{code}}</span><span class="b-n">{{name}}</span></div>{{/shades}}</div>
+</section>
+
+<section class="sec team-sec" id="tym" aria-labelledby="tmT">
+  <div class="wrap">
+    <div class="runhead"><span>Tým</span><span class="rh-mid">{{toc_team}}</span><i>str. 18</i></div>
+    <div class="team-head">
+      <h2 id="tmT">{{team_title}} <em>{{team_em}}</em></h2>
+      <p>{{team_text}}</p>
+    </div>
+    <div class="team">{{#team}}<article class="member"><div class="m-port"><svg class="pt" viewBox="0 0 300 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><use href="#portret"/></svg></div><p class="role">{{role}}</p><h3>{{name}}</h3><p class="m-q">{{quote}}</p><p class="m-bio">{{bio}}</p><p class="days">{{days}}</p><a class="m-link" href="{{cta_url}}">{{cta_label}} <span aria-hidden="true">→</span></a></article>{{/team}}</div>
+  </div>
+</section>
+
+<section class="sec letters" aria-label="Napsali nám">
+  <div class="wrap quotes">
+    <p class="q-big">{{quote_big}}</p>
+    <div class="q-small">
+      <span class="kicker">Napsali nám</span>
+      {{#reviews}}<blockquote>{{text}}<span class="q-by">{{by}}</span></blockquote>
+      {{/reviews}}
+    </div>
+  </div>
+</section>
+
+<section class="sec visit-sec" id="navsteva" aria-labelledby="viT">
+  <div class="wrap">
+    <div class="runhead"><span id="viT">Návštěva</span><span class="rh-mid">{{area}}</span><i>str. 32</i></div>
+    <div class="visit">
+      <div><h3>Kde nás <em>najdete</em></h3><p>{{address}}{{#transport}}<br>{{transport}}{{/transport}}</p>{{#map_url}}<p class="visit-link"><a href="{{map_url}}">Mapa a jak k nám</a></p>{{/map_url}}</div>
+      <div><h3>Otevřeno</h3><dl class="hours">{{#hours}}<dt>{{days}}</dt><dd>{{time}}</dd>{{/hours}}</dl></div>
+      <div><h3>Kontakt</h3><p><a href="{{phone_href}}">{{phone}}</a><br><a href="mailto:{{email}}">{{email}}</a>{{#instagram}}<br>Instagram {{instagram}}{{/instagram}}</p><p class="visit-link"><a href="{{cta_url}}">{{cta_label}}</a></p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="colophon">
+      <div>
+        <h2 class="col-h">Tiráž</h2>
+        <p class="foot-pub">Vydává <a class="foot-word" href="#top">{{brand}}</a></p>
+        <p class="foot-addr">{{brand}} · {{address}}</p>
+        <p class="foot-addr">{{phone}} · {{email}}{{#instagram}} · {{instagram}}{{/instagram}}</p>
+      </div>
+      <nav class="foot-nav" aria-label="Patička">
+        <h2 class="col-h">Obsah</h2>
+        <a href="#cenik"><i>04</i>Služby a ceník</a><a href="#odstiny"><i>12</i>Odstíny</a><a href="#tym"><i>18</i>Tým</a><a href="#rezervace"><i>26</i>Rezervace</a><a href="#navsteva"><i>32</i>Návštěva</a>
+      </nav>
+      <div class="foot-hours">
+        <h2 class="col-h">Otevřeno</h2>
+        <dl>{{#hours}}<dt>{{days}}</dt><dd>{{time}}</dd>{{/hours}}</dl>
+      </div>
+    </div>
+  </div>
+  <div class="back-word" aria-hidden="true">{{logo_pre}}{{logo_accent}}{{logo_post}}</div>
+  <div class="wrap foot-row"><span>{{company}}</span></div>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

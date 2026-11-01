@@ -1,0 +1,4 @@
+@font-face{font-family:"Mini Sans";src:url("fonts/mini.woff2") format("woff2")}
+/*@tokens*/:root{--bg:#fff}/*@end*/
+body{background:var(--bg);color:var(--ink);font-family:var(--f)}
+.btn{background:var(--accent);color:var(--bg)}
