@@ -67,7 +67,8 @@ final class TsAiConsultant
             if (stripos($headers['content-type'] ?? '', 'application/json') !== 0) return [415, ['ok' => false, 'error' => 'type']];
             $b = json_decode($raw, true);
             if (!is_array($b)) return [400, ['ok' => false, 'error' => 'json']];
-            if (mt_rand(1, 200) === 1) $this->store->cleanup((int) $this->c['retention']['conversationDays'], (int) $this->c['retention']['leadDays']);
+            if ($this->store->hit('cleanup', 1, 86400)) $this->store->cleanup(      /* retence jednou denně, i bez cronu */
+                (int) $this->c['retention']['conversationDays'], (int) $this->c['retention']['leadDays']);
             return $route === 'message' ? $this->message($b, $ip) : $this->lead($b, $ip);
         } catch (Throwable $e) {
             error_log('ts-ai: ' . get_class($e) . ': ' . $this->redact($e->getMessage()));
@@ -256,7 +257,7 @@ final class TsAiConsultant
         foreach ($k['pages'] ?? [] as $p) { $u = $p['urls'][$lang] ?? $p['urls']['en'] ?? reset($p['urls']); if ($u) $links .= "\n- " . $p['title'] . ': ' . $u; }
         $rules = '';
         foreach ($k['pricePolicy']['rules'] ?? [] as $i => $r) $rules .= "\n" . ($i + 1) . '. ' . $r;
-        $c = $k['contact'] ?? [];
+        $c = ($k['contact'] ?? []) + ['email' => $this->c['contactEmail'] ?? '', 'phone' => ''];
 
         return <<<P
 Jsi AI asistent na webu {$biz}. Pomáháš návštěvníkům zorientovat se ve službách, najít podobný projekt v referencích a spojit se se studiem.
@@ -302,14 +303,14 @@ P;
         if ($byla) return [200, ['ok' => true, 'duplicate' => true]];
         if (!$this->store->hit('lead:' . $this->ipHash($ip), (int) $this->c['limits']['leadsPerIpHour'], 3600)) return [429, ['ok' => false, 'error' => 'limit']];
 
-        $conv = null; $tr = '';
+        $conv = null; $tr = ''; $page = '';
         $token = (string) ($b['conversation'] ?? '');
         if (preg_match('/^[a-f0-9]{48}$/', $token) && $this->store->conversation(hash('sha256', $token))) {
-            $conv = hash('sha256', $token);
+            $conv = hash('sha256', $token); $page = (string) ($this->store->conversation($conv)['page'] ?? '');
             foreach ($this->store->messages($conv, 40) as $m) $tr .= ($m['role'] === 'user' ? 'Návštěvník: ' : 'Asistent: ') . $m['text'] . "\n\n";
             $tr = mb_substr($tr, -6000);
         }
-        $lead = $d + ['submission_id' => $sid, 'conv_id' => $conv, 'transcript' => trim($tr), 'lang' => $lang, 'consent_text' => $f('consentText', 500) ?: mb_substr((string) $this->c['consentText'], 0, 500)];
+        $lead = $d + ['submission_id' => $sid, 'conv_id' => $conv, 'page' => $page, 'transcript' => trim($tr), 'lang' => $lang, 'consent_text' => $f('consentText', 500) ?: mb_substr((string) $this->c['consentText'], 0, 500)];
         if ($lead['message'] === '') $lead['message'] = '(bez zprávy)';
         $r = $this->store->createLead($lead);
         if ($r['duplicate']) return [200, ['ok' => true, 'duplicate' => true]];

@@ -28,6 +28,7 @@ $say = fn (string $t, array $u = []) => fn ($req) => ['stop' => 'end', 'text' =>
 $g = gw($base, [$say('Dobrý den, s čím pomohu?'), $say('Rezervační systém umíme.')], $fp);
 [$c, $o] = $g->handle('GET', 'status', '', $H, '10.0.0.1');
 t_ok($c === 200 && $o['enabled'] === true && count($o['langs']) === 18, 'status: zapnuto, 18 jazyků');
+t_eq(ts_ai_consultant(['enabled' => false, 'provider' => new TsAiFakeProvider(), 'db' => ['dsn' => "sqlite:$dir/private/data/vypnuto.sqlite"]] + $base)->handle('GET', 'status', '', $H, '10.0.0.1')[1]['enabled'], false, 'vypínač: enabled => false, status vypnuto (widget tlačítko neukáže)');
 $a = msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
 t_ok($a['_code'] === 200 && $a['ok'] && preg_match('/^[a-f0-9]{48}$/', $a['conversation']) && $a['reply']['text'] === 'Dobrý den, s čím pomohu?', 'první zpráva: odpověď a token konverzace');
 $b = msg($g, ['text' => 'Umíte rezervace?', 'lang' => 'cs', 'conversation' => $a['conversation']]);
@@ -121,7 +122,7 @@ t_eq(msg($g, ['text' => 'Hallo', 'lang' => 'xx'])['_code'], 200, 'neznámý jazy
 /* --- lead --- */
 $sink = []; $crm = function (array $l) use (&$sink) { $sink[] = $l; return 'CRM-' . count($sink); };
 $g = gw(['leadSink' => $crm] + $base, [$say('Rád pomohu s webem.')], $fp);
-$a = msg($g, ['text' => 'Chci web pro kavárnu', 'lang' => 'cs']);
+$a = msg($g, ['text' => 'Chci web pro kavárnu', 'lang' => 'cs', 'page' => '/cs/sluzby.html?utm=x']);
 $L = ['conversation' => $a['conversation'], 'submission_id' => 'sub-0123456789abcdef', 'name' => 'Jana Testová', 'email' => 'jana@example.com', 'message' => 'Web pro kavárnu', 'consent' => true, 'consentText' => 'Souhlasím (viděla návštěvnice).', 'lang' => 'cs', 'hp' => '', 'openedMs' => 9000];
 t_eq(lead($g, ['consent' => false] + $L)['error'], 'consent', 'lead bez souhlasu odmítnut');
 t_eq(lead($g, ['hp' => 'spam'] + $L)['error'], 'robot', 'lead s vyplněnou pastí odmítnut');
@@ -133,6 +134,7 @@ $r2 = lead($g, $L);
 t_ok($r2['ok'] && $r2['duplicate'] === true && count($sink) === 1, 'stejné submission_id: bez duplicity v DB i CRM');
 $pdo = new PDO("sqlite:$dir/private/data/ai$n.sqlite"); $row = $pdo->query('SELECT * FROM ts_ai_leads')->fetch(PDO::FETCH_ASSOC);
 t_ok($row['sink_status'] === 'ulozeno' && $row['sink_ref'] === 'CRM-1' && strpos($row['transcript'], 'Návštěvník: Chci web pro kavárnu') !== false && strpos($row['transcript'], 'Asistent: Rád pomohu') !== false, 'lead: předán do CRM s přepisem konverzace');
+t_eq($sink[0]['page'] ?? null, '/cs/sluzby.html', 'lead předaný do CRM nese stránku, ze které návštěvník psal');
 t_ok($row['consent_text'] === 'Souhlasím (viděla návštěvnice).' && $row['consent_at'] !== '', 'lead: uložen text souhlasu, který návštěvník viděl, a čas');
 t_ok(strpos(json_encode($fp->requests, JSON_UNESCAPED_UNICODE), 'jana@example.com') === false, 'osobní údaje z formuláře nešly k poskytovateli AI');
 $q = $pdo->query("SELECT recipient, subject, status, reply_to FROM ts_mail_queue")->fetchAll(PDO::FETCH_ASSOC);
@@ -154,6 +156,14 @@ $st = ts_ai_store(['db' => ['dsn' => "sqlite:$dir/private/data/ai$n.sqlite"]]);
 $st->pdo()->exec("UPDATE ts_ai_conversations SET updated_at = '2020-01-01 00:00:00'"); $st->pdo()->exec("UPDATE ts_ai_leads SET created_at = '2020-01-01 00:00:00'");
 $cl = $st->cleanup(30, 90);
 t_ok($cl['leads'] === 2 && (int) $st->pdo()->query("SELECT COUNT(*) FROM ts_ai_leads WHERE email <> ''")->fetchColumn() === 0, 'retence: staré leady anonymizované');
+
+$g = gw($base, array_fill(0, 3, $say('ok')), $fp);
+$pdo = new PDO("sqlite:$dir/private/data/ai$n.sqlite");
+$a = msg($g, ['text' => 'stará', 'lang' => 'cs']);
+$pdo->exec("UPDATE ts_ai_conversations SET updated_at = '2020-01-01 00:00:00'");
+$pdo->exec("DELETE FROM ts_ai_rate WHERE bucket LIKE 'cleanup@%'");
+msg($g, ['text' => 'nová', 'lang' => 'cs']);
+t_eq((int) $pdo->query('SELECT COUNT(*) FROM ts_ai_conversations')->fetchColumn(), 1, 'retence se spustí sama jednou denně (stará konverzace smazána)');
 
 /* --- sestavení bez klíče / skutečný poskytovatel bez SDK --- */
 $s = ['provider' => 'claude', 'apiKeyFile' => "$dir/private/neni.txt", 'db' => ['dsn' => "sqlite:$dir/private/data/bez.sqlite"]] + $base;

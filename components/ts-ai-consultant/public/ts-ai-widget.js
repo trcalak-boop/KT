@@ -127,7 +127,9 @@
     function render() {
       log.innerHTML = '';
       var intro = el('div', { class: 'tsai-msg tsai-assistant' }); intro.appendChild(el('span', { class: 'tsai-sr', text: t('ai') + ': ' })); intro.appendChild(document.createTextNode(t('intro')));
-      log.appendChild(intro); log.appendChild(el('p', { class: 'tsai-note', text: t('note') }));
+      var note = el('p', { class: 'tsai-note', text: t('note') + ' ' }), pu = privacy();
+      if (pu) note.appendChild(el('a', { href: pu, target: '_blank', rel: 'noopener', text: t('privacy') }));
+      log.appendChild(intro); log.appendChild(note);
       history.forEach(function (h) { log.appendChild(bubble(h.r, h.t, h.l)); });
       quick.hidden = history.length > 0;
       log.scrollTop = log.scrollHeight;
@@ -207,7 +209,15 @@
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); } });
     composer.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });
 
-    function mount() { document.body.appendChild(root); label(); if (store.get('open') === '1' && window.innerWidth > 640) open(); }
+    /* Tlačítko se ukáže, až brána potvrdí, že asistent běží (vypnutý v konfiguraci, vyčerpaný rozpočet nebo výpadek = žádné tlačítko).
+       TS_AI_CONFIG.checkStatus = false: ukázat hned bez dotazu. */
+    function mount() {
+      root.hidden = true; document.body.appendChild(root); label();
+      var show = function () { root.hidden = false; if (store.get('open') === '1' && window.innerWidth > 640) open(); };
+      if (C.checkStatus === false) return show();
+      fetch(API + (API.indexOf('?') < 0 ? '?' : '&') + 'r=status', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.enabled) show(); }, function () { });
+    }
     if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
     window.TSAiWidget = { open: open, close: close, send: send };
   } catch (e) { if (window.console) console.warn('ts-ai-widget:', e); }
