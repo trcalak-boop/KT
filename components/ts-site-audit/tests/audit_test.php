@@ -127,3 +127,15 @@ foreach (['spatny' => 'auth', 'plno' => 'limit'] as $k => $kind) {
 }
 proc_terminate($srv);
 t_ok(strpos((string) @file_get_contents("$dir/php-error.log"), 'test-klic') === false, 'klíč není v logu');
+
+/* --- 1.1.1: titulky z markdownu, obecné přehledy bez hodnoty, vynucené měření, diagnostika AI --- */
+t_eq(TsAuditPageSpeed::plain('Prvky `<frame>` nebo `<iframe>` nemají [atribut title](https://dequeuniversity.com/x)'), 'Prvky <frame> nebo <iframe> nemají atribut title', 'titulek: kód zachován jako text, odkaz jen text');
+$smp = TsAuditFakeMeter::sample('mobile'); $smp['lighthouseResult']['audits']['network-dependency-tree-insight'] = ['score' => 0, 'title' => 'Strom síťových závislostí', 'scoreDisplayMode' => 'metricSavings'];
+$smp['lighthouseResult']['categories']['performance']['auditRefs'][] = ['id' => 'network-dependency-tree-insight', 'weight' => 0];
+t_ok(!in_array('network-dependency-tree-insight', array_column(TsAuditPageSpeed::normalize($smp)['issues'], 'id'), true), 'obecný přehled bez zjištěné hodnoty se do nálezů nedostane');
+$a = aud(['source' => 'admin', 'vision' => new TsAuditFakeVision(['text' => 'Nemohu posoudit obrázek.'])], $m, $v);
+$o = post($a, ['url' => 'example.cz']); $s = run($a, $o['id']);
+t_ok($s['report']['ai']['reason'] === 'empty' && $s['report']['ai']['raw'] === 'Nemohu posoudit obrázek.' && $s['report']['ai']['finish'] === 'stop', 'administrace: u prázdného hodnocení diagnostika (výstup modelu)');
+$o2 = post($a, ['url' => 'example.cz', 'force' => true]); t_ok($o2['status'] === 'queued' && empty($o2['cached']), 'administrace: vynucené nové měření mimo cache');
+$a = aud([], $m, $v); run($a, post($a, ['url' => 'example.cz'])['id']); t_ok(!empty(post($a, ['url' => 'example.cz', 'force' => true], '6.6.6.6')['cached']), 'veřejnost: „force“ se ignoruje (cache)');
+t_eq(TsSiteAudit::parseVision('{"items":[{"area":"area name","text":"recommendation","priority":1}]}'), [], 'opsaná šablona z pokynů se zahodí');

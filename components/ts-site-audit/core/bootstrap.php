@@ -34,7 +34,7 @@ function ts_site_audit(array $s): TsSiteAudit
     elseif (is_array($v) && ($v['provider'] ?? '') === 'fake') $vision = new TsAuditFakeVision($v['fake'] ?? []);
     elseif (is_array($v) && ($v['provider'] ?? '') === 'cloudflare' && ($tok = ts_audit_secret((string) ($v['apiKeyFile'] ?? ''))) !== '') {
         $acc = (string) ($v['accountId'] ?? ts_audit_secret((string) ($v['accountIdFile'] ?? '')));
-        try { $vision = new TsAuditCloudflareVision(['apiKey' => $tok, 'accountId' => $acc] + array_intersect_key($v, array_flip(['model', 'baseUrl', 'timeout', 'maxTokens']))); }
+        try { $vision = new TsAuditCloudflareVision(['apiKey' => $tok, 'accountId' => $acc] + array_intersect_key($v, array_flip(['model', 'baseUrl', 'timeout', 'maxTokens', 'extra']))); }
         catch (Throwable $e) { error_log('ts-audit: hodnocení nejde vytvořit: ' . $e->getMessage()); }
     }
     return new TsSiteAudit(['store' => $stores[$k], 'meter' => $meter, 'vision' => $vision] + array_diff_key($s, array_flip(['db', 'meter', 'vision', 'timezone'])));

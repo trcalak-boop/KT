@@ -20,6 +20,10 @@ U `source = 'admin'` musí vstupní bod chránit přihlášení administrace.
 Každý dotaz na stav po odeslání odpovědi posune úlohu o jeden krok (mobil → desktop → hodnocení → report). Klient se ptá zhruba každé 3 s.
 `reason` u adresy: `empty, long, scheme, host, ip, port, userinfo, private, dns`. Chyba úlohy: `limit, auth, timeout, connection, site, request, lost`.
 
+## Zobrazení
+`<div id="ts-audit"></div>` + `window.TS_AUDIT_CONFIG = { api, lang: 'cs'|'en', admin: true }` + `public/ts-audit.js`, `public/ts-audit.css`. `TSAudit.run(url)` spustí audit z kódu.
+Administrace: `GET ?r=audit-list`, `audit-status`/`audit-shot` s `job=<číslo>`; `access` = přístupová cookie (staging).
+
 ## Report
 ```json
 { "url": "https://example.cz/", "finalUrl": "…", "lang": "cs", "measuredAt": "2026-11-01T20:00:00.000Z",

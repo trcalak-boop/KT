@@ -1,12 +1,13 @@
 {
   "name": "ts-site-audit",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
   "summary": "Audit existujícího webu: Lighthouse přes Google PageSpeed (mobil i desktop, snímky), vizuální hodnocení AI odděleně od měření, kontrola adresy proti SSRF, úloha po krocích pro sdílený hosting, cache, limity, retence.",
   "runtime": [
-    "php"
+    "php",
+    "browser"
   ],
   "origin": {
     "project": "tas-web",
@@ -25,7 +26,8 @@
   "entrypoints": {
     "php": "core/bootstrap.php",
     "api": "ts_site_audit(settings)->serve()",
-    "classes": "TsSiteAudit, TsAuditUrl, TsAuditStore, TsAuditMeter (TsAuditPageSpeed, TsAuditFakeMeter), TsAuditVision (TsAuditCloudflareVision, TsAuditFakeVision)"
+    "classes": "TsSiteAudit, TsAuditUrl, TsAuditStore, TsAuditMeter (TsAuditPageSpeed, TsAuditFakeMeter), TsAuditVision (TsAuditCloudflareVision, TsAuditFakeVision)",
+    "ui": "public/ts-audit.js + public/ts-audit.css (TS_AUDIT_CONFIG = { api, lang, admin })"
   },
   "lockedFiles": [
     "core/*.php",
@@ -33,7 +35,10 @@
     "migrations/*.sql",
     "migrations/.htaccess",
     "config/*.php",
-    "config/.htaccess"
+    "config/.htaccess",
+    "public/*.js",
+    "public/*.css",
+    "public/.htaccess"
   ],
   "customerFiles": [],
   "aiEditable": [
@@ -48,17 +53,19 @@
   ],
   "works": [
     "51 testů kontroly adresy (interní sítě IPv4/IPv6, zvláštní zápisy IP, přihlašovací údaje, porty, lokální domény, IDN).",
-    "50 testů auditu s falešným měřením a hodnocením: kroky úlohy, report, snímky jen s tokenem, cache a sdílení, limity, chyby a opakování, strop AI, zámek, retence; adaptér PageSpeed proti lokální napodobenině."
+    "50 testů auditu s falešným měřením a hodnocením: kroky úlohy, report, snímky jen s tokenem, cache a sdílení, limity, chyby a opakování, strop AI, zámek, retence; adaptér PageSpeed proti lokální napodobenině.",
+    "18 integračních testů v Chromu: přístupová cookie, API po krocích, zobrazení reportu (fakta × AI, snímky, záložky), seznam pro administraci, mobil."
   ],
   "missingForProduction": [
     "Ověření se skutečným klíčem Google: přítomnost snímků v odpovědi, doba měření na hostingu, kvóta.",
     "Ověření formátu obrázku a modelu pro Cloudflare (image_url s data URI, Gemma 4), počet neuronů na hodnocení, kvalita češtiny.",
-    "Administrace „Audity“ a napojení na Tessu (etapy 5.2 a 5.3).",
-    "Zásady ochrany údajů: Google LLC jako příjemce adresy auditovaného webu (před veřejnou variantou)."
+    "Zásady ochrany údajů: Google LLC jako příjemce adresy auditovaného webu (před veřejnou variantou).",
+    "Napojení na Tessu (etapa 5.3) a na administraci CRM s přihlášením (5.4)."
   ],
   "tests": [
     "tests/url_test.php",
-    "tests/audit_test.php"
+    "tests/audit_test.php",
+    "tests/http_test.py"
   ],
   "skill": "claude-plugin/ts-studio/skills/ai-consultant/SKILL.md",
   "api": "api/ts-site-audit.md",

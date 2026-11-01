@@ -52,6 +52,14 @@ final class TsAuditPageSpeed implements TsAuditMeter
         throw new TsAuditError($code >= 500 ? 'connection' : 'request', 'http ' . $code);
     }
 
+    /* titulky Lighthouse jsou markdown: `<iframe>` → <iframe> jako text, [odkaz](url) → odkaz */
+    public static function plain(string $t): string
+    {
+        $t = preg_replace('/\[([^\]]+)\]\([^)]*\)/u', '$1', $t);
+        $t = str_replace('`', '', $t);
+        return trim(preg_replace('/\s+/u', ' ', $t));
+    }
+
     /* Lighthouse JSON → jen to, co audit potřebuje (skóre 0–100, metriky, problémy, snímky jako bajty JPEG/WEBP). */
     public static function normalize(array $j, int $per = 5): array
     {
@@ -65,8 +73,9 @@ final class TsAuditPageSpeed implements TsAuditMeter
             foreach ($c['auditRefs'] ?? [] as $ref) {
                 $a = $A[$ref['id']] ?? null;
                 if (!$a || !isset($a['score']) || $a['score'] === null || $a['score'] >= 0.9 || !in_array($a['scoreDisplayMode'] ?? '', ['binary', 'numeric', 'metricSavings'], true)) continue;
+                if (($a['scoreDisplayMode'] ?? '') !== 'binary' && trim((string) ($a['displayValue'] ?? '')) === '') continue;    /* obecné přehledy bez zjištěné hodnoty (strom závislostí, rozdělení LCP…) */
                 if (($ref['group'] ?? '') === 'metrics') continue;
-                $list[] = ['id' => (string) $ref['id'], 'title' => trim(strip_tags((string) ($a['title'] ?? ''))), 'display' => (string) ($a['displayValue'] ?? ''), 'weight' => (float) ($ref['weight'] ?? 0), 'score' => (float) $a['score']];
+                $list[] = ['id' => (string) $ref['id'], 'title' => self::plain((string) ($a['title'] ?? '')), 'display' => (string) ($a['displayValue'] ?? ''), 'weight' => (float) ($ref['weight'] ?? 0), 'score' => (float) $a['score']];
             }
             usort($list, fn ($x, $y) => [$y['weight'], $x['score']] <=> [$x['weight'], $y['score']]);
             foreach (array_slice($list, 0, $per) as $i) { unset($i['weight']); $issues[] = ['category' => $cat] + $i; }
@@ -92,7 +101,8 @@ final class TsAuditCloudflareVision implements TsAuditVision
     private array $c;
     public function __construct(array $c)
     {
-        $this->c = $c + ['model' => '@cf/google/gemma-4-26b-a4b-it', 'timeout' => 60, 'maxTokens' => 700, 'temperature' => 0.3];
+        /* extra: parametry navíc; u Gemma 4 vypnuté „přemýšlení“ (jinak spotřebuje limit tokenů a odpověď zůstane prázdná – ověřeno na stagingu) */
+        $this->c = $c + ['model' => '@cf/google/gemma-4-26b-a4b-it', 'timeout' => 60, 'maxTokens' => 900, 'temperature' => 0.3, 'extra' => ['chat_template_kwargs' => ['enable_thinking' => false]]];
         if (empty($this->c['apiKey'])) throw new TsAuditError('auth', 'chybí token Cloudflare');
         if (empty($this->c['baseUrl'])) $this->c['baseUrl'] = 'https://api.cloudflare.com/client/v4/accounts/' . rawurlencode((string) ($this->c['accountId'] ?? '')) . '/ai/v1';
     }
@@ -100,16 +110,19 @@ final class TsAuditCloudflareVision implements TsAuditVision
     public function review(string $jpeg, string $lang, array $context): array
     {
         $mime = substr($jpeg, 0, 4) === 'RIFF' ? 'image/webp' : (substr($jpeg, 0, 4) === "\x89PNG" ? 'image/png' : 'image/jpeg');
-        $body = json_encode(['model' => $this->c['model'], 'max_tokens' => (int) $this->c['maxTokens'], 'temperature' => (float) $this->c['temperature'],
+        $body = json_encode((array) $this->c['extra'] + ['model' => $this->c['model'], 'max_tokens' => (int) $this->c['maxTokens'], 'temperature' => (float) $this->c['temperature'],
             'messages' => [['role' => 'system', 'content' => TsSiteAudit::visionPrompt($lang)],
                 ['role' => 'user', 'content' => [['type' => 'text', 'text' => TsSiteAudit::visionContext($context, $lang)], ['type' => 'image_url', 'image_url' => ['url' => 'data:' . $mime . ';base64,' . base64_encode($jpeg)]]]]]], JSON_UNESCAPED_UNICODE);
         [$code, $raw] = ts_audit_http('POST', rtrim($this->c['baseUrl'], '/') . '/chat/completions', ['Content-Type: application/json', 'Authorization: Bearer ' . $this->c['apiKey']], $body, (int) $this->c['timeout']);
         $j = json_decode($raw, true);
         if ($code === 401 || $code === 403) throw new TsAuditError('auth', 'http ' . $code);
         if ($code === 429 || ($code !== 200 && is_array($j) && preg_match('/allocation|quota|neurons/i', json_encode($j)))) throw new TsAuditError('limit', 'http ' . $code);
-        if ($code !== 200 || !isset($j['choices'][0]['message']['content'])) throw new TsAuditError('request', 'http ' . $code);
+        if ($code !== 200 || !isset($j['choices'][0]['message'])) throw new TsAuditError('request', 'http ' . $code . ' ' . mb_substr(preg_replace('/\s+/', ' ', $raw), 0, 160));
+        $msg = $j['choices'][0]['message']; $c = $msg['content'] ?? '';
+        if (is_array($c)) $c = implode("\n", array_map(fn ($p) => is_array($p) ? (string) ($p['text'] ?? '') : (string) $p, $c));
         $u = $j['usage'] ?? [];
-        return ['items' => TsSiteAudit::parseVision((string) $j['choices'][0]['message']['content']), 'usage' => ['in' => (int) ($u['prompt_tokens'] ?? 0), 'out' => (int) ($u['completion_tokens'] ?? 0)]];
+        return ['items' => TsSiteAudit::parseVision((string) $c), 'raw' => mb_substr((string) $c, 0, 600), 'finish' => (string) ($j['choices'][0]['finish_reason'] ?? ''),
+            'usage' => ['in' => (int) ($u['prompt_tokens'] ?? 0), 'out' => (int) ($u['completion_tokens'] ?? 0)]];
     }
 }
 
@@ -128,7 +141,7 @@ final class TsAuditFakeMeter implements TsAuditMeter
     /* Lighthouse JSON ve zkráceném tvaru (struktura jako skutečná odpověď API). */
     public static function sample(string $strategy): array
     {
-        $jpeg = "\xFF\xD8\xFF\xE0" . str_repeat("\x00", 80) . "\xFF\xD9";
+        $jpeg = base64_decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');   /* platný JPEG 1×1 */
         $mob = $strategy !== 'desktop';
         return ['lighthouseResult' => ['lighthouseVersion' => '12.0.0', 'fetchTime' => '2026-11-01T20:00:00.000Z', 'finalDisplayedUrl' => 'https://example.cz/',
             'configSettings' => ['formFactor' => $mob ? 'mobile' : 'desktop'], 'runWarnings' => [],
@@ -145,7 +158,7 @@ final class TsAuditFakeMeter implements TsAuditMeter
                 'uses-optimized-images' => ['score' => 0.4, 'displayValue' => 'Potenciální úspora 340 KiB', 'title' => 'Efektivně zakódujte obrázky', 'scoreDisplayMode' => 'metricSavings'],
                 'unused-javascript' => ['score' => 0.95, 'title' => 'Omezte nepoužívaný JavaScript', 'scoreDisplayMode' => 'metricSavings'],
                 'color-contrast' => ['score' => 0, 'title' => 'Barvy pozadí a popředí nemají dostatečný kontrast', 'scoreDisplayMode' => 'binary'],
-                'image-alt' => ['score' => 0, 'title' => 'Obrázky nemají atributy <code>[alt]</code>', 'scoreDisplayMode' => 'binary'],
+                'image-alt' => ['score' => 0, 'title' => 'Obrázky nemají atributy `[alt]`', 'scoreDisplayMode' => 'binary'],
                 'html-has-lang' => ['score' => 1, 'title' => 'Prvek html má atribut lang', 'scoreDisplayMode' => 'binary'],
                 'is-on-https' => ['score' => 1, 'title' => 'Používá HTTPS', 'scoreDisplayMode' => 'binary'],
                 'meta-description' => ['score' => 1, 'title' => 'Dokument má metapopis', 'scoreDisplayMode' => 'binary'],
@@ -164,6 +177,6 @@ final class TsAuditFakeVision implements TsAuditVision
         $this->calls[] = [strlen($jpeg), $lang, $context];
         if (!empty($this->c['fail'])) throw new TsAuditError($this->c['fail'], 'simulovaná chyba hodnocení');
         $text = $this->c['text'] ?? '{"items":[{"area":"hierarchie","text":"Hlavní nadpis splývá s pozadím, zvětšete kontrast a velikost.","priority":1},{"area":"výzva k akci","text":"Tlačítko poptávky není nad ohybem stránky vidět.","priority":2},{"area":"rychlost","text":"Web je o 70 % pomalejší než konkurence.","priority":1}]}';
-        return ['items' => TsSiteAudit::parseVision($text), 'usage' => ['in' => 1500, 'out' => 200]];
+        return ['items' => TsSiteAudit::parseVision($text), 'raw' => mb_substr($text, 0, 600), 'finish' => 'stop', 'usage' => ['in' => 1500, 'out' => 200]];
     }
 }

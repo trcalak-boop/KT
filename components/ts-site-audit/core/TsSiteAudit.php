@@ -4,6 +4,8 @@
    POST ?r=audit         { url, lang?, ref? }          → { ok, id, status, cached? }   (id = tajný token úlohy)
    GET  ?r=audit-status&id=…                           → { ok, status, progress, report? , error? }
    GET  ?r=audit-shot&id=…&d=mobile|desktop[&full=1]   → obrázek (jen pro držitele tokenu)
+   Jen administrace ('source' => 'admin'): GET ?r=audit-list → { ok, items }, u audit-status a audit-shot místo id i job=<číslo úlohy>.
+   'access' => ['cookie' => …, 'hash' => sha256(klíč)] – odpoví jen prohlížeči s touto cookie (neveřejný staging).
 
    Hosting bez procesů na pozadí: úloha běží PO KROCÍCH (mobil → desktop → hodnocení → report). Každý dotaz na stav
    po odeslání odpovědi posune úlohu o jeden krok (zámek proti souběhu), žádný požadavek netrvá déle než jedno měření.
@@ -50,11 +52,20 @@ final class TsSiteAudit
     public function handle(string $method, string $route, string $raw, array $get, array $headers, string $ip): array
     {
         try {
+            if (!$this->accessOk($headers)) return [403, ['ok' => false, 'error' => 'access']];
             if (!$this->originOk($headers)) return [403, ['ok' => false, 'error' => 'origin']];
+            $admin = $this->c['source'] === 'admin';
+            if ($admin && $route === 'audit-list' && $method === 'GET') return [200, ['ok' => true, 'items' => $this->store->list(50)]];
+            if ($admin && !empty($get['job']) && in_array($route, ['audit-status', 'audit-shot'], true) && $method === 'GET') {
+                $j = $this->store->byId((int) $get['job']);
+                if (!$j) return [404, ['ok' => false, 'error' => 'id']];
+                if ($route === 'audit-shot') { $img = $this->shotFor($j, (string) ($get['d'] ?? 'mobile'), !empty($get['full'])); return $img ? [200, $img] : [404, ['ok' => false, 'error' => 'shot']]; }
+                return [200, $this->statusOf($j)];
+            }
             if ($route === 'audit' && $method === 'POST') {
                 if (stripos($headers['content-type'] ?? '', 'application/json') !== 0) return [415, ['ok' => false, 'error' => 'type']];
                 $b = json_decode($raw, true); if (!is_array($b)) return [400, ['ok' => false, 'error' => 'json']];
-                $r = $this->create((string) ($b['url'] ?? ''), ['ip' => $ip, 'lang' => (string) ($b['lang'] ?? ''), 'ref' => (string) ($b['ref'] ?? '')]);
+                $r = $this->create((string) ($b['url'] ?? ''), ['ip' => $ip, 'lang' => (string) ($b['lang'] ?? ''), 'ref' => (string) ($b['ref'] ?? ''), 'force' => $admin && !empty($b['force'])]);
                 $code = $r['ok'] ? 202 : ($r['error'] === 'limit' ? 429 : ($r['error'] === 'disabled' ? 503 : 422));
                 if ($r['ok'] && $r['status'] !== 'done') $r['_advance'] = $r['id'];
                 return [$code, $r];
@@ -74,6 +85,13 @@ final class TsSiteAudit
             error_log('ts-audit: ' . get_class($e) . ': ' . $e->getMessage());
             return [500, ['ok' => false, 'error' => 'server']];
         }
+    }
+    private function accessOk(array $h): bool
+    {
+        $a = $this->c['access'] ?? null; if (!$a) return true;
+        $v = '';
+        foreach (explode(';', (string) ($h['cookie'] ?? '')) as $part) { [$k, $x] = array_pad(explode('=', trim($part), 2), 2, ''); if ($k === $a['cookie']) $v = urldecode($x); }
+        return $v !== '' && hash_equals((string) $a['hash'], hash('sha256', $v));
     }
     private function originOk(array $h): bool
     {
@@ -95,7 +113,7 @@ final class TsSiteAudit
         if ($this->store->hit('cleanup', 1, 86400)) $this->cleanup();
         $token = bin2hex(random_bytes(24));
         $base = ['token_hash' => hash('sha256', $token), 'url' => $u['url'], 'lang' => $lang, 'source' => $this->c['source'], 'ip_hash' => $iph, 'ref' => mb_substr((string) ($ctx['ref'] ?? ''), 0, 64)];
-        if ($done = $this->store->recentDone($u['url'], $lang, (int) $this->c['cacheHours'])) {
+        if (empty($ctx['force']) && $done = $this->store->recentDone($u['url'], $lang, (int) $this->c['cacheHours'])) {
             $this->store->create($base + ['status' => 'done', 'data' => ['report' => $done['data']['report'], 'shotsOf' => (int) ($done['data']['shotsOf'] ?? $done['id']), 'cached' => true]]);
             return ['ok' => true, 'id' => $token, 'status' => 'done', 'cached' => true];
         }
@@ -113,6 +131,10 @@ final class TsSiteAudit
     {
         $j = preg_match('/^[a-f0-9]{48}$/', $token) ? $this->store->byToken($token) : null;
         if (!$j) return ['ok' => false, 'error' => 'id'];
+        return $this->statusOf($j);
+    }
+    private function statusOf(array $j): array
+    {
         $out = ['ok' => true, 'status' => $j['status'], 'progress' => self::STEPS[$j['status']] ?? 5, 'url' => $j['url']];
         if ($j['status'] === 'done') { $out['report'] = $j['data']['report'] ?? null; if (!empty($j['data']['cached'])) $out['cached'] = true; }
         if ($j['status'] === 'error') $out['error'] = $j['error'];
@@ -189,10 +211,12 @@ final class TsSiteAudit
         try {
             $r = $this->vision->review($img, $j['lang'], ['host' => parse_url($j['url'], PHP_URL_HOST), 'device' => $dev,
                 'issues' => array_column(array_slice($d[$dev]['issues'] ?? [], 0, 6), 'title')]);
-            return ['ok' => (bool) $r['items'], 'items' => $r['items'], 'device' => $dev, 'model' => $this->vision->model(), 'usage' => $r['usage'] ?? [], 'reason' => $r['items'] ? '' : 'empty'];
+            $out = ['ok' => (bool) $r['items'], 'items' => $r['items'], 'device' => $dev, 'model' => $this->vision->model(), 'usage' => $r['usage'] ?? [], 'reason' => $r['items'] ? '' : 'empty'];
+            if (!$r['items']) { $out['raw'] = (string) ($r['raw'] ?? ''); $out['finish'] = (string) ($r['finish'] ?? ''); }     /* diagnostika pro administraci */
+            return $out;
         } catch (TsAuditError $e) {
             error_log('ts-audit: hodnocení ' . $e->kind . ': ' . $e->getMessage());
-            return ['ok' => false, 'reason' => 'error_' . $e->kind];
+            return ['ok' => false, 'reason' => 'error_' . $e->kind, 'raw' => mb_substr($e->getMessage(), 0, 300)];
         }
     }
 
@@ -216,7 +240,8 @@ final class TsSiteAudit
         return ['url' => $j['url'], 'finalUrl' => $m0['finalUrl'] ?? '', 'lang' => $j['lang'], 'measuredAt' => $m0['fetchTime'] ?? '',
             'source' => ['name' => 'Google PageSpeed Insights (Lighthouse)', 'version' => $m0['lighthouse'] ?? '', 'kind' => 'lab'],
             'devices' => $dev, 'recommendations' => $recs,
-            'ai' => ['ok' => (bool) ($ai['ok'] ?? false), 'model' => $ai['model'] ?? '', 'reason' => $ai['reason'] ?? '', 'device' => $ai['device'] ?? ''],
+            'ai' => ['ok' => (bool) ($ai['ok'] ?? false), 'model' => $ai['model'] ?? '', 'reason' => $ai['reason'] ?? '', 'device' => $ai['device'] ?? '', 'usage' => $ai['usage'] ?? []]
+                + ($this->c['source'] === 'admin' && !empty($ai['raw']) ? ['raw' => $ai['raw'], 'finish' => $ai['finish'] ?? ''] : []),
             'warnings' => array_values(array_unique(array_merge($d['mobile']['warnings'] ?? [], $d['desktop']['warnings'] ?? []))),
             'notes' => ['lab', 'single', 'aiSubjective']];
     }
@@ -224,7 +249,11 @@ final class TsSiteAudit
     public function screenshot(string $token, string $dev, bool $full): ?array
     {
         $j = preg_match('/^[a-f0-9]{48}$/', $token) ? $this->store->byToken($token) : null;
-        if (!$j || $j['status'] !== 'done' || !in_array($dev, ['mobile', 'desktop'], true) || $this->c['shotDir'] === '') return null;
+        return $j ? $this->shotFor($j, $dev, $full) : null;
+    }
+    private function shotFor(array $j, string $dev, bool $full): ?array
+    {
+        if ($j['status'] !== 'done' || !in_array($dev, ['mobile', 'desktop'], true) || $this->c['shotDir'] === '') return null;
         $sid = (int) ($j['data']['shotsOf'] ?? $j['id']);
         foreach (['image/jpeg', 'image/webp', 'image/png'] as $t) {
             $p = $this->shotPath($sid, $dev, $full, $t);
@@ -267,6 +296,7 @@ final class TsSiteAudit
             $txt = trim(preg_replace('/\s+/u', ' ', strip_tags((string) ($it['text'] ?? ''))));
             $area = trim(mb_substr(strip_tags((string) ($it['area'] ?? '')), 0, 40));
             if ($txt === '' || preg_match('/\d/u', $txt . $area) || isset($seen[mb_strtolower($txt)])) continue;
+            if (mb_strlen($txt) < 20 || preg_match('/^(doporučení v|recommendation|krátký název|area name)/iu', $txt . ' ' . $area) && mb_strlen($txt) < 40) continue;   /* opsaná šablona z pokynů */
             $seen[mb_strtolower($txt)] = true;
             $out[] = ['area' => $area, 'text' => mb_substr($txt, 0, 300), 'priority' => max(1, min(3, (int) ($it['priority'] ?? 2)))];
             if (count($out) >= 6) break;
