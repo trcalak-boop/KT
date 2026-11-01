@@ -89,6 +89,24 @@ open(os.path.join(W, 'index.html'), 'w').write('''<!doctype html><html lang="cs"
 <script src="/vendor/ts/ts-ai-consultant/public/ts-ai-widget.js" defer></script></body></html>''')
 open(os.path.join(W, 'tessa.png'), 'wb').write(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='))
 open(os.path.join(W, 'tessa.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', avatar: '/tessa.png', texts: { cs: { role: 'AI asistentka T&S Studia', intro: 'Dobrý den, jsem Tessa, AI asistentka T&S Studia.' } } };"))
+STUB = '''<script>
+window.__spoken=[]; window.__events=[]; window.__cancel=0;
+function FakeSR(){ FakeSR.last=this; }
+FakeSR.prototype.start=function(){ var s=this; setTimeout(function(){ if (window.__deny) { s.onerror&&s.onerror({error:'not-allowed'}); s.onend&&s.onend(); } else s.onstart&&s.onstart(); },10); };
+FakeSR.prototype.stop=function(){ var s=this; setTimeout(function(){ s.onend&&s.onend(); },10); };
+FakeSR.prototype.abort=FakeSR.prototype.stop;
+window.__say=function(t){ var s=FakeSR.last; s.onresult({results:[Object.assign([{transcript:t}],{isFinal:true})]}); s.onend(); };
+window.SpeechRecognition=FakeSR; window.webkitSpeechRecognition=undefined;
+var VO=[{name:'Zuzana (kompaktní)',lang:'cs-CZ',localService:true,default:true},{name:'Microsoft Antonin Online (Natural) - Czech (Czech)',lang:'cs-CZ',localService:false},{name:'Microsoft Vlasta Online (Natural) - Czech (Czech)',lang:'cs-CZ',localService:false},{name:'Samantha',lang:'en-US',localService:true}];
+Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{speaking:false,pending:false,getVoices:function(){return VO;},cancel:function(){window.__cancel++;},speak:function(u){ if(u.text) window.__spoken.push({text:u.text,lang:u.lang,voice:u.voice&&u.voice.name}); setTimeout(function(){u.onstart&&u.onstart(); u.onboundary&&u.onboundary({name:'word',charIndex:0}); u.onend&&u.onend();},5); }}});
+window.SpeechSynthesisUtterance=function(t){this.text=t;};
+document.addEventListener('tsai:state',function(e){window.__events.push(e.detail.state)},true);
+document.addEventListener('tsai:boundary',function(e){window.__bound=(window.__bound||0)+1},true);
+</script>'''
+idx = open(os.path.join(W, 'index.html')).read()
+open(os.path.join(W, 'voice.html'), 'w').write(idx.replace('<script>window.TS_AI_CONFIG', STUB + '<script>window.TS_AI_CONFIG'))
+open(os.path.join(W, 'novoice.html'), 'w').write(idx.replace('<script>window.TS_AI_CONFIG', '<script>window.SpeechRecognition=undefined;window.webkitSpeechRecognition=undefined;</script><script>window.TS_AI_CONFIG'))
+open(os.path.join(W, 'mascot.html'), 'w').write(idx.replace('<script>window.TS_AI_CONFIG', STUB + '<script>window.TS_AI_CONFIG').replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', mascot: true, avatar: '/tessa.png' };"))
 open(os.path.join(W, 'down.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("/api/ai/chat.php", "/api/neexistuje.php"))
 srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1.2)
 
@@ -195,6 +213,28 @@ try:
         mins = br.js("return [...document.querySelectorAll('.tsai-chip,.tsai-send,.tsai-icon')].filter(e=>e.offsetParent).map(e=>Math.min(e.offsetWidth,e.offsetHeight))")
         ok(min(mins) >= 40, 'mobil: dotykové cíle aspoň 40 px', mins)
         if os.environ.get('TSAI_SHOTS'): br.shot(os.path.join(os.environ['TSAI_SHOTS'], 'mobil.jpg'))
+        # hlas přes rozhraní prohlížeče (napodobenina: rozpoznání i předčítání)
+        br.size(1280, 900); br.go(BASE + '/voice.html', wait=.5); br.js("sessionStorage.clear()"); br.go(BASE + '/voice.html', wait=1.5); br.js("TSAiWidget.open()", wait=.3)
+        r = br.js("return [!!document.querySelector('.tsai-mic'), document.querySelector('.tsai-mic').getAttribute('aria-label'), document.querySelector('.tsai-mute').hidden, document.querySelector('.tsai-note').textContent.indexOf('prohlížeč') >= 0]")
+        ok(r[0] and r[1] == 'Mluvit' and r[2] is False and r[3], 'hlas: tlačítko Mluvit, ztlumení, upozornění na rozpoznání v prohlížeči', r)
+        br.js("document.querySelector('.tsai-mic').click()", wait=.2)
+        r = br.js("return [document.querySelector('.tsai-mic').getAttribute('aria-pressed'), document.querySelector('.tsai-status').textContent, window.__events.slice()]")
+        ok(r[0] == 'true' and r[1] == 'Poslouchám…' and 'listening' in r[2], 'hlas: po kliknutí poslouchá (aria-pressed, stav, událost)', r)
+        n0 = len(REQS); br.js("__say('Máte podobný projekt?')", wait=2.5)
+        r = br.js("return [window.__spoken.slice(), window.__events.slice(), document.querySelectorAll('.tsai-user').length, document.querySelector('.tsai-mute').getAttribute('aria-pressed'), window.__bound||0]")
+        ok(len(REQS) > n0 and r[2] == 1 and '# Hlasový režim' in REQS[-1]['body']['system'][0]['text'], 'hlas: přepsaný text odešel jako zpráva v hlasovém režimu', r[2])
+        sp = r[0]
+        ok(sp and all(x['lang'] == 'cs-CZ' and x['voice'].startswith('Microsoft Vlasta') for x in sp) and not any('/ukazky/' in x['text'] or 'http' in x['text'] for x in sp) and any('Salon Šalvěj' in x['text'] for x in sp), 'hlas: vybrán nejpřirozenější ženský český hlas (Natural před kompaktním a mužským), místo adresy název reference', sp)
+        ok(r[3] == 'true' and r[4] >= 1 and [e for e in r[1] if e in ('processing', 'speaking', 'idle')][:3] == ['processing', 'speaking', 'idle'], 'hlas: předčítání zapnuté, stavy processing → speaking → idle, hranice slov', r[1])
+        br.js("document.querySelector('.tsai-mute').click(); window.__spoken=[]; TSAiWidget.send('A ještě něco?')", wait=2.5)
+        ok(br.js("return window.__spoken.length === 0 && document.querySelector('.tsai-mute').getAttribute('aria-pressed') === 'false'"), 'hlas: po ztlumení se nepředčítá')
+        br.js("window.__deny = true; document.querySelector('.tsai-mic').click()", wait=.3)
+        ok(br.js("return document.querySelector('.tsai-status').textContent.indexOf('Mikrofon není povolený') === 0 && document.querySelector('.tsai-mic').getAttribute('aria-pressed') === 'false'"), 'hlas: odmítnutý mikrofon → hláška, psaní funguje')
+        br.js("window.__deny = false; document.querySelector('.tsai-mute').click(); {const s=document.getElementById('tsai-lang'); s.value='ja'; s.dispatchEvent(new Event('change'))} TSAiWidget.send('こんにちは')", wait=2.5)
+        ok(br.js("return document.querySelector('.tsai-status').textContent.indexOf('音声') >= 0 || document.querySelector('.tsai-status').textContent.length > 5"), 'hlas: jazyk bez hlasu v zařízení → hláška, odpověď jen textem')
+        br.js("sessionStorage.clear()"); br.go(BASE + '/novoice.html', wait=1.5); br.js("TSAiWidget.open()", wait=.3)
+        ok(br.js("return !document.querySelector('.tsai-mic') && document.querySelector('.tsai-mute').hidden"), 'prohlížeč bez rozpoznání řeči (např. Firefox): bez mikrofonu, jen text')
+        br.js("sessionStorage.clear()")
         br.size(1280, 900); br.go(BASE + '/tessa.html', wait=.5); br.js("sessionStorage.clear()"); br.go(BASE + '/tessa.html', wait=1.5)
         r = br.js("const l=document.querySelector('.tsai-launcher'); return [l.textContent, l.getAttribute('aria-label'), !!l.querySelector('img.tsai-face')]")
         ok(r[0] == 'Tessa' and r[1] == 'Tessa, AI asistentka T&S Studia' and r[2], 'persona: tlačítko „Tessa“ s portrétem a popisem pro čtečky', r)
@@ -204,6 +244,22 @@ try:
         br.js("const s=document.getElementById('tsai-lang'); s.value='de'; s.dispatchEvent(new Event('change'))", wait=.2)
         r = br.js("return [document.querySelector('.tsai-title').textContent, document.querySelector('.tsai-role').textContent]")
         ok(r[0] == 'Tessa' and r[1] == 'KI-Assistent', 'persona: jazyk bez vlastního textu použije vestavěný (fallback)', r)
+        br.js("sessionStorage.clear()")
+        br.size(1280, 900); br.go(BASE + '/mascot.html', wait=.5); br.js("sessionStorage.clear()"); br.go(BASE + '/mascot.html', wait=1.5)
+        r = br.js("const l=document.querySelector('.tsai-launcher'); return [!!l.querySelector('.tsai-bot svg'), !!document.querySelector('.tsai img'), l.querySelector('.tsai-bot').getAttribute('aria-hidden'), l.getAttribute('aria-label')]")
+        ok(r[0] and not r[1] and r[2] == 'true' and r[3].startswith('Tessa'), 'maskot: robůtek v tlačítku místo portrétu, pro čtečky skrytý', r)
+        br.js("TSAiWidget.open()", wait=.3)
+        ok(br.js("return !!document.querySelector('.tsai-head-face .tsai-bot svg') && !document.querySelector('.tsai-head-face').hidden"), 'maskot: robůtek i v hlavičce panelu')
+        r = br.js("const R=document.querySelector('.tsai'), q=s=>document.querySelector('.tsai-head-face '+s), an=s=>getComputedStyle(q(s)).animationName, out={}; "
+                  "for (const st of ['idle','listening','processing','speaking','error']) { R.setAttribute('data-state', st); out[st]=[an('.tsai-bot-fly'), an('.tsai-bot-eyes'), an('.tsai-bot-mouth rect'), getComputedStyle(q('.tsai-bot-x')).opacity, getComputedStyle(q('.tsai-bot-sig')).opacity, an('.tsai-bot-sig')]; } R.setAttribute('data-state','idle'); return out")
+        ok(r['idle'][0] == 'tsai-fly' and r['idle'][1] == 'tsai-blink' and r['listening'][0] == 'tsai-tilt' and r['listening'][5] == 'tsai-sig' and r['processing'][1] == 'tsai-scan'
+           and r['speaking'][2] == 'tsai-talk' and r['idle'][2] == 'none' and r['error'][3] == '1' and r['idle'][3] == '0' and r['error'][0] == 'tsai-shake', 'maskot: pohyb podle stavu (klid, poslech, přemýšlení, mluvení, chyba)', r)
+        br.js("window.__beat=0; new MutationObserver(function(){ if (document.querySelector('.tsai').classList.contains('tsai-beat')) window.__beat++; }).observe(document.querySelector('.tsai'), {attributes:true}); document.querySelector('.tsai-mute').click(); TSAiWidget.speak('Dobrý den, jsem Tessa.')", wait=.6)
+        ok(br.js("return window.__beat >= 1 && !document.querySelector('.tsai').classList.contains('tsai-beat')"), 'maskot: ústa se pohnou na hranici slova při skutečném předčítání')
+        br.call('Emulation.setEmulatedMedia', features=[{'name': 'prefers-reduced-motion', 'value': 'reduce'}])
+        r = br.js("const R=document.querySelector('.tsai'); R.setAttribute('data-state','speaking'); const a=[getComputedStyle(document.querySelector('.tsai-head-face .tsai-bot-fly')).animationName, getComputedStyle(document.querySelector('.tsai-head-face .tsai-bot-mouth rect')).animationName]; R.setAttribute('data-state','error'); a.push(getComputedStyle(document.querySelector('.tsai-head-face .tsai-bot-x')).opacity); R.setAttribute('data-state','idle'); return a")
+        ok(r[0] == 'none' and r[1] == 'none' and r[2] == '1', 'maskot: omezený pohyb (prefers-reduced-motion) → bez animací, stav chyby stále vidět', r)
+        br.call('Emulation.setEmulatedMedia', features=[])
         br.js("sessionStorage.clear()")
         br.size(1280, 900); br.go(BASE + '/down.html', wait=1.2)
         ok(br.js("return document.querySelector('.tsai').hidden === true"), 'nedostupná brána: tlačítko asistenta se vůbec neukáže')

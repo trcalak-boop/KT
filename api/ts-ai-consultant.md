@@ -60,7 +60,8 @@ Odkazy v odpovědích projdou jen tehdy, když jsou v `references[].url`, `pages
 - `ts_ai_harden(['requireHttps' => true, 'paths' => [...]])`, `ts_ai_api_key($s)`.
 
 ## Widget
-`window.TS_AI_CONFIG = { api, business, email, privacyUrl: 'url' | { cs: '…', '*': '…' }, lang?, maxChars?, checkStatus?, name?, avatar?, texts?: { cs: { role, intro, … }, '*': {…} } }`; `window.TSAiWidget.open() / close() / send(text)`. Jazyk z `<html lang>`, přepínač 18 jazyků (arabština RTL). Stav konverzace v `sessionStorage` (jen v záložce).
+`window.TS_AI_CONFIG = { api, business, email, privacyUrl: 'url' | { cs: '…', '*': '…' }, lang?, maxChars?, checkStatus?, name?, mascot?, avatar?, texts?: { cs: { role, intro, … }, '*': {…} } }`; `window.TSAiWidget.open() / close() / send(text)`. Jazyk z `<html lang>`, přepínač 18 jazyků (arabština RTL). Stav konverzace v `sessionStorage` (jen v záložce).
+`mascot: true` = animovaný robůtek místo portrétu (SVG + CSS, stavy z `data-state` na `.tsai`: idle, listening, processing, speaking, error; třída `tsai-beat` na hranici slova). `avatar` = URL statického portrétu, použije se jen bez maskota.
 
 ## Databáze
 Migrace `migrations/001_ai.{sqlite,mysql}.sql`, rollback `001_ai.down.sql` (smaže data). Tabulky `ts_ai_conversations, ts_ai_messages, ts_ai_usage, ts_ai_reservations, ts_ai_rate, ts_ai_leads, ts_ai_schema` + `ts_mail_queue`.

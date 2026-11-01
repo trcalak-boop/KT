@@ -38,12 +38,39 @@
     };
     var KEYS = ['open', 'intro', 'note', 'ph', 'send', 'close', 'lang', 'qNew', 'mNew', 'qImp', 'mImp', 'qRef', 'mRef', 'qPrice', 'mPrice', 'qContact', 'typing', 'err', 'fTitle', 'name', 'email', 'phone', 'msg', 'consent', 'privacy', 'submit', 'sent', 'fErr', 'newChat', 'cancel', 'limit', 'you', 'ai'];
     var MAX = C.maxChars || 1000;
+    /* hlas zdarma přes prohlížeč: mic, micStop, listening, mute, unmute, denied, vnote, novoice */
+    var VK = ['mic', 'micStop', 'listening', 'mute', 'unmute', 'denied', 'vnote', 'novoice'];
+    var VT = {
+      en: ['Speak', 'Stop listening', 'Listening…', 'Mute spoken replies', 'Read replies aloud', 'The microphone is not allowed or not working. You can type instead.', 'Voice input is recognised by your browser (e.g. Google, Apple or Microsoft); only the text reaches us. We do not store audio.', 'Your browser has no voice for this language, so the reply is text only.'],
+      cs: ['Mluvit', 'Přestat poslouchat', 'Poslouchám…', 'Ztlumit předčítání', 'Předčítat odpovědi', 'Mikrofon není povolený nebo nefunguje. Můžete psát.', 'Řeč rozpozná váš prohlížeč (např. Google, Apple nebo Microsoft), k nám přijde jen text. Zvuk neukládáme.', 'Prohlížeč nemá hlas pro tento jazyk, odpověď je jen textem.'],
+      de: ['Sprechen', 'Zuhören beenden', 'Ich höre zu…', 'Vorlesen stummschalten', 'Antworten vorlesen', 'Das Mikrofon ist nicht erlaubt oder funktioniert nicht. Sie können schreiben.', 'Die Sprache erkennt Ihr Browser (z. B. Google, Apple oder Microsoft); zu uns gelangt nur der Text. Wir speichern keine Audioaufnahmen.', 'Ihr Browser hat keine Stimme für diese Sprache, die Antwort gibt es nur als Text.'],
+      es: ['Hablar', 'Dejar de escuchar', 'Escuchando…', 'Silenciar la lectura', 'Leer respuestas en voz alta', 'El micrófono no está permitido o no funciona. Puedes escribir.', 'Tu navegador reconoce la voz (p. ej. Google, Apple o Microsoft); a nosotros solo llega el texto. No guardamos audio.', 'Tu navegador no tiene voz para este idioma; la respuesta es solo texto.'],
+      fr: ['Parler', 'Arrêter l’écoute', 'Je vous écoute…', 'Couper la lecture', 'Lire les réponses à voix haute', 'Le micro n’est pas autorisé ou ne fonctionne pas. Vous pouvez écrire.', 'La voix est reconnue par votre navigateur (p. ex. Google, Apple ou Microsoft) ; seul le texte nous parvient. Nous ne conservons pas l’audio.', 'Votre navigateur n’a pas de voix pour cette langue ; la réponse est seulement écrite.'],
+      pt: ['Falar', 'Parar de ouvir', 'A ouvir…', 'Silenciar a leitura', 'Ler respostas em voz alta', 'O microfone não está autorizado ou não funciona. Pode escrever.', 'A voz é reconhecida pelo seu navegador (p. ex. Google, Apple ou Microsoft); a nós só chega o texto. Não guardamos áudio.', 'O seu navegador não tem voz para este idioma; a resposta é só texto.'],
+      it: ['Parla', 'Smetti di ascoltare', 'Ti ascolto…', 'Disattiva la lettura', 'Leggi le risposte ad alta voce', 'Il microfono non è consentito o non funziona. Puoi scrivere.', 'La voce è riconosciuta dal tuo browser (ad es. Google, Apple o Microsoft); a noi arriva solo il testo. Non conserviamo l’audio.', 'Il tuo browser non ha una voce per questa lingua: la risposta è solo testo.'],
+      pl: ['Mów', 'Przestań słuchać', 'Słucham…', 'Wycisz czytanie', 'Czytaj odpowiedzi na głos', 'Mikrofon nie jest dozwolony lub nie działa. Możesz pisać.', 'Mowę rozpoznaje Twoja przeglądarka (np. Google, Apple lub Microsoft); do nas trafia tylko tekst. Nie zapisujemy nagrań.', 'Przeglądarka nie ma głosu dla tego języka, odpowiedź jest tylko tekstem.'],
+      nl: ['Spreken', 'Stoppen met luisteren', 'Ik luister…', 'Voorlezen dempen', 'Antwoorden voorlezen', 'De microfoon is niet toegestaan of werkt niet. Je kunt typen.', 'Je browser herkent de spraak (bijv. Google, Apple of Microsoft); alleen de tekst komt bij ons. We bewaren geen audio.', 'Je browser heeft geen stem voor deze taal; het antwoord is alleen tekst.'],
+      uk: ['Говорити', 'Припинити слухати', 'Слухаю…', 'Вимкнути озвучення', 'Озвучувати відповіді', 'Мікрофон не дозволено або він не працює. Можна писати.', 'Мовлення розпізнає ваш браузер (напр. Google, Apple чи Microsoft); до нас надходить лише текст. Аудіо ми не зберігаємо.', 'Браузер не має голосу для цієї мови, відповідь лише текстом.'],
+      ar: ['تحدّث', 'إيقاف الاستماع', 'أستمع…', 'كتم القراءة الصوتية', 'قراءة الردود بصوت عالٍ', 'الميكروفون غير مسموح أو لا يعمل. يمكنك الكتابة.', 'يتعرف متصفحك على الكلام (مثل Google أو Apple أو Microsoft)، ولا يصلنا إلا النص. لا نحفظ التسجيلات الصوتية.', 'لا يتوفر في متصفحك صوت لهذه اللغة، لذا الرد نصي فقط.'],
+      hi: ['बोलें', 'सुनना बंद करें', 'सुन रही हूँ…', 'पढ़कर सुनाना बंद करें', 'जवाब पढ़कर सुनाएँ', 'माइक्रोफ़ोन की अनुमति नहीं है या वह काम नहीं कर रहा। आप लिख सकते हैं।', 'आवाज़ को आपका ब्राउज़र पहचानता है (जैसे Google, Apple या Microsoft); हम तक केवल टेक्स्ट पहुँचता है। हम ऑडियो सेव नहीं करते।', 'आपके ब्राउज़र में इस भाषा की आवाज़ नहीं है, इसलिए जवाब केवल टेक्स्ट में है।'],
+      zh: ['说话', '停止聆听', '正在聆听…', '关闭朗读', '朗读回复', '麦克风未获允许或无法使用。您可以打字。', '语音由您的浏览器识别（如 Google、Apple 或 Microsoft），我们只收到文字。我们不保存音频。', '您的浏览器没有该语言的语音，回复仅以文字显示。'],
+      ja: ['話す', '聞き取りを停止', '聞いています…', '読み上げをミュート', '回答を読み上げる', 'マイクが許可されていないか、動作していません。入力もできます。', '音声はお使いのブラウザ（Google、Apple、Microsoft など）が認識し、当方にはテキストのみが届きます。音声は保存しません。', 'お使いのブラウザにはこの言語の音声がないため、回答はテキストのみです。'],
+      ko: ['말하기', '듣기 중지', '듣고 있어요…', '읽어주기 끄기', '답변 읽어주기', '마이크가 허용되지 않았거나 작동하지 않습니다. 입력해 주세요.', '음성은 브라우저(예: Google, Apple, Microsoft)가 인식하며 저희에게는 텍스트만 전달됩니다. 음성은 저장하지 않습니다.', '브라우저에 이 언어의 음성이 없어 답변은 텍스트로만 표시됩니다.'],
+      tr: ['Konuş', 'Dinlemeyi durdur', 'Dinliyorum…', 'Sesli okumayı kapat', 'Yanıtları sesli oku', 'Mikrofon izni yok veya çalışmıyor. Yazabilirsiniz.', 'Konuşmayı tarayıcınız tanır (ör. Google, Apple veya Microsoft); bize yalnızca metin ulaşır. Ses kaydı saklamayız.', 'Tarayıcınızda bu dil için ses yok, yanıt yalnızca metin olarak gösterilir.'],
+      id: ['Bicara', 'Berhenti mendengarkan', 'Mendengarkan…', 'Matikan pembacaan', 'Bacakan jawaban', 'Mikrofon tidak diizinkan atau tidak berfungsi. Anda bisa mengetik.', 'Suara dikenali oleh peramban Anda (mis. Google, Apple, atau Microsoft); kami hanya menerima teks. Kami tidak menyimpan audio.', 'Peramban Anda tidak punya suara untuk bahasa ini, jadi jawaban hanya berupa teks.'],
+      ru: ['Говорить', 'Перестать слушать', 'Слушаю…', 'Выключить озвучку', 'Озвучивать ответы', 'Микрофон не разрешён или не работает. Можно писать.', 'Речь распознаёт ваш браузер (например, Google, Apple или Microsoft), к нам приходит только текст. Аудио мы не сохраняем.', 'В браузере нет голоса для этого языка, ответ только текстом.']
+    };
+    var LOC = { en: 'en-US', cs: 'cs-CZ', de: 'de-DE', es: 'es-ES', fr: 'fr-FR', pt: 'pt-PT', it: 'it-IT', pl: 'pl-PL', nl: 'nl-NL', uk: 'uk-UA', ar: 'ar-SA', hi: 'hi-IN', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', tr: 'tr-TR', id: 'id-ID', ru: 'ru-RU' };
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var SS = window.speechSynthesis && window.SpeechSynthesisUtterance ? window.speechSynthesis : null;
+    var VOICE = C.voice !== false && typeof SR === 'function';      /* Firefox aj. bez rozpoznání řeči: jen text */
 
     function pick(l) { l = String(l || '').toLowerCase().slice(0, 2); return LANGS.indexOf(l) >= 0 ? l : null; }
     var store = { get: function (k) { try { return sessionStorage.getItem('tsai:' + k); } catch (e) { return null; } }, set: function (k, v) { try { v === null ? sessionStorage.removeItem('tsai:' + k) : sessionStorage.setItem('tsai:' + k, v); } catch (e) { } } };
     var lang = pick(store.get('lang')) || pick(C.lang) || pick(document.documentElement.lang) || 'en';
     /* TS_AI_CONFIG.texts = { cs: { intro: '…', role: '…' }, '*': {…} } přepíše vestavěné texty (persona projektu) */
     function own(k) { var x = C.texts || {}; return (x[lang] && x[lang][k]) || (x['*'] && x['*'][k]) || ''; }
+    function vt(k) { var a = VT[lang] || VT.en, i = VK.indexOf(k); return own(k) || a[i] || VT.en[i]; }
     function t(k, v) { var a = T[lang] || T.en, s = own(k) || a[KEYS.indexOf(k)] || T.en[KEYS.indexOf(k)] || k; v = v || {}; return s.replace('{b}', C.business || '').replace('{e}', C.email || '').replace('{n}', v.n || MAX); }
     function el(tag, attrs, kids) {
       var e = document.createElement(tag);
@@ -66,7 +93,18 @@
     var panel = el('section', { id: 'tsai-panel', class: 'tsai-panel', role: 'dialog', 'aria-modal': 'false', hidden: '' });
     var title = el('h2', { class: 'tsai-title', id: 'tsai-title' }), role = el('p', { class: 'tsai-role' });
     var NAME = C.name || '';
-    function face(cls) {                     /* statický portrét persony (TS_AI_CONFIG.avatar); když se nenačte, zmizí */
+    /* maskot persony (TS_AI_CONFIG.mascot): létající robůtek v SVG, pohyb řídí jen CSS podle data-state na .tsai */
+    var BOT = '<svg viewBox="0 0 64 64" width="64" height="64" focusable="false"><ellipse class="tsai-bot-shadow" cx="32" cy="61" rx="11" ry="2"/>' +
+      '<g class="tsai-bot-fly"><path class="tsai-bot-jet" d="M28 50h8l-4 9z"/><rect class="tsai-bot-base" x="25" y="45" width="14" height="7" rx="3.5"/>' +
+      '<g class="tsai-bot-sig"><path d="M5 25a10 10 0 0 0 0 14"/><path d="M59 25a10 10 0 0 1 0 14"/></g>' +
+      '<path class="tsai-bot-ant" d="M32 15V9"/><circle class="tsai-bot-tip" cx="32" cy="7" r="3.2"/>' +
+      '<rect class="tsai-bot-ear" x="8.5" y="25" width="5" height="12" rx="2.5"/><rect class="tsai-bot-ear" x="50.5" y="25" width="5" height="12" rx="2.5"/>' +
+      '<rect class="tsai-bot-head" x="12" y="14" width="40" height="33" rx="15"/><rect class="tsai-bot-visor" x="17" y="20" width="30" height="20" rx="10"/>' +
+      '<g class="tsai-bot-eyes"><rect x="22.5" y="24.5" width="6" height="8" rx="3"/><rect x="35.5" y="24.5" width="6" height="8" rx="3"/></g>' +
+      '<g class="tsai-bot-x"><path d="M23 25l5 6M28 25l-5 6M36 25l5 6M41 25l-5 6"/></g>' +
+      '<g class="tsai-bot-mouth"><rect x="27.5" y="34" width="2" height="2.4" rx="1"/><rect x="31" y="34" width="2" height="2.4" rx="1"/><rect x="34.5" y="34" width="2" height="2.4" rx="1"/></g></g></svg>';
+    function face(cls) {                     /* maskot, jinak statický portrét (TS_AI_CONFIG.avatar); když se portrét nenačte, zmizí */
+      if (C.mascot) { var b = el('span', { class: 'tsai-bot ' + cls, 'aria-hidden': 'true' }); b.innerHTML = BOT; return b; }
       if (!C.avatar) return el('span', { class: 'tsai-dot', 'aria-hidden': 'true' });
       var i = el('img', { class: cls, src: C.avatar, alt: '', width: '64', height: '64', decoding: 'async', 'aria-hidden': 'true' });
       i.addEventListener('error', function () { i.remove(); }); return i;
@@ -81,11 +119,15 @@
     var input = el('textarea', { class: 'tsai-input', id: 'tsai-input', rows: '1', maxlength: String(MAX) });
     var inputLbl = el('label', { class: 'tsai-sr', for: 'tsai-input' });
     var sendBtn = el('button', { type: 'submit', class: 'tsai-send' });
-    var composer = el('form', { class: 'tsai-composer', novalidate: '' }, [inputLbl, input, sendBtn]);
+    var micBtn = el('button', { type: 'button', class: 'tsai-icon tsai-mic', 'aria-pressed': 'false' });
+    var muteBtn = el('button', { type: 'button', class: 'tsai-icon tsai-mute', 'aria-pressed': 'false' });
+    var composer = el('form', { class: 'tsai-composer', novalidate: '' }, VOICE ? [inputLbl, input, micBtn, sendBtn] : [inputLbl, input, sendBtn]);
+    var SVG_MIC = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+    var SVG_SPK = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="tsai-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>';
     panel.setAttribute('aria-labelledby', 'tsai-title');
     LANGS.forEach(function (l) { langSel.appendChild(el('option', { value: l, text: NAMES[l], lang: l })); });
     var headFace = el('span', { class: 'tsai-head-face' });
-    panel.appendChild(el('header', { class: 'tsai-head' }, [headFace, el('div', { class: 'tsai-who' }, [title, role]), langLbl, langSel, newBtn, closeBtn]));
+    panel.appendChild(el('header', { class: 'tsai-head' }, [headFace, el('div', { class: 'tsai-who' }, [title, role]), langLbl, langSel, muteBtn, newBtn, closeBtn]));
     panel.appendChild(log); panel.appendChild(quick); panel.appendChild(status); panel.appendChild(composer);
     root.appendChild(panel); root.appendChild(launcher);
 
@@ -97,10 +139,11 @@
       launcher.innerHTML = ''; launcher.appendChild(face('tsai-face')); launcher.appendChild(el('span', { text: NAME || t('open') }));
       if (NAME) launcher.setAttribute('aria-label', NAME + ', ' + (own('role') || t('open'))); else launcher.removeAttribute('aria-label');
       title.textContent = NAME || t('open'); role.textContent = NAME ? (own('role') || t('open')) : ''; role.hidden = !NAME;
-      headFace.innerHTML = ''; if (C.avatar) headFace.appendChild(face('tsai-face tsai-face-lg')); headFace.hidden = !C.avatar; langLbl.textContent = t('lang'); langSel.value = lang;
+      headFace.innerHTML = ''; if (C.mascot || C.avatar) headFace.appendChild(face('tsai-face tsai-face-lg')); headFace.hidden = !(C.mascot || C.avatar); langLbl.textContent = t('lang'); langSel.value = lang;
       newBtn.setAttribute('aria-label', t('newChat')); newBtn.title = t('newChat'); newBtn.textContent = '↺';
       closeBtn.setAttribute('aria-label', t('close')); closeBtn.title = t('close'); closeBtn.textContent = '×';
       input.placeholder = t('ph'); inputLbl.textContent = t('ph'); sendBtn.textContent = t('send');
+            micBtn.innerHTML = SVG_MIC; micBtn.setAttribute('aria-label', listening ? vt('micStop') : vt('mic')); micBtn.title = vt('mic'); syncMute();
       quick.innerHTML = '';
       [['qNew', 'mNew'], ['qImp', 'mImp'], ['qRef', 'mRef'], ['qPrice', 'mPrice'], ['qContact', null]].forEach(function (q) {
         quick.appendChild(el('button', { type: 'button', class: 'tsai-chip', text: t(q[0]), onclick: function () { q[1] ? send(t(q[1])) : showForm(''); } }));
@@ -138,7 +181,7 @@
     function render() {
       log.innerHTML = '';
       var intro = el('div', { class: 'tsai-msg tsai-assistant' }); intro.appendChild(el('span', { class: 'tsai-sr', text: (NAME || t('ai')) + ': ' })); intro.appendChild(document.createTextNode(t('intro')));
-      var note = el('p', { class: 'tsai-note', text: t('note') + ' ' }), pu = privacy();
+      var note = el('p', { class: 'tsai-note', text: t('note') + ' ' + (VOICE ? vt('vnote') + ' ' : '') }), pu = privacy();
       if (pu) note.appendChild(el('a', { href: pu, target: '_blank', rel: 'noopener', text: t('privacy') }));
       log.appendChild(intro); log.appendChild(note);
       history.forEach(function (h) { log.appendChild(bubble(h.r, h.t, h.l)); });
@@ -148,17 +191,17 @@
     function remember(r, text, links) { history.push({ r: r, t: text, l: links || [] }); if (history.length > 40) history = history.slice(-40); store.set('hist', JSON.stringify(history)); }
     function add(role, text, links) { remember(role, text, links); quick.hidden = true; log.appendChild(bubble(role, text, links)); log.scrollTop = log.scrollHeight; }
 
-    function send(text) {
+    function send(text, mode) {
       text = String(text || '').trim(); if (!text || busy) return;
       if (text.length > MAX) { status.textContent = t('limit'); return; }
       busy = true; sendBtn.disabled = true; input.value = ''; grow(); add('user', text);
-      log.setAttribute('aria-busy', 'true'); status.textContent = t('typing'); root.classList.add('tsai-busy');
-      post('message', { conversation: conv || undefined, text: text, lang: lang, page: location.pathname })
+      log.setAttribute('aria-busy', 'true'); status.textContent = t('typing'); root.classList.add('tsai-busy'); stopSpeak(); state('processing');
+      post('message', { conversation: conv || undefined, text: text, lang: lang, page: location.pathname, mode: mode === 'voice' ? 'voice' : undefined })
         .then(function (j) {
           if (j.conversation) { conv = j.conversation; store.set('conv', conv); }
           var r = j.reply;
           if (r && (r.text || (r.actions || []).length)) {
-            if (r.text) add('assistant', r.text, r.links);
+            if (r.text) { add('assistant', r.text, r.links); speak(r.text, r.links); }
             if ((r.actions || []).indexOf('contact') >= 0) showForm(r.summary || '');
             if ((r.actions || []).indexOf('offer') >= 0 && (r.actions || []).indexOf('contact') < 0) {      /* nabídka formuláře: tlačítko, otevře návštěvník */
               var sum = r.summary || '', ob = el('button', { type: 'button', class: 'tsai-chip tsai-offer', text: t('qContact'), onclick: function () { ob.remove(); showForm(sum); } });
@@ -167,7 +210,86 @@
           } else { add('assistant', t('err')); showForm(''); }
         })
         .catch(function () { add('assistant', t('err')); showForm(''); })
-        .then(function () { busy = false; sendBtn.disabled = false; log.removeAttribute('aria-busy'); status.textContent = ''; root.classList.remove('tsai-busy'); if (!form) input.focus(); });
+        .then(function () { busy = false; sendBtn.disabled = false; log.removeAttribute('aria-busy'); if (status.textContent === t('typing')) status.textContent = ''; root.classList.remove('tsai-busy'); if (root.getAttribute('data-state') === 'processing' && !queued) state('idle'); if (!form) input.focus(); });
+    }
+
+    /* ---------- hlas: rozpoznání a předčítání řeči v prohlížeči (zdarma, zvuk nejde přes náš server) ----------
+       Stavy pro avatara: událost 'tsai:state' na .tsai (idle | processing | listening | speaking | error), hranice slov 'tsai:boundary'. */
+    var rec = null, listening = false, speakOn = store.get('speak') === '1', queued = false;    /* queued: předčítání čeká na začátek zvuku */
+    function state(s, d) { root.setAttribute('data-state', s); try { root.dispatchEvent(new CustomEvent('tsai:state', { bubbles: true, detail: Object.assign({ state: s }, d || {}) })); } catch (e) { } }
+    function syncMute() {
+      muteBtn.hidden = !(VOICE && SS); muteBtn.innerHTML = SVG_SPK; muteBtn.classList.toggle('tsai-off', !speakOn);
+      muteBtn.setAttribute('aria-pressed', speakOn ? 'true' : 'false'); var l = speakOn ? vt('mute') : vt('unmute'); muteBtn.setAttribute('aria-label', l); muteBtn.title = l;
+    }
+    function stopListen() { if (rec && listening) { try { rec.abort(); } catch (e) { } } }
+    function listen() {
+      if (!VOICE || busy) return;
+      if (listening) { try { rec.stop(); } catch (e) { } return; }
+      stopSpeak();
+      if (SS) { try { SS.speak(new SpeechSynthesisUtterance('')); } catch (e) { } }      /* iOS: odemknout předčítání během kliknutí */
+      var fin = '';
+      rec = new SR(); rec.lang = LOC[lang] || 'en-US'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+      rec.onstart = function () { listening = true; micBtn.setAttribute('aria-pressed', 'true'); micBtn.setAttribute('aria-label', vt('micStop')); root.classList.add('tsai-listening'); status.textContent = vt('listening'); state('listening'); };
+      rec.onresult = function (e) { var all = ''; fin = ''; for (var i = 0; i < e.results.length; i++) { all += e.results[i][0].transcript; if (e.results[i].isFinal) fin += e.results[i][0].transcript; } input.value = all; grow(); };
+      rec.onerror = function (e) { if (/not-allowed|service-not-allowed|audio-capture/.test(e.error || '')) status.textContent = vt('denied'); state('error', { error: e.error }); };
+      rec.onend = function () {
+        listening = false; root.classList.remove('tsai-listening'); micBtn.setAttribute('aria-pressed', 'false'); micBtn.setAttribute('aria-label', vt('mic'));
+        if (status.textContent === vt('listening')) status.textContent = '';
+        var txt = (fin || input.value).trim();
+        if (txt) { if (SS && !speakOn) { speakOn = true; store.set('speak', '1'); syncMute(); } send(txt, 'voice'); }
+        else if (root.getAttribute('data-state') === 'listening') state('idle');
+      };
+      try { rec.start(); } catch (e) { status.textContent = vt('denied'); state('error', { error: 'start' }); }
+    }
+    /* Nejpřirozenější dostupný hlas: neurální/online/prémiové (Edge „Natural“, Apple Enhanced/Premium, Google) před základními
+       lokálními; ženský hlas (persona) před mužským. TS_AI_CONFIG.voiceName = přesný název hlasu, pokud ho zařízení má. */
+    var FEM = /zuzana|vlasta|samantha|ava|allison|susan|karen|moira|tessa|serena|kate|jenny|aria|emma|michelle|sonia|libby|katja|amala|elke|anna|petra|helena|marlene|vicki|monica|paulina|elvira|lucia|ximena|amélie|amelie|audrey|aurelie|denise|eloise|alice|elsa|isabella|federica|ellen|fenna|colette|zosia|ewa|agnieszka|zofia|joana|raquel|fernanda|francisca|luciana|milena|katya|svetlana|dariya|lesya|polina|yelda|emel|damayanti|gadis|kyoko|nanami|mayu|yuna|sunhi|ting-ting|tingting|mei-jia|xiaoxiao|xiaoyi|lekha|swara|kalpana|laila|zariyah|salma|mariam|female|žensk/i;
+    var MALE = /antonin|antonín|jakub|daniel|alex|fred|thomas|tom|aaron|arthur|guy|ryan|conrad|klaus|markus|jorge|diego|alvaro|henri|remy|luca|cosimo|xander|maarten|marek|duarte|yuri|maxim|ostap|cem|ardi|otoya|keita|injoon|yunxi|rishi|hamed|male|mužsk/i;
+    function voiceScore(v) {
+      var n = (v.name || '') + ' ' + (v.voiceURI || ''), sc = 0;
+      if (/natural|neural|premium|enhanced|vylepš|wavenet|studio/i.test(n)) sc += 6;
+      if (/online/i.test(n) || /google/i.test(n)) sc += 3;
+      if (/compact|kompakt|espeak|robot/i.test(n)) sc -= 4;
+      if (FEM.test(n)) sc += 2; else if (MALE.test(n)) sc -= 2;
+      if (v.default) sc += 0.5;
+      return sc;
+    }
+    function pickVoice() {
+      if (!SS) return null;
+      var vs = SS.getVoices() || [], l = (LOC[lang] || 'en-US').toLowerCase();
+      if (C.voiceName) { var w = vs.filter(function (v) { return v.name === C.voiceName; })[0]; if (w) return w; }
+      var m = vs.filter(function (v) { return (v.lang || '').replace('_', '-').toLowerCase() === l; });
+      if (!m.length) m = vs.filter(function (v) { return (v.lang || '').toLowerCase().indexOf(lang) === 0; });
+      return m.slice().sort(function (a, b) { return voiceScore(b) - voiceScore(a); })[0] || null;
+    }
+    /* úprava textu pro čtení: zkratky a značky, které hlasy čtou špatně */
+    var AMP = { cs: ' a ', de: ' und ', es: ' y ', fr: ' et ', pt: ' e ', it: ' e ', pl: ' i ', nl: ' en ', uk: ' і ', ru: ' и ', tr: ' ve ', id: ' dan ' };
+    function forSpeech(t) {
+      return t.replace(/T\s*&\s*S/g, 'T' + (AMP[lang] || ' and ') + 'S').replace(/&/g, AMP[lang] || ' and ')
+        .replace(/[()\[\]„“"»«]/g, ' ').replace(/\s+[–—-]\s+/g, ', ')
+        .replace(/\s+/g, ' ').trim();
+    }
+    var beatT = 0;                             /* maskot: krátké „vyslovení“ na každou hranici slova */
+    function beat() { if (!C.mascot) return; root.classList.add('tsai-beat'); clearTimeout(beatT); beatT = setTimeout(function () { root.classList.remove('tsai-beat'); }, 170); }
+    function stopSpeak() { var was = queued; queued = false; if (SS && (SS.speaking || SS.pending || was)) { SS.cancel(); if (/speaking|processing/.test(root.getAttribute('data-state') || '') && was) state('idle'); } }
+    function speak(text, links) {
+      if (!VOICE || !SS || !speakOn) return;
+      var v = pickVoice(); if (!v) { status.textContent = vt('novoice'); return; }
+      var map = {}; (links || []).forEach(function (l) { map[l.url] = l.title || ''; });
+      var plain = String(text).replace(/https?:\/\/\S+|\/[a-z0-9][\w\/.\-]*\.html\S*/gi, function (u) { return map[u.replace(/[.,;:!?)]+$/, '')] || ''; })
+        .replace(/[*#•_]/g, '').replace(/\s+/g, ' ').trim();
+      plain = forSpeech(plain);
+      var sent = plain.match(/[^.!?。！？]+[.!?。！？]*/g) || [plain], parts = [], cur = '';
+      sent.forEach(function (x) { if ((cur + x).length > 220 && cur) { parts.push(cur); cur = x; } else cur += x; });   /* úseky do ~220 znaků: plynulejší intonace, Chrome dlouhé promluvy neusekne */
+      if (cur.trim()) parts.push(cur);
+      SS.cancel(); queued = true;
+      parts.forEach(function (p, i) {
+        var u = new SpeechSynthesisUtterance(p.trim()); u.voice = v; u.lang = v.lang; u.rate = C.voiceRate || 1; u.pitch = 1;
+        if (i === 0) u.onstart = function () { queued = false; state('speaking', { voice: v.name }); };     /* mluvení až se skutečným zvukem */
+        u.onboundary = function (ev) { beat(); try { root.dispatchEvent(new CustomEvent('tsai:boundary', { bubbles: true, detail: { name: ev.name, charIndex: ev.charIndex, text: p } })); } catch (e) { } };
+        if (i === parts.length - 1) { u.onend = function () { queued = false; if (/speaking|processing/.test(root.getAttribute('data-state') || '')) state('idle'); }; u.onerror = u.onend; }
+        SS.speak(u);
+      });
     }
 
     /* ---------- kontaktní formulář (osobní údaje jdou jen do brány, ne k AI) ---------- */
@@ -213,13 +335,13 @@
       panel.hidden = false; root.setAttribute('data-open', 'true'); launcher.setAttribute('aria-expanded', 'true'); store.set('open', '1');
       render(); setTimeout(function () { input.focus(); }, 30);
     }
-    function close() { if (form) { form.remove(); form = null; } panel.hidden = true; root.setAttribute('data-open', 'false'); launcher.setAttribute('aria-expanded', 'false'); store.set('open', null); launcher.focus(); }
+    function close() { stopListen(); stopSpeak(); if (form) { form.remove(); form = null; } panel.hidden = true; root.setAttribute('data-open', 'false'); launcher.setAttribute('aria-expanded', 'false'); store.set('open', null); launcher.focus(); }
     function grow() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 140) + 'px'; }
     launcher.addEventListener('click', function () { panel.hidden ? open() : close(); });
     closeBtn.addEventListener('click', close);
-    newBtn.addEventListener('click', function () { conv = ''; history = []; store.set('conv', null); store.set('hist', null); if (form) { form.remove(); form = null; } render(); input.focus(); });
+    newBtn.addEventListener('click', function () { stopSpeak(); conv = ''; history = []; store.set('conv', null); store.set('hist', null); if (form) { form.remove(); form = null; } render(); input.focus(); });
     langSel.addEventListener('change', function () { lang = pick(langSel.value) || 'en'; store.set('lang', lang); label(); langSel.focus(); });
-    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); close(); } });
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); if (listening) stopListen(); else if (SS && (SS.speaking || SS.pending)) stopSpeak(); else close(); } });
     input.addEventListener('input', grow);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); } });
     composer.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });
@@ -234,6 +356,9 @@
         .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.enabled) show(); }, function () { });
     }
     if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
-    window.TSAiWidget = { open: open, close: close, send: send };
+    micBtn.addEventListener('click', listen);
+    muteBtn.addEventListener('click', function () { speakOn = !speakOn; store.set('speak', speakOn ? '1' : null); if (!speakOn) stopSpeak(); syncMute(); });
+    if (SS && SS.getVoices) { try { SS.getVoices(); } catch (e) { } }
+    window.TSAiWidget = { open: open, close: close, send: send, listen: listen, speak: speak };
   } catch (e) { if (window.console) console.warn('ts-ai-widget:', e); }
 })();

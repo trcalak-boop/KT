@@ -173,6 +173,7 @@ final class TsAiConsultant
         }
         $lastUser = ''; foreach (array_reverse($history) as $m) if ($m['role'] === 'user') { $lastUser .= ' ' . $m['content']; if (mb_strlen($lastUser) > 600) break; }
         $system = $this->systemPrompt($lang, $lastUser);
+        if (($b['mode'] ?? '') === 'voice') $system .= "\n\n# Hlasový režim\nNávštěvník mluví a odpověď se mu bude předčítat: piš krátké věty, nejvýš asi 60 slov, bez výčtů a bez emotikonů. Odkaz ponech, předčítá se jen jeho název.";
         $tools = $this->c['contactMode'] === 'marker' ? [] : [[
             'name' => self::TOOL_CONTACT,
             'description' => 'Zobrazí návštěvníkovi pod odpovědí kontaktní formulář studia (jméno, e-mail, souhlas). Použij jen tehdy, když návštěvník výslovně chce kontakt, nabídku nebo konzultaci, případně souhlasí s tvou nabídkou formuláře. Na otázky (služby, reference, cena) nejdřív odpověz textem a formulář jen nabídni otázkou. Osobní údaje nikdy nežádej v chatu, vyplní je do formuláře.',

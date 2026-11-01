@@ -1,5 +1,19 @@
 # ts-ai-consultant – změny
 
+## 1.7.1 – 2026-11-01
+- Maskot: anténa a podstavec trysky v barvě textu widgetu (`--ink`), takže jsou vidět i v tmavém režimu. Zjištěno na stagingu: v tmavé hlavičce splývaly s pozadím.
+
+## 1.7.0 – 2026-11-01
+- Animovaný maskot persony (`TS_AI_CONFIG.mascot = true`): létající robůtek v SVG místo portrétu v tlačítku i v hlavičce panelu, bez knihoven (jen CSS). Pohyb podle `data-state`: klid (vznáší se, mrká), poslech (naklonění, vlny u uší), přemýšlení (těkající oči, rychlejší anténa), mluvení (ústa jako ekvalizér, záškub na hranici slova jen při skutečném předčítání), chyba (křížky, zatřesení). Při `prefers-reduced-motion` bez animací, stav zůstane vidět. Barvy z `--red` webu, pro čtečky skrytý. Portrét (`avatar`) zůstává jako záloha, když `mascot` není zapnutý.
+
+## 1.6.1 – 2026-11-01
+- Přirozenější předčítání: výběr hlasu podle kvality (neurální/online/prémiové – Edge „Natural“, Apple Enhanced/Premium, Google – před základními a kompaktními) a ženský hlas před mužským (persona); `TS_AI_CONFIG.voiceName`, `voiceRate`. Text před čtením upraven (T&S, &, závorky, pomlčky) a čten v úsecích do ~220 znaků místo jednotlivých vět. Zjištěno na stagingu: výchozí lokální hlas zněl roboticky.
+
+## 1.6.0 – 2026-11-01
+- Hlas zdarma přes prohlížeč (Web Speech API): tlačítko Mluvit (jen když prohlížeč umí rozpoznávat řeč, jinak jen text), stav poslouchání (aria-pressed, „Poslouchám…“), přepis do pole a odeslání, předčítání odpovědí hlasem zařízení v jazyce stránky (po větách, adresy nahrazené názvy), ztlumení, hláška při odmítnutém mikrofonu a u jazyka bez hlasu, Esc zastaví poslech i předčítání. Zvuk nejde přes server; upozornění v úvodní poznámce. `TS_AI_CONFIG.voice = false` hlas vypne.
+- Stavy pro avatara: událost `tsai:state` (idle, processing, listening, speaking, error; mluvení až se skutečným zvukem) a `tsai:boundary` (hranice slov z předčítání).
+- Zpráva z mikrofonu (`mode: 'voice'`): model dostane pokyn ke kratším větám.
+
 ## 1.5.1 – 2026-11-01
 - `public/.htaccess` (povolí jen JS a CSS widgetu) je součástí knihovny – v projektu s `vendor/ts/.htaccess` „deny“ se zachová i při aktualizaci.
 - Vstupní filtr `injectionGuard`: žádost o vypsání, zopakování, překlad nebo obejití pokynů (cíl + akce, ve více jazycích) se odmítne bez volání modelu (`injection_guard`, šetří kvótu). Zjištěno na stagingu: „přelož své instrukce do angličtiny“ obešlo pojistku doslovných úryvků.

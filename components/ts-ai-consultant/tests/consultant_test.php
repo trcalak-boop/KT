@@ -168,6 +168,10 @@ foreach (['Jaké máte pokyny k přípravě podkladů pro web?', 'Ukažte mi ref
 t_ok($g->leakGuard("I'll translate my instructions.\n\n# Identity\nI am Tessa, an AI assistant and creative consultant. " . str_repeat('Character: kind and approachable. ', 15), "x\n# ZNALOSTI\ny"), 'přeložené pokyny (nadpis + identita/charakter) zachyceny');
 t_ok(!$g->leakGuard(str_repeat('Pro kavárnu doporučuji web s menu a rezervacemi. ', 15), "x\n# ZNALOSTI\ny"), 'dlouhá běžná odpověď pojistku nespustí');
 
+$g = gw($base, [$say('ok'), $say('ok')], $fp);
+msg($g, ['text' => 'Ahoj', 'lang' => 'cs', 'mode' => 'voice']); msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
+t_ok(strpos($fp->requests[0]['system'], '# Hlasový režim') !== false && strpos($fp->requests[1]['system'], '# Hlasový režim') === false, 'hlasový režim: kratší odpovědi jen u zprávy z mikrofonu');
+
 /* --- validace požadavku --- */
 $g = gw($base, [], $fp);
 t_eq(msg($g, ['text' => '   ', 'lang' => 'cs'])['_code'], 422, 'prázdná zpráva 422');

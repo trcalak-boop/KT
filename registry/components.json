@@ -1,14 +1,14 @@
 {
   "library": "ts-library",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "components": [
     {
       "name": "ts-ai-consultant",
-      "version": "1.5.1",
+      "version": "1.7.1",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
-      "summary": "Textový AI konzultant: PHP brána s adaptéry (Claude, bezplatné Cloudflare Workers AI), řízené znalosti, cenová pojistka, povolené odkazy, limity a rozpočet (měsíc v USD nebo denní kvóta), persona, widget v 18 jazycích, lead se souhlasem do CRM.",
+      "summary": "Textový AI konzultant: PHP brána s adaptéry (Claude, bezplatné Cloudflare Workers AI), řízené znalosti, cenová pojistka, povolené odkazy, limity a rozpočet (měsíc v USD nebo denní kvóta), persona s animovaným maskotem, hlas přes prohlížeč, widget v 18 jazycích, lead se souhlasem do CRM.",
       "runtime": [
         "php",
         "browser"
@@ -26,7 +26,8 @@
         "Ověřeno na test.tasstudio.eu se skutečným Claude: reference s odkazem, němčina, arabština (RTL), odmítnutí pokusu vypsat instrukce.",
         "Persona (jméno, portrét, vlastní texty, identita v promptu), seznam skutečných funkcí v promptu a přístupová cookie pro neveřejný staging (1.3.0).",
         "Bezplatný provoz (1.4.0): adaptér OpenAI-kompatibilních služeb přes cURL (Cloudflare Workers AI) ověřený proti napodobenině rozhraní, kontakt značkou v odpovědi, denní kvóta v neuronech, výběr znalostí podle dotazu.",
-        "Ověřeno na stagingu s Cloudflare Llama 3.3 70B (1. 11. 2026); z nálezů 1.5.0: pojistka proti úniku pokynů (osmice slov z pokynů v odpovědi → odmítnutí), bezpečnostní pravidlo na konci promptu, značka kontaktu jako tlačítko."
+        "Ověřeno na stagingu s Cloudflare Llama 3.3 70B (1. 11. 2026); z nálezů 1.5.0: pojistka proti úniku pokynů (osmice slov z pokynů v odpovědi → odmítnutí), bezpečnostní pravidlo na konci promptu, značka kontaktu jako tlačítko.",
+        "Hlas zdarma (1.6.0): rozpoznání a předčítání řeči v prohlížeči (Web Speech API), stavy a hranice slov pro avatara, ověřeno s napodobeninou rozhraní v Chromu (mikrofon, přepis, předčítání ve správném jazyce, ztlumení, odmítnutý mikrofon, prohlížeč bez podpory)."
       ],
       "missingForProduction": [
         "Ověření na test.tasstudio.eu: spojení hostingu na api.anthropic.com:443, SDK pod zúženým open_basedir, skutečné odpovědi modelu (kvalita, jazyky, dodržení cenových pravidel).",
@@ -405,5 +406,5 @@
       "path": "components/ts-shop-core"
     }
   ],
-  "generated": "2026-11-01T18:13:55"
+  "generated": "2026-11-01T20:09:26"
 }
