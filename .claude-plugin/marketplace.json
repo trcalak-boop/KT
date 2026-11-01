@@ -3,6 +3,6 @@
   "owner": { "name": "T&S Studio" },
   "metadata": { "description": "Lokální marketplace knihovny T&S Studio Components & Skills" },
   "plugins": [
-    { "name": "ts-studio", "source": "./claude-plugin/ts-studio", "description": "Komponenty a skills T&S Studio", "version": "0.2.0" }
+    { "name": "ts-studio", "source": "./claude-plugin/ts-studio", "description": "Komponenty a skills T&S Studio", "version": "0.3.0" }
   ]
 }

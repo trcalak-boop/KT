@@ -10,7 +10,8 @@
 5. **cron** `php …/bin/cron.php …/private/booking-server.php` každých 10 min (fronta e-mailů, retence). Bez cronu se fronta zpracuje při dalších požadavcích.
 6. Právní texty provozovny: informace o zpracování osobních údajů u formuláře, storno podmínky, retenční lhůta (`retentionDays`) schválená provozovatelem.
 7. `allowedOrigins` = doména webu; `rateLimit` podle provozu.
-8. Uživatelé správy přes `bin/create-user.php` (silná hesla, role podle potřeby).
+8. Uživatelé správy přes `bin/create-user.php`, na hostingu bez SSH přes jednorázový `TsBookingInstaller` (soubor po instalaci smazat).
+9. E-maily nejdřív v testovacím režimu (`transport: log`, pak `smtp` + `redirectTo`). Vzorové nasazení: `~/TS-Studio/nasazeni/test-tasstudio/` (sestavit_balicek.py, otestovat_balicek.py, overit_nasazeni.py).
 
 ## Nasazení
 1. Záloha hostingu (soubory + databáze).

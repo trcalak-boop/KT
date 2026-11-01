@@ -9,11 +9,12 @@
    ========================================================================== */
 final class TsMailer
 {
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.1.0';
     private array $c;
 
     /* transport: smtp | mail | log; from, fromName, domain (EHLO a Message-ID), smtp_host, smtp_port, smtp_secure (tls|ssl|none),
-       smtp_user, smtp_pass, smtp_timeout, smtp_verify (true), logFile (pro transport log) */
+       smtp_user, smtp_pass, smtp_timeout, smtp_verify (true), logFile (pro transport log),
+       redirectTo – TESTOVACÍ REŽIM: každý e-mail dostane jen tato adresa (předmět „[TEST → původní příjemce]“, hlavička X-TS-Original-To) */
     public function __construct(array $config)
     {
         $this->c = $config + ['transport' => empty($config['smtp_host']) ? 'mail' : 'smtp', 'fromName' => '', 'domain' => 'localhost',
@@ -40,7 +41,13 @@ final class TsMailer
     public function send(string $to, string $subject, string $text, string $html, ?string $replyTo = null, string $replyName = '', ?string $msgid = null): array
     {
         if (!filter_var($to, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $to . $subject)) return ['ok' => false, 'chyba' => 'neplatný příjemce nebo předmět'];
+        $original = null;
+        if (!empty($this->c['redirectTo'])) {
+            if (!filter_var($this->c['redirectTo'], FILTER_VALIDATE_EMAIL)) return ['ok' => false, 'chyba' => 'neplatná adresa redirectTo'];
+            $original = $to; $to = $this->c['redirectTo']; $subject = '[TEST → ' . $original . '] ' . $subject;
+        }
         [$h, $body] = $this->build($to, $subject, $text, $html, $replyTo, $replyName, $msgid);
+        if ($original !== null) $h[] = 'X-TS-Original-To: <' . $original . '>';
         $t = $this->c['transport'];
         if ($t === 'log') {
             $ok = @file_put_contents($this->c['logFile'] ?? (sys_get_temp_dir() . '/ts-mailer.log'), implode("\r\n", $h) . "\r\n\r\n" . $body . "\r\n\r\n", FILE_APPEND | LOCK_EX) !== false;
@@ -51,6 +58,23 @@ final class TsMailer
         $ok = @mail($to, self::header($subject), $body, implode("\r\n", $extra), '-f' . $this->c['from']);
         if (!$ok) $ok = @mail($to, self::header($subject), $body, implode("\r\n", $extra));
         return $ok ? ['ok' => true, 'stav' => 'predano', 'odpoved' => 'mail() přijal zprávu k odeslání'] : ['ok' => false, 'chyba' => 'mail() zprávu odmítl'];
+    }
+
+    /* kontrola spojení se SMTP serverem BEZ přihlášení: spojení, uvítání, EHLO, nabídka AUTH (heslo se nepoužije) */
+    public function probe(): array
+    {
+        $n = $this->c; $host = (string) ($n['smtp_host'] ?? ''); if ($host === '') return ['ok' => false, 'chyba' => 'chybí smtp_host'];
+        $port = (int) $n['smtp_port']; $sec = strtolower((string) $n['smtp_secure']); $errno = 0; $errstr = '';
+        $ctx = stream_context_create(['ssl' => ['verify_peer' => (bool) $n['smtp_verify'], 'verify_peer_name' => (bool) $n['smtp_verify']]]);
+        $s = @stream_socket_client(($sec === 'ssl' ? 'ssl://' : 'tcp://') . $host . ':' . $port, $errno, $errstr, 10, STREAM_CLIENT_CONNECT, $ctx);
+        if (!$s) return ['ok' => false, 'chyba' => 'spojení se nepodařilo (' . $errno . ')'];
+        stream_set_timeout($s, 10);
+        $read = function () use ($s) { $r = ''; while (($l = fgets($s, 1024)) !== false) { $r .= $l; if (strlen($l) < 4 || $l[3] === ' ') break; } return $r; };
+        $banner = trim($read()); fwrite($s, 'EHLO ' . $n['domain'] . "\r\n"); $ehlo = $read();
+        $tls = $sec === 'ssl';
+        if ($sec === 'tls' && stripos($ehlo, 'STARTTLS') !== false) { fwrite($s, "STARTTLS\r\n"); $read(); $tls = (bool) @stream_socket_enable_crypto($s, true, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT); if ($tls) { fwrite($s, 'EHLO ' . $n['domain'] . "\r\n"); $ehlo = $read(); } }
+        @fwrite($s, "QUIT\r\n"); @fclose($s);
+        return ['ok' => substr($banner, 0, 3) === '220', 'uvitani' => substr($banner, 0, 3), 'sifrovani' => $tls, 'auth_login' => (bool) preg_match('/AUTH[ =][^\r\n]*LOGIN/i', $ehlo)];
     }
 
     private function smtp(string $to, string $data): array

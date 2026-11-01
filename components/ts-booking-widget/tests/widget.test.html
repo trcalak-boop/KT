@@ -49,6 +49,25 @@ T.run(function () {
       return new Promise(function (r) { setTimeout(r, 30); });
     }).then(function () {
       T.eq(store.state.bookings[0].status, 'confirmed', 'potvrzení v přehledu');
+      /* správa blokovaných termínů */
+      var a = $('#a1'), bf = $('.tsb-block-form', a);
+      T.ok(!!bf && $('select[name="resource"]', bf).options.length === 3, 'formulář blokace: celá provozovna + 2 stylistky');
+      bf.elements.date.value = '2026-11-06'; bf.elements.from.value = '12:00'; bf.elements.to.value = '11:00';
+      bf.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      return new Promise(function (r) { setTimeout(r, 40); }).then(function () {
+        T.ok(/později/.test($('#a1 .tsb-err').textContent) && store.state.blocks.length === 0, 'blokace: „do“ před „od“ se odmítne');
+        var f2 = $('#a1 .tsb-block-form'); f2.elements.date.value = '2026-11-06'; f2.elements.from.value = '09:00'; f2.elements.to.value = '20:00'; f2.elements.reason.value = 'školení';
+        f2.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        return new Promise(function (r) { setTimeout(r, 40); });
+      }).then(function () {
+        T.ok(store.state.blocks.length === 1 && store.state.blocks[0].from === 540 && store.state.blocks[0].resource === 'all' && /školení/.test($('#a1 .tsb-blocks').textContent), 'blokace uložena a zobrazena');
+        T.eq(B.create(salon, store.state).slots('2026-11-06', 'damsky-strih', { resource: 'any' }).length, 0, 'zablokovaný den nemá volné časy');
+        $('#a1 [data-block-del]').click();
+        return new Promise(function (r) { setTimeout(r, 40); });
+      }).then(function () {
+        T.ok(store.state.blocks.length === 0 && B.create(salon, store.state).slots('2026-11-06', 'damsky-strih', { resource: 'any' }).length > 0, 'zrušení blokace vrátí volné časy');
+      });
+    }).then(function () {
       var rs = B.stores.demoLocal('test-rest', { bookings: [] });
       return W.mount('#w2', { config: rest, store: rs, ui: { lang: 'en', unitsDefault: 4 } }).then(function () {
         var el = $('#w2');

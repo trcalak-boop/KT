@@ -1,6 +1,6 @@
 {
   "name": "ts-booking-server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
@@ -28,9 +28,9 @@
     ]
   },
   "dependencies": {
-    "ts-booking-core": "^1.1.0",
+    "ts-booking-core": "^1.2.0",
     "ts-auth-php": "^1.0.0",
-    "ts-mailer-php": "^1.0.0"
+    "ts-mailer-php": "^1.1.0"
   },
   "entrypoints": {
     "php": "core/bootstrap.php",
@@ -65,7 +65,9 @@
   "works": [
     "Rozdílové testy PHP vs. JS jádro: přes 14 000 dotazů na datech Lokna, Motoria, Kořen ve 3 časových scénářích bez rozdílu.",
     "53 testů API a databáze (idempotence, obsazeno, ochrany, zrušení odkazem, e-maily, přihlášení, CSRF, role, stavy, blokace, GDPR export a anonymizace, retence, kapacita).",
-    "HTTP integrační test přes php -S včetně souběžných požadavků na stejný termín a průchodu webem v Chromu."
+    "HTTP integrační test přes php -S včetně souběžných požadavků na stejný termín a průchodu webem v Chromu.",
+    "Jednorázový webový instalátor TsBookingInstaller (kontrola prostředí, databáze, SMTP bez přihlášení, zkušební e-mail, první administrátor, zámek) – 14 testů.",
+    "ts_booking_harden: HTTPS povinné, skrytí chyb, zúžení open_basedir na webroot + neveřejná data (ověřeno: zápis/čtení mimo nejde, SQLite mimo nejde) – 8 testů."
   ],
   "missingForProduction": [
     "Test na hostingu Active24: PHP verze a rozšíření, zápis mimo webroot (open_basedir), cookies relace pod HTTPS, .htaccess ochrany složek, cron.",
@@ -78,7 +80,9 @@
   "tests": [
     "tests/server_test.php",
     "tests/differential_test.py",
-    "tests/http_test.py"
+    "tests/http_test.py",
+    "tests/installer_test.php",
+    "tests/harden_test.php"
   ],
   "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
   "api": "api/ts-booking-server.md",

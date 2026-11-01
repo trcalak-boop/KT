@@ -1,6 +1,6 @@
 {
   "name": "ts-booking-widget",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "js-library",
   "status": "demo",
   "maturity": "tested",
@@ -22,7 +22,7 @@
     ]
   },
   "dependencies": {
-    "ts-booking-core": "^1.1.0"
+    "ts-booking-core": "^1.2.0"
   },
   "entrypoints": {
     "js": "core/booking-widget.js",
@@ -71,7 +71,8 @@
     "Dvojí odeslání nevytvoří dvě rezervace; validace jména, e-mailu a souhlasu; potvrzení s .ics a Google Kalendářem.",
     "Přehled rezervací s potvrzením a zrušením; texty cs/en; vzhled jen přes --tsb-*.",
     "Testy UI v Chromu.",
-    "Serverový režim: chyba „obsazeno“ od serveru, přihlášení do správy (role, odhlášení), zrušení rezervace odkazem (mountCancel)."
+    "Serverový režim: chyba „obsazeno“ od serveru, přihlášení do správy (role, odhlášení), zrušení rezervace odkazem (mountCancel).",
+    "Správa blokovaných termínů v mountAdmin (seznam, přidání s kontrolou času, zrušení; podle oprávnění booking.blocks)."
   ],
   "missingForProduction": [
     "Ochrana proti robotům (skryté pole, časová kontrola, rate limit na serveru).",

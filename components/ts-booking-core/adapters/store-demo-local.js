@@ -7,6 +7,7 @@
      store.load()              → Promise<state>          state = { bookings: [], blocks: [] }
      store.add(booking, key?)  → Promise<{ ok, booking, duplicate? }>   key = idempotenční klíč (dvojklik)
      store.update(id, změny)   → Promise<{ ok, booking }>
+     store.addBlock(blokace)   → Promise<{ ok, block }>    store.deleteBlock(id) → Promise<{ ok }>
      store.reset()             → Promise<state>          vrátí výchozí (seed) data
      store.demo === true       → UI musí zobrazit upozornění, že jde o ukázku
    ========================================================================== */
@@ -39,6 +40,14 @@
         if (!b) return Promise.resolve({ ok: false, error: 'not-found' });
         Object.assign(b, ch, { id: id, updatedAt: Date.now() }); write(state);
         return Promise.resolve({ ok: true, booking: b });
+      },
+      addBlock: function (k) {
+        var n = Object.assign({ id: 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) }, k);
+        state.blocks.push(n); write(state); return Promise.resolve({ ok: true, block: n });
+      },
+      deleteBlock: function (id) {
+        var i = state.blocks.findIndex(function (k) { return k.id === id; }); if (i < 0) return Promise.resolve({ ok: false, error: 'not-found' });
+        state.blocks.splice(i, 1); write(state); return Promise.resolve({ ok: true });
       },
       reset: function () { var s = clone(seed); s.keys = {}; state.bookings = s.bookings; state.blocks = s.blocks || []; state.keys = {}; try { localStorage.removeItem(K); } catch (e) { } return Promise.resolve(state); }
     };

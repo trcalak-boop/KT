@@ -35,7 +35,9 @@ final class TsBookingApi
             if (strpos($route, 'admin/') === 0) $res = $this->admin($method, substr($route, 6), $query, $body, $headers);
             else $res = $this->publicRoute($method, $route, $query, $body, $headers);
         } catch (Throwable $e) {
-            error_log('ts-booking-server: ' . $e->getMessage());
+            /* do logu jen třída a zkrácená zpráva; tajné hodnoty z konfigurace (heslo SMTP) se nahradí *** */
+            $m = mb_substr($e->getMessage(), 0, 300); foreach ($this->s['redact'] ?? [] as $x) if (is_string($x) && $x !== '') $m = str_replace($x, '***', $m);
+            error_log('ts-booking-server: ' . get_class($e) . ': ' . $m);
             $res = [500, ['ok' => false, 'error' => 'server']];
         }
         if ($this->queue && $this->s['processQueue'] > 0) { try { $this->queue->process($this->s['processQueue']); } catch (Throwable $e) { } }

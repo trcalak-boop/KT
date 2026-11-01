@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-30T22:23:31",
+  "at": "2026-10-31T01:38:42",
   "pass": 27,
   "fail": 0,
   "checks": [
@@ -26,7 +26,7 @@
     {
       "ok": true,
       "test": "A: délka podle délky vlasů (165 min + 15 příprava), přidělený stylista",
-      "detail": "{'id': 'rmvvhbebf41yz', 'createdAt': 1793395399227, 'date': '2026-10-31', 'service': 'barveni', 'start': 540, 'variant': 2, 'resource': 'klara', 'name': 'Jana Vlnová', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 165, 'buffer': 15, 'price': 2290}"
+      "detail": "{'id': 'rmvvoaep6k47j', 'createdAt': 1793407110378, 'date': '2026-10-31', 'service': 'barveni', 'start': 540, 'variant': 2, 'resource': 'klara', 'name': 'Jana Vlnová', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 165, 'buffer': 15, 'price': 2290}"
     },
     {
       "ok": true,
@@ -46,12 +46,12 @@
     {
       "ok": true,
       "test": "B: testovací jízda uložena na vybraný vůz",
-      "detail": "[{'id': 'rmvvhbgx3n6h4', 'createdAt': 1793395402599, 'date': '2026-10-31', 'service': 'testovaci-jizda', 'start': 540, 'variant': 0, 'resource': 'tucson', 'name': 'Petr Dynamo', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 30, 'buffer': 15, 'pric"
+      "detail": "[{'id': 'rmvvoaha8t6te', 'createdAt': 1793407113728, 'date': '2026-10-31', 'service': 'testovaci-jizda', 'start': 540, 'variant': 0, 'resource': 'tucson', 'name': 'Petr Dynamo', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 30, 'buffer': 15, 'pric"
     },
     {
       "ok": true,
       "test": "B: přidělen prodejce z poolu",
-      "detail": "[{'id': 'rmvvhbgx3n6h4', 'createdAt': 1793395402599, 'date': '2026-10-31', 'service': 'testovaci-jizda', 'start': 540, 'variant': 0, 'resource': 'tucson', 'name': 'Petr Dynamo', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 30, 'buffer': 15, 'pric"
+      "detail": "[{'id': 'rmvvoaha8t6te', 'createdAt': 1793407113728, 'date': '2026-10-31', 'service': 'testovaci-jizda', 'start': 540, 'variant': 0, 'resource': 'tucson', 'name': 'Petr Dynamo', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 30, 'buffer': 15, 'pric"
     },
     {
       "ok": true,

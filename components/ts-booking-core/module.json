@@ -1,6 +1,6 @@
 {
   "name": "ts-booking-core",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "js-library",
   "status": "demo",
   "maturity": "tested",
@@ -70,7 +70,8 @@
     "Režimy resources (zdroje s pracovní dobou, dovednostmi, nepřítomností, variantami služeb, doplňky, pauzou, předstihem), pool (souběh omezený počtem lidí), capacity (sdílená místa).",
     "prepareBooking ověří termín a doplní zdroj, délku, cenu a člena poolu; rozšíření přidávají oborová pravidla bez úprav jádra.",
     "Demo úložiště v localStorage s idempotencí (dvojklik nevytvoří dvě rezervace).",
-    "Adaptér store-http.js pro ts-booking-server (veřejná dostupnost bez osobních údajů, rezervace s idempotenčním klíčem, správa s přihlášením a CSRF)."
+    "Adaptér store-http.js pro ts-booking-server (veřejná dostupnost bez osobních údajů, rezervace s idempotenčním klíčem, správa s přihlášením a CSRF).",
+    "Demo úložiště umí blokace (addBlock/deleteBlock) – stejné rozhraní jako serverová správa."
   ],
   "missingForProduction": [
     "Autentizace a role administrace, audit log, GDPR (souhlas, retence, export/smazání).",

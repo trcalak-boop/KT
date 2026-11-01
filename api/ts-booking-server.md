@@ -1,4 +1,4 @@
-# API: ts-booking-server 1.0.0
+# API: ts-booking-server 1.1.0
 
 Serverová část rezervací v PHP 8 (bez composeru). Závisí na `ts-booking-core` ^1.1.0 (konfigurace oboru, JS jádro pro prohlížeč), `ts-auth-php` a `ts-mailer-php`.
 
@@ -47,6 +47,13 @@ Uživatel správy: `php web/vendor/ts/ts-booking-server/bin/create-user.php priv
 | GET `admin/export` (`email`), POST `admin/anonymize` | `booking.gdpr` (jen admin) | GDPR export / anonymizace |
 
 Všechny POST správy vyžadují hlavičku `X-CSRF` (token z login/me). Role: `admin` = vše, `staff` = view + edit + blocks, `viewer` = jen čtení.
+
+## Instalace bez SSH (TsBookingInstaller, 1.1.0)
+Soubor s náhodným názvem ve webrootu volá `(new TsBookingInstaller($settings))->serve()`. Serverová konfigurace: `install.codeHash` (password_hash kódu), `install.until`, `install.testRecipient`.
+Kroky: kontrola prostředí (data a konfigurace mimo webroot, rozšíření, HTTPS, režim e-mailů), databáze, SMTP bez přihlášení (`TsMailer::probe`), zkušební e-mail, první administrátor (pak zámek `install.lock`). Po instalaci soubor smazat.
+
+## Testovací režim e-mailů (ts-mailer-php 1.1.0)
+`mail.transport = 'log'` → jen zápis do `logFile`; `mail.redirectTo = 'schranka@…'` → každý e-mail jen na tuto adresu, předmět „[TEST → původní]“, hlavička X-TS-Original-To. Pro test na hostingu: nejdřív log, pak smtp + redirectTo.
 
 ## PHP třídy
 - `TsBookingEngine($config, $state, ['clock' => …, 'extensions' => […]])` – stejné metody jako JS engine (`slots, scan, freeTimes, dayState, nextFree, conflicts, capacityTimes, prepareBooking, pickResource, pickPoolMember, calc, dayHours, window`), `TsBookingEngine::validate()`. Čas v pásmu `config.ics.timezone`.

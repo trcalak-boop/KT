@@ -9,7 +9,7 @@
 (function (root) {
   'use strict';
   var B = root.TSBooking; if (!B) throw new Error('ts-booking-widget potřebuje ts-booking-core (TSBooking)');
-  var W = root.TSBookingWidget = { version: '1.1.0' };
+  var W = root.TSBookingWidget = { version: '1.2.0' };
 
   var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
@@ -25,6 +25,7 @@
       done: 'Rezervace je přijatá', doneHint: 'Potvrzení by vám v ostrém provozu přišlo e-mailem.', ics: 'Stáhnout do kalendáře (.ics)', gcal: 'Přidat do Google Kalendáře', again: 'Nová rezervace',
       required: 'Vyplňte prosím jméno, platný e-mail a souhlas.', taken: 'Tento čas mezitím někdo obsadil. Vyberte prosím jiný.', from: 'od', min: 'min',
       adminTitle: 'Rezervace', adminEmpty: 'Zatím žádné rezervace.', confirm: 'Potvrdit', cancel: 'Zrušit', reset: 'Obnovit ukázková data', reject: 'Odmítnout', markDone: 'Proběhlo', statusCol: 'Stav',
+      blocksTitle: 'Blokované termíny', blocksEmpty: 'Žádné blokace.', blockAdd: 'Zablokovat', blockDel: 'Zrušit blokaci', blockAll: 'Celá provozovna', from: 'Od', to: 'Do', reason: 'Důvod (interní)', blockErr: 'Zadejte den a čas „do“ později než „od“.', blockWho: 'Pro koho',
       error: 'Rezervaci se nepodařilo odeslat. Zkuste to prosím znovu.', limit: 'Příliš mnoho pokusů. Zkuste to prosím později.', loginTitle: 'Přihlášení do správy rezervací', username: 'Uživatel', password: 'Heslo',
       login: 'Přihlásit', logout: 'Odhlásit', loginErr: 'Nesprávné jméno nebo heslo.', locked: 'Příliš mnoho pokusů, přihlášení je dočasně zamčené.', actionErr: 'Změnu se nepodařilo uložit.',
       cancelTitle: 'Zrušení rezervace', cancelAsk: 'Opravdu chcete rezervaci zrušit?', cancelDo: 'Zrušit rezervaci', cancelDone: 'Rezervace je zrušená.', cancelBad: 'Odkaz je neplatný nebo už byl použit.',
@@ -39,6 +40,7 @@
       done: 'Booking received', doneHint: 'In live operation you would receive a confirmation e-mail.', ics: 'Download calendar file (.ics)', gcal: 'Add to Google Calendar', again: 'New booking',
       required: 'Please enter your name, a valid e-mail and consent.', taken: 'This time was just taken. Please choose another one.', from: 'from', min: 'min',
       adminTitle: 'Bookings', adminEmpty: 'No bookings yet.', confirm: 'Confirm', cancel: 'Cancel', reset: 'Reset demo data', reject: 'Reject', markDone: 'Done', statusCol: 'Status',
+      blocksTitle: 'Blocked times', blocksEmpty: 'No blocks.', blockAdd: 'Block', blockDel: 'Remove block', blockAll: 'Whole business', from: 'From', to: 'To', reason: 'Reason (internal)', blockErr: 'Enter a day and an end time later than the start.', blockWho: 'For',
       error: 'The booking could not be sent. Please try again.', limit: 'Too many attempts. Please try again later.', loginTitle: 'Booking admin sign-in', username: 'User', password: 'Password',
       login: 'Sign in', logout: 'Sign out', loginErr: 'Wrong user name or password.', locked: 'Too many attempts, sign-in is temporarily locked.', actionErr: 'The change could not be saved.',
       cancelTitle: 'Cancel booking', cancelAsk: 'Do you really want to cancel the booking?', cancelDo: 'Cancel booking', cancelDone: 'The booking is cancelled.', cancelBad: 'The link is invalid or has already been used.',
@@ -205,6 +207,24 @@
       if (b.status === 'confirmed') return btn('done', T.markDone, ' tsb-ghost') + btn('cancelled', T.cancel, ' tsb-ghost');
       return '';
     }
+    function canBlocks() { return typeof store.addBlock === 'function' && (!store.auth || (store.can || []).indexOf('booking.blocks') >= 0); }
+    function parseTime(v) { var m = /^(\d{1,2}):(\d{2})$/.exec(v || ''); return m ? +m[1] * 60 + +m[2] : null; }
+    /* blokované termíny: dovolená, školení, porucha – v čase blokace se rezervace nenabízí ani nepřijme */
+    function blocksHTML(state, E) {
+      if (!canBlocks()) return '';
+      var list = (state.blocks || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.from - b.from; });
+      var resName = function (id) { if (!id || id === 'all') return T.blockAll; var r = E.resource(id); return r ? r.name || r.id : id; };
+      var rows = list.length ? '<table class="tsb-table tsb-blocks"><tbody>' + list.map(function (k) {
+        return '<tr><td>' + esc(dayLabel(k.date, ui).d) + '</td><td>' + hm(k.from) + '–' + hm(k.to) + '</td><td>' + esc(resName(k.resource)) + '</td><td>' + esc(k.reason || '') + '</td><td class="tsb-act">' +
+          (k.id ? '<button type="button" class="tsb-btn tsb-sm tsb-ghost" data-block-del="' + esc(k.id) + '">' + esc(T.blockDel) + '</button>' : '') + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<p class="tsb-muted">' + esc(T.blocksEmpty) + '</p>';
+      var opts = '<option value="all">' + esc(T.blockAll) + '</option>' + (cfg.mode === 'capacity' ? '' : (cfg.resources || []).map(function (r) { return '<option value="' + esc(r.id) + '">' + esc(r.name || r.id) + '</option>'; }).join(''));
+      return '<section class="tsb-step tsb-blocks-sec"><h3>' + esc(T.blocksTitle) + '</h3>' + rows +
+        '<form class="tsb-block-form" novalidate><label>' + esc(T.date) + '<input type="date" name="date" required></label>' +
+        '<label>' + esc(T.from) + '<input type="time" name="from" value="09:00" step="300" required></label><label>' + esc(T.to) + '<input type="time" name="to" value="17:00" step="300" required></label>' +
+        '<label>' + esc(ui.resourceLabel || T.blockWho) + '<select name="resource">' + opts + '</select></label><label class="tsb-grow">' + esc(T.reason) + '<input name="reason" maxlength="200"></label>' +
+        '<button type="submit" class="tsb-btn tsb-sm">' + esc(T.blockAdd) + '</button></form></section>';
+    }
     function render(state) {
       var E = B.create(cfg, state), list = state.bookings.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.start - b.start; });
       var demo = store.demo ? '<p class="tsb-demo" role="note">' + esc(T.demo) + '</p>' : '';
@@ -214,13 +234,20 @@
         (list.length ? '<table class="tsb-table"><thead><tr><th>' + esc(T.date) + '</th><th>' + esc(T.time) + '</th><th>' + esc(ui.serviceLabel || T.service) + '</th><th>' + esc(cfg.mode === 'capacity' ? (ui.unitsLabel || T.units) : (ui.resourceLabel || T.resource)) + '</th><th>' + esc(T.name) + '</th><th>' + esc(T.statusCol) + '</th><th></th></tr></thead><tbody>' + list.map(function (b) {
           var s = E.service(b.service), r = b.resource ? E.resource(b.resource) : null;
           return '<tr><td>' + esc(dayLabel(b.date, ui).d) + '</td><td>' + hm(b.start) + '</td><td>' + esc(s ? s.name : b.service) + '</td><td>' + esc(cfg.mode === 'capacity' ? (b.units || '') : (r ? r.name || r.id : '')) + (b.poolMember ? ' · ' + esc(b.poolMember) : '') + '</td><td>' + esc(b.name || '') + (b.email ? '<br><small class="tsb-muted">' + esc(b.email) + '</small>' : '') + '</td><td>' + esc(T.status[b.status] || b.status) + '</td><td class="tsb-act">' + actions(b) + '</td></tr>';
-        }).join('') + '</tbody></table>' : '<p class="tsb-muted">' + esc(T.adminEmpty) + '</p>');
+        }).join('') + '</tbody></table>' : '<p class="tsb-muted">' + esc(T.adminEmpty) + '</p>') + blocksHTML(state, E);
       msg = '';
     }
     function refresh() {
       return store.load().then(render, function (e) { if (e && e.status === 401) el.innerHTML = loginHTML(); else { el.innerHTML = '<p class="tsb-err" role="alert">' + esc(T.error) + '</p>'; } });
     }
     el.addEventListener('submit', function (e) {
+      if (e.target.classList.contains('tsb-block-form')) {
+        e.preventDefault();
+        var bf = e.target, from = parseTime(bf.elements.from.value), to = parseTime(bf.elements.to.value), d = bf.elements.date.value;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || from == null || to == null || to <= from) { msg = T.blockErr; refresh(); return; }
+        store.addBlock({ date: d, from: from, to: to, resource: bf.elements.resource.value, reason: bf.elements.reason.value.trim() }).then(function (r) { if (r && r.ok === false) msg = T.actionErr; return refresh(); });
+        return;
+      }
       if (!e.target.classList.contains('tsb-login')) return; e.preventDefault();
       var f = e.target; store.login(f.elements.u.value.trim(), f.elements.p.value).then(function (j) {
         if (!j.ok) { el.innerHTML = loginHTML(j.error === 'locked' ? T.locked : T.loginErr); return; }
@@ -230,7 +257,7 @@
     el.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b || b.type === 'submit') return;
       if (b.dataset.act === 'logout') { store.logout().then(function () { el.innerHTML = loginHTML(); }); return; }
-      var p = b.dataset.status ? store.update(b.dataset.id, { status: b.dataset.status }) : b.dataset.act === 'reset' ? store.reset() : null;
+      var p = b.dataset.status ? store.update(b.dataset.id, { status: b.dataset.status }) : b.dataset.blockDel ? store.deleteBlock(b.dataset.blockDel) : b.dataset.act === 'reset' ? store.reset() : null;
       if (p) p.then(function (r) { if (r && r.ok === false) msg = T.actionErr; return refresh(); });
     });
     var start = store.auth ? store.me().then(function (j) { if (!j.ok) { el.innerHTML = loginHTML(); return; } return refresh(); }) : refresh();

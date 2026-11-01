@@ -1,6 +1,6 @@
 {
   "library": "ts-library",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "components": [
     {
       "name": "ts-auth-php",
@@ -28,7 +28,7 @@
     },
     {
       "name": "ts-booking-core",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "kind": "js-library",
       "status": "demo",
       "maturity": "tested",
@@ -44,7 +44,8 @@
         "Režimy resources (zdroje s pracovní dobou, dovednostmi, nepřítomností, variantami služeb, doplňky, pauzou, předstihem), pool (souběh omezený počtem lidí), capacity (sdílená místa).",
         "prepareBooking ověří termín a doplní zdroj, délku, cenu a člena poolu; rozšíření přidávají oborová pravidla bez úprav jádra.",
         "Demo úložiště v localStorage s idempotencí (dvojklik nevytvoří dvě rezervace).",
-        "Adaptér store-http.js pro ts-booking-server (veřejná dostupnost bez osobních údajů, rezervace s idempotenčním klíčem, správa s přihlášením a CSRF)."
+        "Adaptér store-http.js pro ts-booking-server (veřejná dostupnost bez osobních údajů, rezervace s idempotenčním klíčem, správa s přihlášením a CSRF).",
+        "Demo úložiště umí blokace (addBlock/deleteBlock) – stejné rozhraní jako serverová správa."
       ],
       "missingForProduction": [
         "Autentizace a role administrace, audit log, GDPR (souhlas, retence, export/smazání).",
@@ -58,7 +59,7 @@
     },
     {
       "name": "ts-booking-server",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
@@ -67,16 +68,18 @@
         "php"
       ],
       "dependencies": {
-        "ts-booking-core": "^1.1.0",
+        "ts-booking-core": "^1.2.0",
         "ts-auth-php": "^1.0.0",
-        "ts-mailer-php": "^1.0.0"
+        "ts-mailer-php": "^1.1.0"
       },
       "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
       "api": "api/ts-booking-server.md",
       "works": [
         "Rozdílové testy PHP vs. JS jádro: přes 14 000 dotazů na datech Lokna, Motoria, Kořen ve 3 časových scénářích bez rozdílu.",
         "53 testů API a databáze (idempotence, obsazeno, ochrany, zrušení odkazem, e-maily, přihlášení, CSRF, role, stavy, blokace, GDPR export a anonymizace, retence, kapacita).",
-        "HTTP integrační test přes php -S včetně souběžných požadavků na stejný termín a průchodu webem v Chromu."
+        "HTTP integrační test přes php -S včetně souběžných požadavků na stejný termín a průchodu webem v Chromu.",
+        "Jednorázový webový instalátor TsBookingInstaller (kontrola prostředí, databáze, SMTP bez přihlášení, zkušební e-mail, první administrátor, zámek) – 14 testů.",
+        "ts_booking_harden: HTTPS povinné, skrytí chyb, zúžení open_basedir na webroot + neveřejná data (ověřeno: zápis/čtení mimo nejde, SQLite mimo nejde) – 8 testů."
       ],
       "missingForProduction": [
         "Test na hostingu Active24: PHP verze a rozšíření, zápis mimo webroot (open_basedir), cookies relace pod HTTPS, .htaccess ochrany složek, cron.",
@@ -90,7 +93,7 @@
     },
     {
       "name": "ts-booking-widget",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "kind": "js-library",
       "status": "demo",
       "maturity": "tested",
@@ -99,7 +102,7 @@
         "browser"
       ],
       "dependencies": {
-        "ts-booking-core": "^1.1.0"
+        "ts-booking-core": "^1.2.0"
       },
       "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
       "api": "api/ts-booking-widget.md",
@@ -108,7 +111,8 @@
         "Dvojí odeslání nevytvoří dvě rezervace; validace jména, e-mailu a souhlasu; potvrzení s .ics a Google Kalendářem.",
         "Přehled rezervací s potvrzením a zrušením; texty cs/en; vzhled jen přes --tsb-*.",
         "Testy UI v Chromu.",
-        "Serverový režim: chyba „obsazeno“ od serveru, přihlášení do správy (role, odhlášení), zrušení rezervace odkazem (mountCancel)."
+        "Serverový režim: chyba „obsazeno“ od serveru, přihlášení do správy (role, odhlášení), zrušení rezervace odkazem (mountCancel).",
+        "Správa blokovaných termínů v mountAdmin (seznam, přidání s kontrolou času, zrušení; podle oprávnění booking.blocks)."
       ],
       "missingForProduction": [
         "Ochrana proti robotům (skryté pole, časová kontrola, rate limit na serveru).",
@@ -243,7 +247,7 @@
     },
     {
       "name": "ts-mailer-php",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
@@ -256,7 +260,8 @@
       "api": "api/ts-mailer-php.md",
       "works": [
         "Původní kód běží v produkci tasstudio.eu (oznámení o poptávkách přes mail(); SMTP zatím bez přístupů).",
-        "Knihovna: testy proti lokálnímu falešnému SMTP serveru (obálka, AUTH, tečky, odmítnutí, nedostupnost), fronta (idempotence, opakování, selhání)."
+        "Knihovna: testy proti lokálnímu falešnému SMTP serveru (obálka, AUTH, tečky, odmítnutí, nedostupnost), fronta (idempotence, opakování, selhání).",
+        "Testovací režim redirectTo (všechny e-maily do testovací schránky) a probe() – kontrola SMTP serveru bez přihlášení."
       ],
       "missingForProduction": [
         "Ověření TLS/STARTTLS proti skutečnému SMTP serveru (Active24) a SPF/DKIM/DMARC domény odesílatele.",
@@ -364,5 +369,5 @@
       "path": "components/ts-shop-core"
     }
   ],
-  "generated": "2026-10-30T22:40:22"
+  "generated": "2026-11-01T12:10:04"
 }

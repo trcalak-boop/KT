@@ -1,6 +1,6 @@
 {
   "name": "ts-mailer-php",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
@@ -42,7 +42,8 @@
   ],
   "works": [
     "Původní kód běží v produkci tasstudio.eu (oznámení o poptávkách přes mail(); SMTP zatím bez přístupů).",
-    "Knihovna: testy proti lokálnímu falešnému SMTP serveru (obálka, AUTH, tečky, odmítnutí, nedostupnost), fronta (idempotence, opakování, selhání)."
+    "Knihovna: testy proti lokálnímu falešnému SMTP serveru (obálka, AUTH, tečky, odmítnutí, nedostupnost), fronta (idempotence, opakování, selhání).",
+    "Testovací režim redirectTo (všechny e-maily do testovací schránky) a probe() – kontrola SMTP serveru bez přihlášení."
   ],
   "missingForProduction": [
     "Ověření TLS/STARTTLS proti skutečnému SMTP serveru (Active24) a SPF/DKIM/DMARC domény odesílatele.",

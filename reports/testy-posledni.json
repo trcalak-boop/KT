@@ -1,126 +1,23 @@
 {
-  "at": "2026-10-30T22:23:14",
-  "pass": 3715,
+  "at": "2026-10-31T01:38:25",
+  "pass": 129,
   "fail": 0,
   "files": [
     {
-      "done": true,
-      "pass": 1131,
+      "file": "components/ts-booking-server/tests/harden_test.php",
+      "pass": 8,
       "fail": 0,
-      "log": [
-        "INFO čas 2026-12-21T06:05:00, dnes 2026-12-21",
-        "INFO Lokna: 221 rezervací, 3 stylistky, gap 5, leadMin 120",
-        "INFO Motoria: 28 jízd, 24 vozů, 3 prodejců",
-        "INFO Kořen: 7 rezervací, kapacita 40",
-        "INFO porovnáno 25579 dnů × kombinací"
-      ],
-      "file": "components/ts-booking-core/tests/differential-rano.test.html"
+      "log": []
     },
     {
-      "done": true,
-      "pass": 1129,
-      "fail": 0,
-      "log": [
-        "INFO čas 2026-11-07T18:40:00, dnes 2026-11-07",
-        "INFO Lokna: 217 rezervací, 3 stylistky, gap 10, leadMin 120",
-        "INFO Motoria: 28 jízd, 24 vozů, 3 prodejců",
-        "INFO Kořen: 13 rezervací, kapacita 40",
-        "INFO porovnáno 25579 dnů × kombinací"
-      ],
-      "file": "components/ts-booking-core/tests/differential-vikend.test.html"
-    },
-    {
-      "done": true,
-      "pass": 1098,
-      "fail": 0,
-      "log": [
-        "INFO čas 2026-11-03T10:17:00, dnes 2026-11-03",
-        "INFO Lokna: 200 rezervací, 3 stylistky, gap 0, leadMin 120",
-        "INFO Motoria: 28 jízd, 24 vozů, 3 prodejců",
-        "INFO Kořen: 16 rezervací, kapacita 40",
-        "INFO porovnáno 25579 dnů × kombinací"
-      ],
-      "file": "components/ts-booking-core/tests/differential.test.html"
-    },
-    {
-      "done": true,
-      "pass": 52,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-booking-core/tests/unit.test.html"
-    },
-    {
-      "done": true,
-      "pass": 20,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-booking-widget/tests/widget.test.html"
-    },
-    {
-      "done": true,
-      "pass": 4,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-cms-blocks/tests/cms.test.html"
-    },
-    {
-      "done": true,
-      "pass": 9,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-i18n-demo/tests/i18n.test.html"
-    },
-    {
-      "done": true,
-      "pass": 44,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-kit-core/tests/kit-core.test.html"
-    },
-    {
-      "done": true,
-      "pass": 71,
-      "fail": 0,
-      "log": [
-        "INFO 63 kombinací položek, slev a DPH"
-      ],
-      "file": "components/ts-receipts-core/tests/receipts.test.html"
-    },
-    {
-      "done": true,
-      "pass": 2,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-ref-lokna/tests/lokna.test.html"
-    },
-    {
-      "done": true,
-      "pass": 5,
-      "fail": 0,
-      "log": [],
-      "file": "components/ts-shop-core/tests/shop.test.html"
-    },
-    {
-      "file": "components/ts-auth-php/tests/auth_test.php",
-      "pass": 22,
+      "file": "components/ts-booking-server/tests/installer_test.php",
+      "pass": 14,
       "fail": 0,
       "log": []
     },
     {
       "file": "components/ts-booking-server/tests/server_test.php",
       "pass": 53,
-      "fail": 0,
-      "log": []
-    },
-    {
-      "file": "components/ts-mailer-php/tests/mailer_test.php",
-      "pass": 16,
-      "fail": 0,
-      "log": []
-    },
-    {
-      "file": "components/ts-pdf-php/tests/pdf_test.php",
-      "pass": 5,
       "fail": 0,
       "log": []
     },

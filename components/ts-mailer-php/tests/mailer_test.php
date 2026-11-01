@@ -46,3 +46,16 @@ $bad = new TsMailQueue($db, new TsMailer(['from' => 'a@b.cz', 'smtp_host' => '12
 $id2 = $bad->enqueue('x@example.com', 'S', 't', 'h');
 $bad->process(); t_ok($bad->get($id2)['status'] === 'chyba' && (int) $bad->get($id2)['attempts'] === 1, 'fronta: chyba → další pokus');
 $bad->process(); t_eq($bad->get($id2)['status'], 'selhalo', 'fronta: po vyčerpání pokusů selhalo');
+/* testovací režim: přesměrování do testovací schránky */
+$tm = new TsMailer(['transport' => 'log', 'from' => 'rezervace@salon.test', 'domain' => 'salon.test', 'logFile' => "$dir/test.log", 'redirectTo' => 'testovaci@salon.test']);
+$r = $tm->send('zakaznik@example.com', 'Potvrzení', 't', 'h'); $lg = file_get_contents("$dir/test.log");
+t_ok($r['ok'] && strpos($lg, 'To: <testovaci@salon.test>') !== false && strpos($lg, 'zakaznik@example.com') !== false && !preg_match('/^To: <zakaznik@example.com>/m', $lg), 'redirectTo: e-mail jde jen do testovací schránky');
+t_ok(strpos($lg, 'X-TS-Original-To: <zakaznik@example.com>') !== false && strpos($lg, base64_encode('[TEST → zakaznik@example.com] Potvrzení')) !== false, 'redirectTo: předmět [TEST → původní] a hlavička X-TS-Original-To');
+t_eq((new TsMailer(['transport' => 'log', 'from' => 'a@b.cz', 'logFile' => "$dir/x.log", 'redirectTo' => 'neplatna']))->send('x@y.cz', 's', 't', 'h')['ok'], false, 'redirectTo: neplatná adresa → chyba (nic se neodešle)');
+/* kontrola SMTP bez přihlášení */
+$port3 = $port + 400; [$p3, $out3] = smtp_server($dir, $port3);
+$pr = (new TsMailer(['from' => 'a@b.cz', 'domain' => 'salon.test', 'smtp_host' => '127.0.0.1', 'smtp_port' => $port3, 'smtp_secure' => 'none', 'smtp_user' => 'u', 'smtp_pass' => 'tajne-heslo']))->probe();
+proc_close($p3); $lg3 = (string) @file_get_contents($out3);
+t_ok($pr['ok'] && $pr['uvitani'] === '220' && $pr['auth_login'] === true, 'probe: spojení, uvítání, nabídka AUTH LOGIN');
+t_ok(strpos($lg3, 'AUTH') === false && strpos($lg3, base64_encode('tajne-heslo')) === false, 'probe: nepřihlašuje se a heslo neposílá');
+t_eq((new TsMailer(['from' => 'a@b.cz', 'smtp_host' => '127.0.0.1', 'smtp_port' => 1, 'smtp_secure' => 'none']))->probe()['ok'], false, 'probe: nedostupný server');
