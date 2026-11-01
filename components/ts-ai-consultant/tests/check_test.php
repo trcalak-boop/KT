@@ -15,7 +15,11 @@ t_ok(strpos($h, 'Kontrolní kód') !== false && strpos($h, '<table') === false, 
 $h = page($s, ['code' => 'spatne', 'a' => 'check']); t_ok(strpos($h, 'Neplatný kód') !== false && strpos($h, '<table') === false, 'špatný kód odmítnut');
 $h = page($s, ['code' => 'KOD-AI-1', 'a' => 'check']);
 t_ok(strpos($h, '<table') !== false && strpos($h, $KEY) === false, 'správný kód: kontroly, klíč se nezobrazí');
-t_ok(preg_match('/OK<\/td><td>soubor s API klíčem existuje a je mimo webroot/', $h) && preg_match('/CHYBA<\/td><td>SDK Anthropic a Guzzle se načtou/', $h), 'kontrola klíče OK, chybějící SDK nahlášeno');
+t_ok(preg_match('/OK<\/td><td>soubor s API klíčem existuje a je mimo webroot/', $h) && preg_match('/poskytovatel AI: fake/', $h) && strpos($h, 'SDK Anthropic') === false, 'kontrola klíče OK; SDK se kontroluje jen u Claude');
+$hc = page(['provider' => 'claude'] + $s, ['code' => 'KOD-AI-1', 'a' => 'check']);
+t_ok(preg_match('/CHYBA<\/td><td>SDK Anthropic a Guzzle se načtou/', $hc) === 1, 'u Claude chybějící SDK nahlášeno');
+$hf = page(['provider' => 'cloudflare', 'cloudflare' => ['accountId' => str_repeat('a', 32)], 'budget' => ['limit' => 9500, 'period' => 'day', 'unit' => 'neuron']] + $s, ['code' => 'KOD-AI-1', 'a' => 'check']);
+t_ok(preg_match('/OK<\/td><td>Cloudflare: ID účtu vyplněné/', $hf) && preg_match('/rozpočet: využito 0.0000 z 9500 neuron \(dnes, UTC\)/', $hf) && preg_match('/model: @cf\/meta\/llama-3.3-70b-instruct-fp8-fast/', $hf), 'Cloudflare: účet, denní kvóta v neuronech, model s ceníkem');
 t_ok(preg_match('/OK<\/td><td>znalosti: 1 sekcí, 2 referencí/', $h) && preg_match('/OK<\/td><td>databáze funguje a je mimo webroot/', $h), 'znalosti a databáze');
 t_ok(preg_match('/CHYBA<\/td><td>hosting se spojí s 127.0.0.1:9/', $h), 'kontrola spojení: adresa z konfigurace (v testu localhost, žádná síť)');
 $h = page($s, ['code' => 'KOD-AI-1', 'a' => 'live']); t_ok(strpos($h, 'OK – odpověď: (Zkušební režim bez AI)') !== false, 'jeden dotaz přes bránu (falešný poskytovatel)');

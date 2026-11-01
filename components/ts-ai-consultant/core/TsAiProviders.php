@@ -90,6 +90,48 @@ final class TsAiClaudeProvider implements TsAiProvider
     }
 }
 
+/* OpenAI-kompatibilní Chat Completions přes cURL (bez SDK): Cloudflare Workers AI, Groq, Mistral a další.
+   'baseUrl' => 'https://api.cloudflare.com/client/v4/accounts/<účet>/ai/v1', 'model' => '@cf/meta/llama-3.3-70b-instruct-fp8-fast'.
+   Nástroje se neposílají (podpora se u modelů liší) – kontaktní formulář řeší brána značkou v textu ('contactMode' => 'marker'). */
+final class TsAiOpenAICompatProvider implements TsAiProvider
+{
+    private array $c;
+    public function __construct(array $c)
+    {
+        $this->c = $c + ['timeout' => 30, 'connectTimeout' => 6, 'temperature' => 0.4];
+        if (empty($this->c['apiKey'])) throw new TsAiProviderError('auth', 'chybí API klíč');
+        if (empty($this->c['baseUrl']) || empty($this->c['model'])) throw new TsAiProviderError('other', 'chybí baseUrl nebo model');
+        if (!function_exists('curl_init')) throw new TsAiProviderError('other', 'chybí rozšíření curl');
+    }
+    public function model(): string { return $this->c['model']; }
+    public function respond(array $req): array
+    {
+        $msgs = [['role' => 'system', 'content' => $req['system']]];
+        foreach ($req['messages'] as $m) if (is_string($m['content'])) $msgs[] = ['role' => $m['role'], 'content' => $m['content']];
+        $body = json_encode(['model' => $this->c['model'], 'messages' => $msgs, 'max_tokens' => (int) $req['maxTokens'], 'temperature' => (float) $this->c['temperature']], JSON_UNESCAPED_UNICODE);
+        $ch = curl_init(rtrim($this->c['baseUrl'], '/') . '/chat/completions');
+        curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $body, CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json', 'Authorization: Bearer ' . $this->c['apiKey']],
+            CURLOPT_TIMEOUT => (int) $this->c['timeout'], CURLOPT_CONNECTTIMEOUT => (int) $this->c['connectTimeout']]);
+        $raw = curl_exec($ch); $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE); $err = curl_errno($ch);
+        curl_close($ch);
+        if ($raw === false || $err) throw new TsAiProviderError('connection', 'spojení (curl ' . $err . ')');
+        $j = json_decode((string) $raw, true);
+        if ($code === 401 || $code === 403) throw new TsAiProviderError('auth', 'http ' . $code);
+        if ($code === 429) throw new TsAiProviderError('limit', 'http 429');
+        if ($code >= 500) throw new TsAiProviderError('overloaded', 'http ' . $code);
+        if ($code !== 200 || !is_array($j) || !isset($j['choices'][0]['message'])) {
+            $msg = is_array($j) ? (string) ($j['errors'][0]['message'] ?? $j['error']['message'] ?? '') : '';
+            throw new TsAiProviderError(stripos($msg, 'allocation') !== false || stripos($msg, 'quota') !== false || stripos($msg, 'limit') !== false ? 'limit' : 'request', 'http ' . $code . ' ' . mb_substr($msg, 0, 120));
+        }
+        $c = $j['choices'][0]; $text = (string) ($c['message']['content'] ?? '');
+        $u = $j['usage'] ?? [];
+        $in = (int) ($u['prompt_tokens'] ?? ceil(strlen($body) / 3)); $out = (int) ($u['completion_tokens'] ?? ceil(strlen($text) / 3));
+        $stop = ($c['finish_reason'] ?? '') === 'length' ? 'max_tokens' : (($c['finish_reason'] ?? '') === 'content_filter' ? 'refusal' : 'end');
+        return ['stop' => $stop, 'text' => $text, 'tools' => [], 'assistant' => $text, 'usage' => ['in' => $in, 'out' => $out, 'cacheRead' => 0, 'cacheWrite' => 0]];
+    }
+}
+
 /* Falešný poskytovatel pro testy a pro vyzkoušení widgetu bez API klíče. Nikam se nepřipojuje.
    'script' => [fn(array $req): array, ...] – postupně vrací připravené odpovědi; bez skriptu odpoví
    ozvěnou, na „kontakt“ zavolá nástroj nabidnout_kontakt, na „chyba“ simuluje výpadek. */

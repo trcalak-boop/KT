@@ -42,7 +42,9 @@
     function pick(l) { l = String(l || '').toLowerCase().slice(0, 2); return LANGS.indexOf(l) >= 0 ? l : null; }
     var store = { get: function (k) { try { return sessionStorage.getItem('tsai:' + k); } catch (e) { return null; } }, set: function (k, v) { try { v === null ? sessionStorage.removeItem('tsai:' + k) : sessionStorage.setItem('tsai:' + k, v); } catch (e) { } } };
     var lang = pick(store.get('lang')) || pick(C.lang) || pick(document.documentElement.lang) || 'en';
-    function t(k, v) { var a = T[lang] || T.en, s = a[KEYS.indexOf(k)] || T.en[KEYS.indexOf(k)] || k; v = v || {}; return s.replace('{b}', C.business || '').replace('{e}', C.email || '').replace('{n}', v.n || MAX); }
+    /* TS_AI_CONFIG.texts = { cs: { intro: '…', role: '…' }, '*': {…} } přepíše vestavěné texty (persona projektu) */
+    function own(k) { var x = C.texts || {}; return (x[lang] && x[lang][k]) || (x['*'] && x['*'][k]) || ''; }
+    function t(k, v) { var a = T[lang] || T.en, s = own(k) || a[KEYS.indexOf(k)] || T.en[KEYS.indexOf(k)] || k; v = v || {}; return s.replace('{b}', C.business || '').replace('{e}', C.email || '').replace('{n}', v.n || MAX); }
     function el(tag, attrs, kids) {
       var e = document.createElement(tag);
       for (var k in attrs || {}) { if (k === 'text') e.textContent = attrs[k]; else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); }
@@ -62,7 +64,13 @@
     var root = el('div', { class: 'tsai', 'data-open': 'false' });
     var launcher = el('button', { type: 'button', class: 'tsai-launcher', 'aria-expanded': 'false', 'aria-controls': 'tsai-panel' });
     var panel = el('section', { id: 'tsai-panel', class: 'tsai-panel', role: 'dialog', 'aria-modal': 'false', hidden: '' });
-    var title = el('h2', { class: 'tsai-title', id: 'tsai-title' });
+    var title = el('h2', { class: 'tsai-title', id: 'tsai-title' }), role = el('p', { class: 'tsai-role' });
+    var NAME = C.name || '';
+    function face(cls) {                     /* statický portrét persony (TS_AI_CONFIG.avatar); když se nenačte, zmizí */
+      if (!C.avatar) return el('span', { class: 'tsai-dot', 'aria-hidden': 'true' });
+      var i = el('img', { class: cls, src: C.avatar, alt: '', width: '64', height: '64', decoding: 'async', 'aria-hidden': 'true' });
+      i.addEventListener('error', function () { i.remove(); }); return i;
+    }
     var langSel = el('select', { class: 'tsai-lang', id: 'tsai-lang' });
     var langLbl = el('label', { class: 'tsai-sr', for: 'tsai-lang' });
     var newBtn = el('button', { type: 'button', class: 'tsai-icon tsai-new' });
@@ -76,7 +84,8 @@
     var composer = el('form', { class: 'tsai-composer', novalidate: '' }, [inputLbl, input, sendBtn]);
     panel.setAttribute('aria-labelledby', 'tsai-title');
     LANGS.forEach(function (l) { langSel.appendChild(el('option', { value: l, text: NAMES[l], lang: l })); });
-    panel.appendChild(el('header', { class: 'tsai-head' }, [title, langLbl, langSel, newBtn, closeBtn]));
+    var headFace = el('span', { class: 'tsai-head-face' });
+    panel.appendChild(el('header', { class: 'tsai-head' }, [headFace, el('div', { class: 'tsai-who' }, [title, role]), langLbl, langSel, newBtn, closeBtn]));
     panel.appendChild(log); panel.appendChild(quick); panel.appendChild(status); panel.appendChild(composer);
     root.appendChild(panel); root.appendChild(launcher);
 
@@ -85,8 +94,10 @@
 
     function label() {
       root.setAttribute('lang', lang); panel.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-      launcher.innerHTML = ''; launcher.appendChild(el('span', { class: 'tsai-dot', 'aria-hidden': 'true' })); launcher.appendChild(el('span', { text: t('open') }));
-      title.textContent = t('open'); langLbl.textContent = t('lang'); langSel.value = lang;
+      launcher.innerHTML = ''; launcher.appendChild(face('tsai-face')); launcher.appendChild(el('span', { text: NAME || t('open') }));
+      if (NAME) launcher.setAttribute('aria-label', NAME + ', ' + (own('role') || t('open'))); else launcher.removeAttribute('aria-label');
+      title.textContent = NAME || t('open'); role.textContent = NAME ? (own('role') || t('open')) : ''; role.hidden = !NAME;
+      headFace.innerHTML = ''; if (C.avatar) headFace.appendChild(face('tsai-face tsai-face-lg')); headFace.hidden = !C.avatar; langLbl.textContent = t('lang'); langSel.value = lang;
       newBtn.setAttribute('aria-label', t('newChat')); newBtn.title = t('newChat'); newBtn.textContent = '↺';
       closeBtn.setAttribute('aria-label', t('close')); closeBtn.title = t('close'); closeBtn.textContent = '×';
       input.placeholder = t('ph'); inputLbl.textContent = t('ph'); sendBtn.textContent = t('send');
@@ -120,13 +131,13 @@
     }
     function bubble(role, text, links) {
       var b = el('div', { class: 'tsai-msg tsai-' + role });
-      b.appendChild(el('span', { class: 'tsai-sr', text: (role === 'user' ? t('you') : t('ai')) + ': ' }));
+      b.appendChild(el('span', { class: 'tsai-sr', text: (role === 'user' ? t('you') : NAME || t('ai')) + ': ' }));
       b.appendChild(role === 'user' ? document.createTextNode(text) : linkify(text, links));
       return b;
     }
     function render() {
       log.innerHTML = '';
-      var intro = el('div', { class: 'tsai-msg tsai-assistant' }); intro.appendChild(el('span', { class: 'tsai-sr', text: t('ai') + ': ' })); intro.appendChild(document.createTextNode(t('intro')));
+      var intro = el('div', { class: 'tsai-msg tsai-assistant' }); intro.appendChild(el('span', { class: 'tsai-sr', text: (NAME || t('ai')) + ': ' })); intro.appendChild(document.createTextNode(t('intro')));
       var note = el('p', { class: 'tsai-note', text: t('note') + ' ' }), pu = privacy();
       if (pu) note.appendChild(el('a', { href: pu, target: '_blank', rel: 'noopener', text: t('privacy') }));
       log.appendChild(intro); log.appendChild(note);
@@ -149,6 +160,10 @@
           if (r && (r.text || (r.actions || []).length)) {
             if (r.text) add('assistant', r.text, r.links);
             if ((r.actions || []).indexOf('contact') >= 0) showForm(r.summary || '');
+            if ((r.actions || []).indexOf('offer') >= 0 && (r.actions || []).indexOf('contact') < 0) {      /* nabídka formuláře: tlačítko, otevře návštěvník */
+              var sum = r.summary || '', ob = el('button', { type: 'button', class: 'tsai-chip tsai-offer', text: t('qContact'), onclick: function () { ob.remove(); showForm(sum); } });
+              log.appendChild(ob); log.scrollTop = log.scrollHeight;
+            }
           } else { add('assistant', t('err')); showForm(''); }
         })
         .catch(function () { add('assistant', t('err')); showForm(''); })

@@ -1,10 +1,10 @@
 {
   "name": "ts-ai-consultant",
-  "version": "1.2.0",
+  "version": "1.5.1",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
-  "summary": "Textový AI konzultant: PHP brána s Claude přes oficiální SDK, znalosti z řízeného souboru, cenová pojistka bez částek, povolené odkazy, limity a měsíční rozpočet, přístupný widget v 18 jazycích, lead se souhlasem do CRM, výpadek nezastaví web.",
+  "summary": "Textový AI konzultant: PHP brána s adaptéry (Claude, bezplatné Cloudflare Workers AI), řízené znalosti, cenová pojistka, povolené odkazy, limity a rozpočet (měsíc v USD nebo denní kvóta), persona, widget v 18 jazycích, lead se souhlasem do CRM.",
   "runtime": [
     "php",
     "browser"
@@ -47,7 +47,8 @@
     "public/*.css",
     "sdk/composer.json",
     "sdk/composer.lock",
-    "sdk/.htaccess"
+    "sdk/.htaccess",
+    "public/.htaccess"
   ],
   "customerFiles": [],
   "aiEditable": [
@@ -62,10 +63,13 @@
     "migrations/* – změna = nová migrace + rollback"
   ],
   "works": [
-    "71 testů brány s falešným poskytovatelem (konverzace, nástroj kontaktu, cenová pojistka v 9 měnách, odkazy, odmítnutí, výpadek, rozpočet nepřekročí strop, limity, validace, lead se souhlasem a bez duplicit, výpadek CRM, retence, skrytí klíče v logu).",
-    "42 integračních testů: skutečné PHP SDK 1.3.0 proti lokální napodobenině Messages API (formát požadavku, prompt cache, effort, smyčka nástroje, 529/401) a widget v Chromu (odkazy, formulář, lead, klávesnice, přepnutí jazyka vč. RTL, mobil, nedostupná brána).",
-    "10 testů kontrolní stránky pro hosting (kód, zámek, vypršení, klíč se nezobrazí).",
-    "Ověřeno na test.tasstudio.eu se skutečným Claude: reference s odkazem, němčina, arabština (RTL), odmítnutí pokusu vypsat instrukce."
+    "106 testů brány s falešným poskytovatelem (konverzace, nástroj kontaktu, cenová pojistka v 9 měnách, odkazy, odmítnutí, výpadek, rozpočet nepřekročí strop, limity, validace, lead se souhlasem a bez duplicit, výpadek CRM, retence, skrytí klíče v logu).",
+    "51 integračních testů: skutečné PHP SDK 1.3.0 proti lokální napodobenině Messages API (formát požadavku, prompt cache, effort, smyčka nástroje, 529/401) a widget v Chromu (odkazy, formulář, lead, klávesnice, přepnutí jazyka vč. RTL, mobil, nedostupná brána).",
+    "12 testů kontrolní stránky pro hosting (kód, zámek, vypršení, klíč se nezobrazí).",
+    "Ověřeno na test.tasstudio.eu se skutečným Claude: reference s odkazem, němčina, arabština (RTL), odmítnutí pokusu vypsat instrukce.",
+    "Persona (jméno, portrét, vlastní texty, identita v promptu), seznam skutečných funkcí v promptu a přístupová cookie pro neveřejný staging (1.3.0).",
+    "Bezplatný provoz (1.4.0): adaptér OpenAI-kompatibilních služeb přes cURL (Cloudflare Workers AI) ověřený proti napodobenině rozhraní, kontakt značkou v odpovědi, denní kvóta v neuronech, výběr znalostí podle dotazu.",
+    "Ověřeno na stagingu s Cloudflare Llama 3.3 70B (1. 11. 2026); z nálezů 1.5.0: pojistka proti úniku pokynů (osmice slov z pokynů v odpovědi → odmítnutí), bezpečnostní pravidlo na konci promptu, značka kontaktu jako tlačítko."
   ],
   "missingForProduction": [
     "Ověření na test.tasstudio.eu: spojení hostingu na api.anthropic.com:443, SDK pod zúženým open_basedir, skutečné odpovědi modelu (kvalita, jazyky, dodržení cenových pravidel).",

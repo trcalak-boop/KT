@@ -6,7 +6,7 @@
    ========================================================================== */
 final class TsAiStore
 {
-    private PDO $db; private bool $sqlite;
+    private PDO $db; private bool $sqlite; private string $period = 'month';
 
     public static function open(string $dsn, ?string $user = null, ?string $pass = null): self
     {
@@ -64,7 +64,9 @@ final class TsAiStore
 
     /* ---------- rozpočet: rezervace před voláním, vyúčtování po něm ----------
        Částky v milióntinách USD (celá čísla). Rezervace starší než 10 min se nepočítají (spadlý požadavek). */
-    public function month(): string { return gmdate('Y-m'); }
+    /* období rozpočtu: 'month' (USD u placených služeb) nebo 'day' (denní kvóta bezplatných služeb, UTC) */
+    public function setPeriod(string $p): void { $this->period = $p === 'day' ? 'day' : 'month'; }
+    public function month(): string { return $this->period === 'day' ? gmdate('Y-m-d') : gmdate('Y-m'); }
     public function spent(?string $month = null): int
     {
         return (int) $this->q('SELECT COALESCE(SUM(cost_micro), 0) FROM ts_ai_usage WHERE month = ?', [$month ?? $this->month()])->fetchColumn();

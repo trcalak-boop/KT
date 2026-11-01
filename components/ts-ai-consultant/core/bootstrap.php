@@ -35,6 +35,14 @@ function ts_ai_provider(array $s): ?TsAiProvider
     $p = $s['provider'] ?? 'claude';
     if ($p instanceof TsAiProvider) return $p;
     if ($p === 'fake') return new TsAiFakeProvider($s['fake'] ?? []);
+    if ($p === 'cloudflare' || $p === 'openai') {            /* bezplatné Cloudflare Workers AI nebo jiná OpenAI-kompatibilní služba (bez SDK) */
+        $key = ts_ai_api_key($s);
+        if ($key === '') return null;
+        $o = $s[$p] ?? [];
+        if ($p === 'cloudflare') $o += ['baseUrl' => 'https://api.cloudflare.com/client/v4/accounts/' . rawurlencode((string) ($o['accountId'] ?? '')) . '/ai/v1', 'model' => '@cf/meta/llama-3.3-70b-instruct-fp8-fast'];
+        try { return new TsAiOpenAICompatProvider(['apiKey' => $key] + $o); }
+        catch (Throwable $e) { error_log('ts-ai: poskytovatel nejde vytvořit: ' . $e->getMessage()); return null; }
+    }
     if ($p !== 'claude') return null;
     $key = ts_ai_api_key($s);
     if ($key === '') return null;
@@ -56,7 +64,7 @@ function ts_ai_consultant(array $s): TsAiConsultant
     return new TsAiConsultant([
         'store' => $store, 'provider' => ts_ai_provider($s), 'queue' => $queue,
         'redact' => array_values(array_filter([$key, $s['mail']['smtp_pass'] ?? null, $s['db']['pass'] ?? null])),
-    ] + array_diff_key($s, array_flip(['db', 'mail', 'mailQueue', 'provider', 'apiKeyFile', 'sdkAutoload', 'claude', 'fake'])));
+    ] + array_diff_key($s, array_flip(['db', 'mail', 'mailQueue', 'provider', 'apiKeyFile', 'sdkAutoload', 'claude', 'cloudflare', 'openai', 'fake'])));
 }
 
 /* Zpevnění vstupního bodu na sdíleném hostingu (stejné chování jako ts_booking_harden):

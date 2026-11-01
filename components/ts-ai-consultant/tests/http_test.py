@@ -3,7 +3,7 @@
 Messages API (žádné volání skutečné služby, falešný klíč), smyčka nástroje, výpadky 529/401, widget v Chromu
 (odeslání, odkazy, formulář se souhlasem, lead, klávesnice, mobil, výpadek brány) a kontrola, že klíč není v prohlížeči.
 Poslední řádek: RESULT pass=N fail=M"""
-import http.server, json, os, shutil, sqlite3, subprocess, sys, tempfile, threading, time, urllib.error, urllib.request
+import base64, http.server, json, os, shutil, sqlite3, subprocess, sys, tempfile, threading, time, urllib.error, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__)); COMP = os.path.abspath(os.path.join(HERE, '..')); LIB = os.path.abspath(os.path.join(COMP, '..', '..'))
 sys.path.insert(0, os.path.join(LIB, 'tools', 'lib'))
 from cdp import Browser
@@ -32,6 +32,11 @@ class Mock(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers.get('content-length', 0))) or b'{}')
         REQS.append({'path': self.path, 'headers': {k.lower(): v for k, v in self.headers.items()}, 'body': body})
+        if self.path.endswith('/ai/v1/chat/completions'):
+            if MODE['v'] == '429': return self.reply(429, {'success': False, 'errors': [{'code': 4006, 'message': 'you have used up your daily free allocation of 10,000 neurons'}]})
+            txt = 'Dobrý den, podobný je Salon Šalvěj: /ukazky/salon.html' if 'kontakt' not in str(body['messages'][-1]['content']).lower() else 'Rádi se ozveme.\n[[KONTAKT: Web pro kavárnu]]'
+            return self.reply(200, {'id': 'chatcmpl-1', 'object': 'chat.completion', 'model': body['model'], 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': txt}, 'finish_reason': 'stop'}],
+                                    'usage': {'prompt_tokens': 2000, 'completion_tokens': 60, 'total_tokens': 2060}})
         if MODE['v'] == '529': return self.reply(529, {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}})
         if MODE['v'] == '401': return self.reply(401, {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}})
         last = body['messages'][-1]; c = last['content']
@@ -66,13 +71,24 @@ return ['timezone' => 'Europe/Prague', 'business' => 'Studio Test', 'contactEmai
   'notify' => ['to' => 'poptavky@studio.test'], 'mail' => ['transport' => 'log', 'logFile' => __DIR__ . '/data/mail.log', 'from' => 'web@studio.test', 'domain' => 'studio.test', 'redirectTo' => 'test@studio.test'],
   'consentText' => 'Souhlas.'];
 ''' % (SDK, MOCK))
+open(os.path.join(PR, 'ai-cf.php'), 'w').write('''<?php
+return ['timezone' => 'Europe/Prague', 'business' => 'Studio Test', 'contactEmail' => 'info@studio.test', 'defaultLang' => 'cs',
+  'provider' => 'cloudflare', 'apiKeyFile' => __DIR__ . '/cf-token.txt',
+  'cloudflare' => ['accountId' => '0123456789abcdef0123456789abcdef', 'baseUrl' => 'http://127.0.0.1:%d/client/v4/accounts/0123456789abcdef0123456789abcdef/ai/v1', 'timeout' => 10],
+  'contactMode' => 'marker', 'knowledgeMaxChars' => 4000, 'maxTokens' => 500, 'budget' => ['limit' => 9500, 'period' => 'day', 'unit' => 'neuron'],
+  'knowledgeFile' => __DIR__ . '/znalosti.json', 'db' => ['dsn' => 'sqlite:' . __DIR__ . '/data/cf.sqlite'], 'salt' => 'x'];
+''' % MOCK)
+open(os.path.join(PR, 'cf-token.txt'), 'w').write('CF-TOKEN-FALESNY-0000\n')
 api = open(os.path.join(COMP, 'config', 'api.example.php')).read()
 api = api.replace("'paths' => [__DIR__ . '/../..', $private]", "'paths' => [__DIR__ . '/../..', $private, %r]" % os.path.dirname(os.path.dirname(SDK)))
 open(os.path.join(W, 'api', 'ai', 'chat.php'), 'w').write(api)
+open(os.path.join(W, 'api', 'ai', 'chat-cf.php'), 'w').write(api.replace('/ai-consultant.php', '/ai-cf.php'))
 open(os.path.join(W, 'index.html'), 'w').write('''<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Test</title>
 <link rel="stylesheet" href="/vendor/ts/ts-ai-consultant/public/ts-ai-widget.css"></head><body><main><h1>Web studia</h1><a id="odkaz" href="#">Odkaz webu</a></main>
 <script>window.TS_AI_CONFIG = { api: '/api/ai/chat.php', business: 'Studio Test', email: 'info@studio.test', privacyUrl: '/privacy.html' };</script>
 <script src="/vendor/ts/ts-ai-consultant/public/ts-ai-widget.js" defer></script></body></html>''')
+open(os.path.join(W, 'tessa.png'), 'wb').write(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='))
+open(os.path.join(W, 'tessa.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', avatar: '/tessa.png', texts: { cs: { role: 'AI asistentka T&S Studia', intro: 'Dobrý den, jsem Tessa, AI asistentka T&S Studia.' } } };"))
 open(os.path.join(W, 'down.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("/api/ai/chat.php", "/api/neexistuje.php"))
 srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1.2)
 
@@ -112,6 +128,25 @@ try:
     ok('error_overloaded' in outs and 'error_auth' in outs and 'tool' in outs and 'price_guard' in outs, 'spotřeba a výsledky zapsány', outs)
     cost = db.execute('SELECT cost_micro FROM ts_ai_usage WHERE outcome = "ok" ORDER BY id LIMIT 1').fetchone()[0]
     ok(cost == 900 * 4 + 80 * 20 + 2000 * 0.4, 'cena z usage: vstup + výstup + čtení cache (%s µUSD)' % cost)
+    # Cloudflare Workers AI (OpenAI-kompatibilní, cURL bez SDK)
+    def cf(route, body):
+        req = urllib.request.Request(BASE + '/api/ai/chat-cf.php?r=' + route, data=json.dumps(body).encode(), headers={'Content-Type': 'application/json'}, method='POST')
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r: return r.status, json.loads(r.read())
+        except urllib.error.HTTPError as e: return e.code, json.loads(e.read() or b'{}')
+    n0 = len(REQS); st, b = cf('message', {'text': 'Máte podobný projekt?', 'lang': 'cs'})
+    r = REQS[-1] if len(REQS) > n0 else {}
+    ok(st == 200 and '/ukazky/salon.html' in b['reply']['text'], 'Cloudflare: odpověď přes OpenAI-kompatibilní rozhraní', b)
+    ok(r.get('path', '').endswith('/accounts/0123456789abcdef0123456789abcdef/ai/v1/chat/completions') and r['headers'].get('authorization') == 'Bearer CF-TOKEN-FALESNY-0000', 'Cloudflare: správná adresa účtu a token v hlavičce', r.get('path'))
+    bb = r.get('body', {})
+    ok(bb.get('model') == '@cf/meta/llama-3.3-70b-instruct-fp8-fast' and bb['messages'][0]['role'] == 'system' and 'tools' not in bb and bb.get('max_tokens') == 500, 'Cloudflare: model, systémová zpráva, bez nástrojů, max_tokens', {k: bb.get(k) for k in ('model', 'max_tokens')})
+    st, b2 = cf('message', {'text': 'Chci kontakt', 'lang': 'cs', 'conversation': b['conversation']})
+    ok('offer' in b2['reply']['actions'] and b2['reply'].get('summary') == 'Web pro kavárnu' and '[[' not in b2['reply']['text'], 'Cloudflare: značka kontaktu → nabídka formuláře', b2)
+    db = sqlite3.connect(os.path.join(PR, 'data', 'cf.sqlite'))
+    m, c = db.execute('SELECT month, cost_micro FROM ts_ai_usage ORDER BY id LIMIT 1').fetchone()
+    ok(m == time.strftime('%Y-%m-%d', time.gmtime()) and c == 2000 * 26668 + 60 * 204805, 'Cloudflare: spotřeba v neuronech za dnešní den (%s)' % c)
+    MODE['v'] = '429'; st, b3 = cf('message', {'text': 'Ahoj', 'lang': 'cs'}); MODE['v'] = 'ok'
+    ok(st == 200 and b3['reply'].get('fallback') == 'unavailable' and 'info@studio.test' in b3['reply']['text'], 'Cloudflare: vyčerpaná kvóta (429) → náhradní text s kontaktem', b3)
     with urllib.request.urlopen(BASE + '/vendor/ts/ts-ai-consultant/core/TsAiConsultant.php') as r: out = r.read().decode()
     ok(out.strip() == '', 'PHP jádro nic nevypíše při přímém volání (na Apache zakáže .htaccess)')
     for f in ('core/.htaccess', 'config/.htaccess', 'bin/.htaccess', 'migrations/.htaccess'): ok(os.path.isfile(os.path.join(COMP, f)), 'ochrana složky ' + f)
@@ -160,6 +195,16 @@ try:
         mins = br.js("return [...document.querySelectorAll('.tsai-chip,.tsai-send,.tsai-icon')].filter(e=>e.offsetParent).map(e=>Math.min(e.offsetWidth,e.offsetHeight))")
         ok(min(mins) >= 40, 'mobil: dotykové cíle aspoň 40 px', mins)
         if os.environ.get('TSAI_SHOTS'): br.shot(os.path.join(os.environ['TSAI_SHOTS'], 'mobil.jpg'))
+        br.size(1280, 900); br.go(BASE + '/tessa.html', wait=.5); br.js("sessionStorage.clear()"); br.go(BASE + '/tessa.html', wait=1.5)
+        r = br.js("const l=document.querySelector('.tsai-launcher'); return [l.textContent, l.getAttribute('aria-label'), !!l.querySelector('img.tsai-face')]")
+        ok(r[0] == 'Tessa' and r[1] == 'Tessa, AI asistentka T&S Studia' and r[2], 'persona: tlačítko „Tessa“ s portrétem a popisem pro čtečky', r)
+        br.js("document.querySelector('.tsai-new') && sessionStorage.clear(); TSAiWidget.open()", wait=.3)
+        r = br.js("return [document.querySelector('.tsai-title').textContent, document.querySelector('.tsai-role').textContent, document.querySelector('.tsai-log .tsai-assistant').textContent, !!document.querySelector('.tsai-head-face img')]")
+        ok(r[0] == 'Tessa' and r[1] == 'AI asistentka T&S Studia' and 'jsem Tessa' in r[2] and r[2].startswith('Tessa:') and r[3], 'persona: hlavička se jménem a označením AI, vlastní úvod', r)
+        br.js("const s=document.getElementById('tsai-lang'); s.value='de'; s.dispatchEvent(new Event('change'))", wait=.2)
+        r = br.js("return [document.querySelector('.tsai-title').textContent, document.querySelector('.tsai-role').textContent]")
+        ok(r[0] == 'Tessa' and r[1] == 'KI-Assistent', 'persona: jazyk bez vlastního textu použije vestavěný (fallback)', r)
+        br.js("sessionStorage.clear()")
         br.size(1280, 900); br.go(BASE + '/down.html', wait=1.2)
         ok(br.js("return document.querySelector('.tsai').hidden === true"), 'nedostupná brána: tlačítko asistenta se vůbec neukáže')
         br.js("document.querySelector('.tsai').hidden = false; TSAiWidget.open()", wait=.3); br.js("document.querySelector('.tsai-chip').click()", wait=1.5)

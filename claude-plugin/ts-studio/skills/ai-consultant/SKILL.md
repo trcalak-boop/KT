@@ -12,7 +12,8 @@ Stav: **DEMO** – otestováno lokálně (falešný poskytovatel + skutečné SD
 - **API klíč** jen v souboru mimo webroot (`apiKeyFile`), nikdy v kódu, gitu, prohlížeči, chatu ani v logu. Klíč zakládá provozovatel sám.
 - **Testy nikdy nevolají skutečné API.** Automatické testy: `provider: 'fake'` nebo napodobenina na localhostu (`claude.baseUrl`). Skutečný dotaz jen ručně přes kontrolní stránku a se souhlasem provozovatele.
 - **Znalosti** jen z ověřených zdrojů klienta (JSON, viz `api/ts-ai-consultant.md`). Ceník do znalostí nepatří, když klient ceny uvádět nechce (`pricePolicy.noAmounts: true` + pravidla).
-- **Model a rozpočet** rozhoduje provozovatel (výchozí `claude-opus-5-5`, effort `low`, `monthlyBudgetUsd`). Model kvůli ceně sám neměň.
+- **Poskytovatel, model a rozpočet** rozhoduje provozovatel: placený Claude (`provider: 'claude'`, `monthlyBudgetUsd`) nebo provoz zdarma přes Cloudflare Workers AI (`provider: 'cloudflare'`, `contactMode: 'marker'`, `budget: ['limit' => 9500, 'period' => 'day', 'unit' => 'neuron']`, `knowledgeMaxChars`). Gemini zdarma je pro návštěvníky z EU podle podmínek Googlu zakázaný. Model sám neměň.
+- **Persona** (`persona`, `capabilitiesFile`) a neveřejný staging (`access`) – viz `api/ts-ai-consultant.md`. Malé modely jsou náchylnější k prompt injection: brána má vstupní filtr a pojistku proti úniku pokynů, nespoléhej jen na prompt.
 - **Osobní údaje** jen přes formulář widgetu do brány (`?r=lead`), ne k poskytovateli AI. Souhlas povinný, ukládá se jeho text.
 - Historii konverzace drží server (token → otisk); prohlížeč nemůže podstrčit odpovědi asistenta.
 

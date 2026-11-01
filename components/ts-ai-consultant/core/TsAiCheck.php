@@ -20,31 +20,40 @@ final class TsAiCheck
         $doc = realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '';
         $out = function ($p) use ($doc) { $x = realpath($p); return $x !== false && ($doc === '' || !str_starts_with($x, rtrim($doc, '/') . '/')); };
         $r[] = ['soubor s API klíčem existuje a je mimo webroot (hodnota se nezobrazuje)', ts_ai_api_key($s) !== '' && $out($s['apiKeyFile'] ?? '')];
-        $r[] = ['klíč má očekávaný tvar (sk-ant-…)', str_starts_with(ts_ai_api_key($s), 'sk-ant-')];
-        $sdk = $s['sdkAutoload'] ?? '';
-        $r[] = ['SDK (vendor/autoload.php) je mimo webroot', $sdk !== '' && $out($sdk)];
-        $okSdk = false; try { if (!class_exists('Anthropic\\Client') && is_file($sdk)) require_once $sdk; $okSdk = class_exists('Anthropic\\Client') && class_exists('GuzzleHttp\\Client'); } catch (Throwable $e) { }
-        $r[] = ['SDK Anthropic a Guzzle se načtou', $okSdk];
+        $prov = is_string($s['provider'] ?? 'claude') ? ($s['provider'] ?? 'claude') : 'vlastní';
+        $r[] = ['poskytovatel AI: ' . $prov, true];
+        if ($prov === 'claude') {
+            $r[] = ['klíč má očekávaný tvar (sk-ant-…)', str_starts_with(ts_ai_api_key($s), 'sk-ant-')];
+            $sdk = $s['sdkAutoload'] ?? '';
+            $r[] = ['SDK (vendor/autoload.php) je mimo webroot', $sdk !== '' && $out($sdk)];
+            $okSdk = false; try { if (!class_exists('Anthropic\\Client') && is_file($sdk)) require_once $sdk; $okSdk = class_exists('Anthropic\\Client') && class_exists('GuzzleHttp\\Client'); } catch (Throwable $e) { }
+            $r[] = ['SDK Anthropic a Guzzle se načtou', $okSdk];
+        }
+        if ($prov === 'cloudflare') $r[] = ['Cloudflare: ID účtu vyplněné', preg_match('/^[a-f0-9]{32}$/', (string) ($s['cloudflare']['accountId'] ?? '')) === 1];
+        if ($prov === 'cloudflare' || $prov === 'openai') $r[] = ['rozšíření curl pro volání služby', function_exists('curl_init')];
         $k = is_file($s['knowledgeFile'] ?? '') ? json_decode((string) file_get_contents($s['knowledgeFile']), true) : null;
         $r[] = ['znalosti: ' . (is_array($k) ? count($k['sections'] ?? []) . ' sekcí, ' . count($k['references'] ?? []) . ' referencí' : 'nenačteny'), is_array($k) && !empty($k['sections']) && $out($s['knowledgeFile'])];
         $r[] = ['cenová pravidla: bez částek', is_array($k) && !empty($k['pricePolicy']['noAmounts'])];
         $dsn = $s['db']['dsn'] ?? ''; $okDb = false;
         try { $st = ts_ai_store($s); $st->pdo()->query('SELECT COUNT(*) FROM ts_ai_usage')->fetchColumn(); $okDb = true; } catch (Throwable $e) { }
         $r[] = ['databáze funguje' . (str_starts_with($dsn, 'sqlite:') ? ' a je mimo webroot' : ''), $okDb && (!str_starts_with($dsn, 'sqlite:') || $out(dirname(substr($dsn, 7))))];
-        $probe = $s['check']['probe'] ?? 'ssl://api.anthropic.com:443';      /* jen spojení, žádný dotaz ani klíč */
+        $probe = $s['check']['probe'] ?? (in_array($s['provider'] ?? 'claude', ['cloudflare'], true) ? 'ssl://api.cloudflare.com:443' : 'ssl://api.anthropic.com:443');      /* jen spojení, žádný dotaz ani klíč */
         $fp = @stream_socket_client($probe, $en, $es, 6); if ($fp) fclose($fp);
         $r[] = ['hosting se spojí s ' . preg_replace('#^\w+://#', '', $probe), (bool) $fp];
         $r[] = ['HTTPS', TsAuth::isHttps() || in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true)];
-        $spent = $okDb ? ts_ai_store($s)->spent() / 1e6 : 0;
-        $r[] = [sprintf('rozpočet: utraceno %.4f z %.2f USD tento měsíc', $spent, (float) ($s['monthlyBudgetUsd'] ?? 10)), $spent < (float) ($s['monthlyBudgetUsd'] ?? 10)];
-        $r[] = ['model: ' . ($s['claude']['model'] ?? 'claude-opus-5-5'), isset(TsAiConsultant::PRICING[$s['claude']['model'] ?? 'claude-opus-5-5']) || isset($s['pricing'][$s['claude']['model'] ?? ''])];
+        $b = ($s['budget'] ?? []) + ['limit' => (float) ($s['monthlyBudgetUsd'] ?? 10), 'period' => 'month', 'unit' => 'USD'];
+        $st = $okDb ? ts_ai_store($s) : null; if ($st) $st->setPeriod($b['period']);
+        $spent = $st ? $st->spent() / 1e6 : 0;
+        $r[] = [sprintf('rozpočet: využito %.4f z %s %s (%s)', $spent, $b['limit'], $b['unit'], $b['period'] === 'day' ? 'dnes, UTC' : 'tento měsíc'), $spent < (float) $b['limit']];
+        $model = $prov === 'claude' ? ($s['claude']['model'] ?? 'claude-opus-5-5') : ($s[$prov]['model'] ?? ($prov === 'cloudflare' ? '@cf/meta/llama-3.3-70b-instruct-fp8-fast' : ''));
+        $r[] = ['model: ' . $model . ' (ceník pro rozpočet)', isset(TsAiConsultant::PRICING[$model]) || isset($s['pricing'][$model])];
         return $r;
     }
 
     /* jeden skutečný dotaz přes bránu (stejné limity, rozpočet a pojistky jako widget) */
     public function live(): array
     {
-        $g = ts_ai_consultant($this->s);
+        $g = ts_ai_consultant(['access' => null] + $this->s);          /* kontrola chráněná kódem obchází přístupovou cookie stagingu */
         if (!$g->enabled()) return [false, 'asistent je vypnutý (chybí klíč/SDK nebo vyčerpaný rozpočet)'];
         [$code, $o] = $g->handle('POST', 'message', json_encode(['text' => 'Dobrý den, jakou službu mi doporučíte pro nový web kavárny? Odpovězte jednou větou.', 'lang' => 'cs']),
             ['content-type' => 'application/json', 'host' => $_SERVER['HTTP_HOST'] ?? ''], (string) ($_SERVER['REMOTE_ADDR'] ?? ''));
