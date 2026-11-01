@@ -1,39 +1,23 @@
 {
-  "at": "2026-10-31T01:38:25",
-  "pass": 129,
+  "at": "2026-11-01T12:51:48",
+  "pass": 116,
   "fail": 0,
   "files": [
     {
-      "file": "components/ts-booking-server/tests/harden_test.php",
-      "pass": 8,
+      "file": "components/ts-ai-consultant/tests/check_test.php",
+      "pass": 10,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-booking-server/tests/installer_test.php",
-      "pass": 14,
+      "file": "components/ts-ai-consultant/tests/consultant_test.php",
+      "pass": 66,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-booking-server/tests/server_test.php",
-      "pass": 53,
-      "fail": 0,
-      "log": []
-    },
-    {
-      "file": "components/ts-booking-server/tests/differential_test.py",
-      "pass": 27,
-      "fail": 0,
-      "log": [
-        "INFO 2026-11-03T10:17:00: porovnáno 4698 dotazů (lokna 3711, lokna-gap-rozsireni 21, motoria 684, koren 282)",
-        "INFO 2026-11-07T18:40:00: porovnáno 4711 dotazů (lokna 3733, lokna-gap-rozsireni 21, motoria 684, koren 273)",
-        "INFO 2026-12-21T06:05:00: porovnáno 4698 dotazů (lokna 3738, lokna-gap-rozsireni 21, motoria 684, koren 255)"
-      ]
-    },
-    {
-      "file": "components/ts-booking-server/tests/http_test.py",
-      "pass": 27,
+      "file": "components/ts-ai-consultant/tests/http_test.py",
+      "pass": 40,
       "fail": 0,
       "log": []
     }

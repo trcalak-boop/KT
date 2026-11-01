@@ -1,0 +1,2 @@
+-- Rollback ts-ai-consultant 001 – SMAŽE konverzace, spotřebu i leady. Předtím zálohujte databázi.
+DROP TABLE IF EXISTS ts_ai_leads; DROP TABLE IF EXISTS ts_ai_rate; DROP TABLE IF EXISTS ts_ai_reservations; DROP TABLE IF EXISTS ts_ai_usage; DROP TABLE IF EXISTS ts_ai_messages; DROP TABLE IF EXISTS ts_ai_conversations; DELETE FROM ts_ai_schema WHERE version = 1;

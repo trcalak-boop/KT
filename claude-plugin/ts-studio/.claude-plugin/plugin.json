@@ -1,6 +1,6 @@
 {
   "name": "ts-studio",
   "description": "T&S Studio Components & Skills – knihovna opakovaně použitelných webových komponent (rezervace, administrace, PDF, e-maily, přihlášení, CRM, e-shop, CMS, lokalizace) a pravidla pro jejich použití.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": { "name": "T&S Studio" }
 }

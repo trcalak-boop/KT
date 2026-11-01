@@ -1,0 +1,85 @@
+{
+  "name": "ts-ai-consultant",
+  "version": "1.0.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Textový AI konzultant: PHP brána s Claude přes oficiální SDK, znalosti z řízeného souboru, cenová pojistka bez částek, povolené odkazy, limity a měsíční rozpočet, přístupný widget v 18 jazycích, lead se souhlasem do CRM, výpadek nezastaví web.",
+  "runtime": [
+    "php",
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "f896dde",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "(nový kód; vzor příjmu leadu z web/admin/crm-poptavky.php: submission_id, souhlas, fronta oznámení)",
+        "to": "core/TsAiConsultant.php",
+        "mode": "new",
+        "sha256": "1c39dcde4ec556e9fe5d37dbd88ac04566e601ac7456d255a05c70e72d693fb5"
+      }
+    ]
+  },
+  "dependencies": {
+    "ts-auth-php": "^1.0.0",
+    "ts-mailer-php": "^1.1.0"
+  },
+  "entrypoints": {
+    "php": "core/bootstrap.php",
+    "api": "ts_ai_consultant(settings)->serve()",
+    "check": "(new TsAiCheck(settings))->serve()",
+    "widget": "public/ts-ai-widget.js + public/ts-ai-widget.css",
+    "classes": "TsAiConsultant, TsAiStore, TsAiProvider (TsAiClaudeProvider, TsAiFakeProvider), TsAiTexts, TsAiCheck",
+    "cli": "bin/cron.php, bin/report.php"
+  },
+  "lockedFiles": [
+    "core/*.php",
+    "core/.htaccess",
+    "migrations/*.sql",
+    "migrations/.htaccess",
+    "bin/*.php",
+    "bin/.htaccess",
+    "config/*.php",
+    "config/.htaccess",
+    "public/*.js",
+    "public/*.css",
+    "sdk/composer.json",
+    "sdk/composer.lock",
+    "sdk/.htaccess"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "serverová konfigurace projektu: kopie config/consultant.example.php MIMO webroot (model, rozpočet, limity, texty, leadSink)",
+    "znalosti projektu (JSON podle api/ts-ai-consultant.md) – jen z ověřených zdrojů klienta",
+    "vstupní bod api/ai/chat.php (jen cesty), TS_AI_CONFIG ve stránce (adresa brány, název, e-mail, odkaz na zásady)",
+    "vzhled přes proměnné webu (--paper, --surface, --ink, --line, --red)"
+  ],
+  "aiProtected": [
+    "core/* – historie jen na serveru, cenová pojistka, filtr odkazů, rozpočet s rezervací, limity, souhlas, idempotence leadu, skrytí klíče",
+    "public/ts-ai-widget.js – osobní údaje jen do brány, ne k AI; přístupnost (role=log, fokus, Esc, aria-invalid)",
+    "migrations/* – změna = nová migrace + rollback"
+  ],
+  "works": [
+    "66 testů brány s falešným poskytovatelem (konverzace, nástroj kontaktu, cenová pojistka v 9 měnách, odkazy, odmítnutí, výpadek, rozpočet nepřekročí strop, limity, validace, lead se souhlasem a bez duplicit, výpadek CRM, retence, skrytí klíče v logu).",
+    "40 integračních testů: skutečné PHP SDK 1.3.0 proti lokální napodobenině Messages API (formát požadavku, prompt cache, effort, smyčka nástroje, 529/401) a widget v Chromu (odkazy, formulář, lead, klávesnice, přepnutí jazyka vč. RTL, mobil, nedostupná brána).",
+    "10 testů kontrolní stránky pro hosting (kód, zámek, vypršení, klíč se nezobrazí)."
+  ],
+  "missingForProduction": [
+    "Ověření na test.tasstudio.eu: spojení hostingu na api.anthropic.com:443, SDK pod zúženým open_basedir, skutečné odpovědi modelu (kvalita, jazyky, dodržení cenových pravidel).",
+    "Revize znalostí a odpovědí provozovatelem; sada zkušebních dialogů ve všech jazycích.",
+    "Text informace o zpracování údajů (konverzace s AI, předání poskytovateli Anthropic, retence) v zásadách ochrany osobních údajů; smlouva o zpracování (DPA) s Anthropic.",
+    "Napojení leadů na produkční CRM (leadSink nad crm_poptavka_uloz, form 'ai-asistent', CRM_JAZYKY pro 18 jazyků) – zatím jen DB brány + e-mail.",
+    "Bezpečnostní revize druhou osobou; testy Safari/Firefox a čtečky obrazovky.",
+    "Externí balíčky (mimo knihovnu, sdk/composer.lock): anthropic-ai/sdk ^1.3 (Apache-2.0) – composer vendor MIMO webroot, sestavení podle sdk/composer.lock; guzzlehttp/guzzle ^7.9 (MIT) – HTTP klient SDK s časovými limity"
+  ],
+  "tests": [
+    "tests/consultant_test.php",
+    "tests/check_test.php",
+    "tests/http_test.py"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/ai-consultant/SKILL.md",
+  "api": "api/ts-ai-consultant.md",
+  "license": "Interní – T&S Studio (vlastní kód); SDK Anthropic Apache-2.0, Guzzle MIT (sdk/)"
+}

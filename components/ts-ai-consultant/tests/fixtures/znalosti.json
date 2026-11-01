@@ -1,0 +1,7 @@
+{"business": "Studio Test", "contact": {"email": "info@studio.test", "phone": "+420 000 000 000"},
+ "sections": [{"title": "Služby", "text": "Navrhujeme weby, e-shopy a rezervační systémy na míru."}],
+ "references": [{"id": "salon", "title": "Salon Šalvěj", "field": "Kosmetický salon", "services": ["Web", "Rezervační systém"], "features": ["Online rezervace"], "summary": "Ukázka rezervací.", "url": "/ukazky/salon.html", "fictional": true},
+                {"id": "foto", "title": "Fotograf", "field": "Portfolio", "services": ["Web"], "features": [], "summary": "Skutečný klient.", "url": "https://www.example.org", "fictional": false}],
+ "pages": [{"key": "kontakt", "title": "Kontakt", "urls": {"cs": "/cs/kontakt.html", "en": "/contact.html"}}],
+ "links": [],
+ "pricePolicy": {"noAmounts": true, "rules": ["Neuváděj částky.", "Doporuč referenci.", "Nabídni kontakt."]}}
