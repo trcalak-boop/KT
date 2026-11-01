@@ -99,6 +99,14 @@ msg($g, ['text' => 'Třetí', 'lang' => 'cs', 'conversation' => $a['conversation
 $m = $fp->requests[1]['messages'];
 t_ok(count($m) === 3 && $m[2]['role'] === 'user' && $m[2]['content'] === "Nezodpovězená\n\nTřetí", 'po nezodpovězené zprávě se role střídají (zprávy sloučené)');
 
+$g = gw($base, [
+  fn ($r) => ['stop' => 'tool_use', 'text' => 'Doporučuji web s rezervacemi, podobný je /ukazky/salon.html', 'tools' => [['id' => 'tu9', 'name' => 'nabidnout_kontakt', 'input' => ['shrnuti' => 'Kadeřnictví']]], 'assistant' => [['type' => 'tool_use']]],
+  $say(''),
+], $fp);
+$o = msg($g, ['text' => 'Chci web a kontakt', 'lang' => 'cs']);
+t_ok(strpos($o['reply']['text'], 'Doporučuji web s rezervacemi') === 0 && count($o['reply']['links']) === 1 && in_array('contact', $o['reply']['actions'], true), 'text před voláním nástroje se neztratí (doporučení + formulář)');
+t_ok(strpos($fp->requests[0]['tools'][0]['description'], 'výslovně') !== false, 'nástroj kontaktu jen na výslovné přání');
+
 /* --- validace požadavku --- */
 $g = gw($base, [], $fp);
 t_eq(msg($g, ['text' => '   ', 'lang' => 'cs'])['_code'], 422, 'prázdná zpráva 422');

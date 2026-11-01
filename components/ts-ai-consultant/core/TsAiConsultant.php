@@ -142,11 +142,11 @@ final class TsAiConsultant
         $system = $this->systemPrompt($lang);
         $tools = [[
             'name' => self::TOOL_CONTACT,
-            'description' => 'Zobrazí návštěvníkovi pod odpovědí kontaktní formulář studia (jméno, e-mail, souhlas). Použij, když návštěvník chce nabídku, konzultaci, cenu pro svůj projekt nebo kontakt. Osobní údaje nikdy nežádej v chatu, vyplní je do formuláře.',
+            'description' => 'Zobrazí návštěvníkovi pod odpovědí kontaktní formulář studia (jméno, e-mail, souhlas). Použij jen tehdy, když návštěvník výslovně chce kontakt, nabídku nebo konzultaci, případně souhlasí s tvou nabídkou formuláře. Na otázky (služby, reference, cena) nejdřív odpověz textem a formulář jen nabídni otázkou. Osobní údaje nikdy nežádej v chatu, vyplní je do formuláře.',
             'schema' => ['type' => 'object', 'properties' => ['shrnuti' => ['type' => 'string', 'description' => 'Stručné shrnutí potřeby návštěvníka v jeho jazyce, max. 400 znaků, bez osobních údajů. Předvyplní se do zprávy ve formuláři.']], 'required' => ['shrnuti']],
         ]];
 
-        $actions = []; $summary = ''; $reply = ''; $outcome = 'ok';
+        $actions = []; $summary = ''; $parts = []; $reply = ''; $outcome = 'ok';
         for ($round = 0; $round < (int) $this->c['maxToolRounds']; $round++) {
             $est = $this->estimateMicro($system, $messages, $price);
             $res = $this->store->reserve($est, $this->limitMicro());
@@ -164,21 +164,22 @@ final class TsAiConsultant
             $outcome = $r['stop'] === 'refusal' ? 'refusal' : ($r['stop'] === 'tool_use' ? 'tool' : 'ok');
             $this->store->settle($res, ['conv' => $conv, 'model' => $this->provider->model(), 'in' => $u['in'], 'out' => $u['out'], 'cacheRead' => $u['cacheRead'], 'cacheWrite' => $u['cacheWrite'], 'cost' => $cost, 'outcome' => $outcome]);
             if ($r['stop'] === 'refusal') { $reply = $this->t($lang, 'refusal'); $actions[] = 'contact'; break; }
-            if ($r['stop'] !== 'tool_use' || !$r['tools']) { $reply = trim($r['text']); break; }
+            if (trim($r['text']) !== '') $parts[] = trim($r['text']);      /* text z každého kola (i před voláním nástroje) se zachová */
+            if ($r['stop'] !== 'tool_use' || !$r['tools']) break;
             $results = [];
             foreach ($r['tools'] as $call) {
                 if ($call['name'] === self::TOOL_CONTACT) {
                     $actions[] = 'contact';
                     $summary = mb_substr(trim((string) ($call['input']['shrnuti'] ?? '')), 0, 400);
-                    $results[] = ['type' => 'tool_result', 'id' => $call['id'], 'content' => 'Formulář se návštěvníkovi zobrazil pod odpovědí. Jednou krátkou větou ho k vyplnění pozvi; údaje do chatu psát nemá.'];
+                    $results[] = ['type' => 'tool_result', 'id' => $call['id'], 'content' => 'Formulář se návštěvníkovi zobrazil pod odpovědí. Pokud jsi už na jeho zprávu odpověděl, nic dalšího nepiš. Jinak odpověz a jednou krátkou větou ho pozvi k vyplnění; údaje do chatu psát nemá.'];
                 } else {
                     $results[] = ['type' => 'tool_result', 'id' => $call['id'], 'content' => 'Neznámý nástroj.'];
                 }
             }
             $messages[] = ['role' => 'assistant', 'content' => $r['assistant']];
             $messages[] = ['role' => 'user', 'content' => $results];
-            $reply = trim($r['text']);
         }
+        if ($reply === '') $reply = implode("\n\n", $parts);
         if ($reply === '' && !in_array('contact', $actions, true)) $reply = $this->t($lang, 'unavailable');
 
         [$reply, $links] = $this->filterLinks($reply);

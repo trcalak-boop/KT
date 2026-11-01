@@ -1,10 +1,10 @@
 {
   "library": "ts-library",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "components": [
     {
       "name": "ts-ai-consultant",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
@@ -20,9 +20,10 @@
       "skill": "claude-plugin/ts-studio/skills/ai-consultant/SKILL.md",
       "api": "api/ts-ai-consultant.md",
       "works": [
-        "66 testů brány s falešným poskytovatelem (konverzace, nástroj kontaktu, cenová pojistka v 9 měnách, odkazy, odmítnutí, výpadek, rozpočet nepřekročí strop, limity, validace, lead se souhlasem a bez duplicit, výpadek CRM, retence, skrytí klíče v logu).",
+        "68 testů brány s falešným poskytovatelem (konverzace, nástroj kontaktu, cenová pojistka v 9 měnách, odkazy, odmítnutí, výpadek, rozpočet nepřekročí strop, limity, validace, lead se souhlasem a bez duplicit, výpadek CRM, retence, skrytí klíče v logu).",
         "40 integračních testů: skutečné PHP SDK 1.3.0 proti lokální napodobenině Messages API (formát požadavku, prompt cache, effort, smyčka nástroje, 529/401) a widget v Chromu (odkazy, formulář, lead, klávesnice, přepnutí jazyka vč. RTL, mobil, nedostupná brána).",
-        "10 testů kontrolní stránky pro hosting (kód, zámek, vypršení, klíč se nezobrazí)."
+        "10 testů kontrolní stránky pro hosting (kód, zámek, vypršení, klíč se nezobrazí).",
+        "Ověřeno na test.tasstudio.eu se skutečným Claude: reference s odkazem, němčina, arabština (RTL), odmítnutí pokusu vypsat instrukce."
       ],
       "missingForProduction": [
         "Ověření na test.tasstudio.eu: spojení hostingu na api.anthropic.com:443, SDK pod zúženým open_basedir, skutečné odpovědi modelu (kvalita, jazyky, dodržení cenových pravidel).",
@@ -401,5 +402,5 @@
       "path": "components/ts-shop-core"
     }
   ],
-  "generated": "2026-11-01T12:51:59"
+  "generated": "2026-11-01T13:20:27"
 }
