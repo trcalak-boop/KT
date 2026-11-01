@@ -1,5 +1,15 @@
 # ts-ai-consultant – změny
 
+## 1.9.2 – 2026-11-01
+- Audit v chatu: u chybové stránky (404) vlastní hláška v 18 jazycích místo obecné chyby.
+
+## 1.9.1 – 2026-11-01
+- Zjištěno na stagingu: asistentka u adresy webu tvrdila „podívala jsem se na web“. Brána teď u zprávy s adresou přidá modelu pokyn, že web neviděla, nic neodhaduje a odkáže na tlačítko auditu. Tlačítko ukazuje i cestu podstránky.
+
+## 1.9.0 – 2026-11-01
+- Audit webu v chatu (s komponentou ts-site-audit, etapa 5.3): u zprávy s adresou webu přidá brána akci `audit` + `auditUrl` (rozpozná ji sama, ne model; e-maily a soubory ne). Widget ukáže tlačítko „Spustit audit webu …“ – audit spustí jen návštěvník. Průběh v chatu, po dokončení souhrn: skóre mobil/počítač, 3 hlavní zjištění měření, 2 postřehy AI (subjektivní), poznámka o laboratorním měření s datem, tlačítko „Chci plný report a konzultaci“ (formulář se souhrnem). Texty v 18 jazycích. `TS_AI_CONFIG.audit` = adresa API auditu.
+- `POST ?r=audit-note { conversation, audit }`: hotový audit (ověřený přes `audit.lookup`) se uloží do konverzace jako faktický souhrn – asistentka na výsledky naváže a čísla nevymýšlí. Limit 5 za den na konverzaci.
+
 ## 1.8.0 – 2026-11-01
 - Hlas persony přes ElevenLabs (volitelný, placený plán): trasa `?r=speech` převede **poslední uloženou odpověď** konverzace na MP3 (cizí text nejde přečíst, kredity nelze zneužít). Měsíční strop znaků (`speech.monthlyChars`, rezervace před voláním, vrácení při chybě), limity na adresu a konverzaci, mezipaměť namluvených odpovědí (`cacheDir`, mazání s retencí konverzací), text bez adres a značek (odkazy jako názvy, T&S slovy), nejvýš `maxChars` celých vět. Stav brány hlásí `speech`.
 - Adaptér `TsAiElevenLabsSpeech` (cURL, model `eleven_flash_v2_5`, jazyk vynucený, klíč v hlavičce `xi-api-key` jen na serveru) a `TsAiFakeSpeech` pro testy; `ts_ai_speech()` v zavaděči (`speech.provider = 'elevenlabs'`, `apiKeyFile`, `voiceId`/`voiceIdFile`).

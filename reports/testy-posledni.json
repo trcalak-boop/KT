@@ -1,17 +1,35 @@
 {
-  "at": "2026-11-01T22:30:25",
-  "pass": 125,
+  "at": "2026-11-01T22:59:07",
+  "pass": 356,
   "fail": 0,
   "files": [
     {
+      "file": "components/ts-ai-consultant/tests/check_test.php",
+      "pass": 12,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-ai-consultant/tests/consultant_test.php",
+      "pass": 138,
+      "fail": 0,
+      "log": []
+    },
+    {
       "file": "components/ts-site-audit/tests/audit_test.php",
-      "pass": 56,
+      "pass": 57,
       "fail": 0,
       "log": []
     },
     {
       "file": "components/ts-site-audit/tests/url_test.php",
       "pass": 51,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-ai-consultant/tests/http_test.py",
+      "pass": 80,
       "fail": 0,
       "log": []
     },

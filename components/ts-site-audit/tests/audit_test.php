@@ -139,3 +139,6 @@ t_ok($s['report']['ai']['reason'] === 'empty' && $s['report']['ai']['raw'] === '
 $o2 = post($a, ['url' => 'example.cz', 'force' => true]); t_ok($o2['status'] === 'queued' && empty($o2['cached']), 'administrace: vynucené nové měření mimo cache');
 $a = aud([], $m, $v); run($a, post($a, ['url' => 'example.cz'])['id']); t_ok(!empty(post($a, ['url' => 'example.cz', 'force' => true], '6.6.6.6')['cached']), 'veřejnost: „force“ se ignoruje (cache)');
 t_eq(TsSiteAudit::parseVision('{"items":[{"area":"area name","text":"recommendation","priority":1}]}'), [], 'opsaná šablona z pokynů se zahodí');
+$e404 = TsAuditFakeMeter::sample('mobile'); $e404['lighthouseResult']['audits']['http-status-code'] = ['score' => 0, 'scoreDisplayMode' => 'binary', 'title' => 'Stránka má neúspěšný stavový kód HTTP'];
+$a = aud(['meter' => $mm = new TsAuditFakeMeter(['results' => ['mobile' => TsAuditPageSpeed::normalize($e404)]])]); $o = post($a, ['url' => 'example.cz/neni']); $s = run($a, $o['id']);
+t_ok($s['status'] === 'error' && $s['error'] === 'http' && count($mm->calls) === 1, 'chybová stránka (404): audit skončí po prvním měření s chybou „http“');

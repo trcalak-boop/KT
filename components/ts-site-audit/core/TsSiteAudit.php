@@ -166,6 +166,7 @@ final class TsSiteAudit
             if ($j['status'] === 'queued' || $j['status'] === 'desktop') {
                 $dev = $j['status'] === 'queued' ? 'mobile' : 'desktop';
                 $r = $this->meter->measure($j['url'], $dev, $j['lang']);
+                if (!empty($r['httpError'])) { $this->store->save($id, 'error', $d, 'http'); return; }      /* chybová stránka: dál neměřit, neplýtvat kvótou */
                 $d[$dev] = $this->keepShots($id, $dev, $r);
                 $this->store->save($id, $dev === 'mobile' ? 'desktop' : 'vision', $d);
                 return;

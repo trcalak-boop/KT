@@ -124,6 +124,21 @@ window.__played=[]; window.Audio=function(){ var a=this; a.paused=true; a.play=f
 el = idx.replace('/api/ai/chat.php', '/api/ai/chat-el.php').replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', mascot: true };")
 open(os.path.join(W, 'premium.html'), 'w').write(el.replace('<script>window.TS_AI_CONFIG', STUB + AUDIO + '<script>window.TS_AI_CONFIG'))
 open(os.path.join(W, 'premium-ff.html'), 'w').write(el.replace('<script>window.TS_AI_CONFIG', AUDIO + '<script>window.SpeechRecognition=undefined;window.webkitSpeechRecognition=undefined;Object.defineProperty(window,"speechSynthesis",{configurable:true,value:undefined});</script><script>window.TS_AI_CONFIG'))
+# audit webu v chatu: ts-site-audit s falešným měřením (DNS podstrčené)
+shutil.copytree(os.path.join(LIB, 'components', 'ts-site-audit'), os.path.join(W, 'vendor', 'ts', 'ts-site-audit'), ignore=shutil.ignore_patterns('tests'))
+open(os.path.join(PR, 'site-audit.php'), 'w').write('''<?php
+return ['source' => 'public', 'meter' => ['provider' => 'fake'], 'vision' => ['provider' => 'fake'], 'db' => ['dsn' => 'sqlite:' . __DIR__ . '/data/audit.sqlite'],
+  'shotDir' => __DIR__ . '/data/snimky', 'salt' => 'x', 'resolve' => fn ($h) => ['example.cz' => ['93.184.216.34']][$h] ?? [], 'limits' => ['publicPerIpDay' => 5]];
+''')
+os.makedirs(os.path.join(W, 'api', 'audit'), exist_ok=True)
+open(os.path.join(W, 'api', 'audit', 'verejny.php'), 'w').write('''<?php
+require __DIR__ . '/../../vendor/ts/ts-site-audit/core/bootstrap.php';
+ts_site_audit(require dirname(__DIR__, 3) . '/private/site-audit.php')->serve();
+''')
+open(os.path.join(PR, 'ai-cfa.php'), 'w').write(open(os.path.join(PR, 'ai-cf.php')).read().replace("/data/cf.sqlite'], 'salt' => 'x'];",
+    "/data/cfa.sqlite'], 'salt' => 'x', 'audit' => ['enabled' => true, 'lookup' => function ($t) { require_once dirname(__DIR__) . '/web/vendor/ts/ts-site-audit/core/bootstrap.php'; return ts_site_audit(require __DIR__ . '/site-audit.php')->status($t); }]];"))
+open(os.path.join(W, 'api', 'ai', 'chat-cfa.php'), 'w').write(api.replace('/ai-consultant.php', '/ai-cfa.php'))
+open(os.path.join(W, 'auditchat.html'), 'w').write(idx.replace('/api/ai/chat.php', '/api/ai/chat-cfa.php').replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', mascot: true, audit: '/api/audit/verejny.php' };"))
 open(os.path.join(W, 'down.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("/api/ai/chat.php", "/api/neexistuje.php"))
 srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1.2)
 
@@ -304,6 +319,30 @@ try:
         ok(br.js("return !document.querySelector('.tsai-mic') && !document.querySelector('.tsai-mute').hidden"), 'prohlížeč bez hlasových funkcí (Firefox): bez mikrofonu, ale s předčítáním hlasem persony')
         br.js("document.querySelector('.tsai-mute').click(); TSAiWidget.send('Ahoj')", wait=2.5)
         ok(br.js("return window.__played.length") == 1, 'Firefox: odpověď zazní hlasem persony')
+        br.js("sessionStorage.clear()")
+        # ---------- audit webu v chatu ----------
+        br.size(1280, 900); br.go(BASE + '/auditchat.html', wait=.5); br.js("sessionStorage.clear()"); br.go(BASE + '/auditchat.html', wait=1.5)
+        br.js("TSAiWidget.open(); TSAiWidget.send('Můj web je example.cz, co na něj říkáte?')", wait=2.5)
+        ok('example.cz' in (br.js("const b=document.querySelector('.tsai-audit-btn'); return b ? b.textContent : ''") or ''), 'audit: u adresy webu tlačítko „Spustit audit webu example.cz“ (nic se nespustí samo)')
+        n0 = len([x for x in REQS if 'chat/completions' in x['path']])
+        br.js("document.querySelector('.tsai-audit-btn').click()", wait=1)
+        ok(br.js("return !!document.querySelector('.tsai-audit .tsai-abar') && !document.querySelector('.tsai-audit-btn')"), 'audit: po kliknutí průběh v chatu')
+        for _ in range(12):
+            time.sleep(2.5)
+            if br.js("return !!document.querySelector('.tsai-ascores')"): break
+        r = br.js("return [[...document.querySelectorAll('.tsai-ascores td')].map(e=>e.textContent), document.querySelectorAll('.tsai-audit ul')[0] && document.querySelectorAll('.tsai-audit ul')[0].children.length, document.querySelectorAll('.tsai-audit ul')[1] && document.querySelectorAll('.tsai-audit ul')[1].children.length, document.querySelector('.tsai-anote') && document.querySelector('.tsai-anote').textContent]")
+        ok(r[0] == ['54', '81', '96', '90', '88', '81', '96', '90'] and r[1] == 3 and r[2] == 2 and 'Lighthouse' in (r[3] or ''), 'audit: souhrn v chatu – skóre mobil/počítač, 3 zjištění, 2 postřehy AI, poznámka o měření', r)
+        ok(br.js("return !/\\d/.test(document.querySelectorAll('.tsai-audit ul')[1].textContent)"), 'audit: postřehy AI bez čísel')
+        br.js("[...document.querySelectorAll('.tsai-offer')].pop().click()", wait=.4)
+        ok('Audit webu example.cz' in (br.js("const m=document.querySelector('.tsai-form [name=message]'); return m ? m.value : ''") or ''), 'audit: „Chci plný report“ otevře formulář se souhrnem')
+        br.js("document.querySelector('.tsai-form .tsai-actions .tsai-chip') && document.querySelector('.tsai-form .tsai-actions .tsai-chip').click(); TSAiWidget.send('Jak dopadl mobil?')", wait=2.5)
+        last = [x for x in REQS if 'chat/completions' in x['path']][-1]
+        ok('[Výsledek auditu webu https://example.cz/' in json.dumps(last['body']['messages'], ensure_ascii=False) and 'výkon 54' in json.dumps(last['body']['messages'], ensure_ascii=False), 'audit: Tessa zná výsledek (uložen do konverzace na serveru)')
+        br.js("sessionStorage.clear()"); br.go(BASE + '/auditchat.html', wait=1.2); br.js("TSAiWidget.open(); TSAiWidget.send('Web http://127.0.0.1')", wait=2.5)
+        if br.js("return !!document.querySelector('.tsai-audit-btn')"):
+            br.js("document.querySelector('.tsai-audit-btn').click()", wait=1.5)
+            ok('nelze auditovat' in br.js("return document.querySelector('.tsai-audit').textContent"), 'audit: interní adresa → srozumitelná hláška')
+        else: ok(True, 'audit: IP adresa se jako web nenabídne')
         br.js("sessionStorage.clear()")
         br.size(1280, 900); br.go(BASE + '/down.html', wait=1.2)
         ok(br.js("return document.querySelector('.tsai').hidden === true"), 'nedostupná brána: tlačítko asistenta se vůbec neukáže')

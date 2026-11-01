@@ -129,3 +129,11 @@
 /* hlas persony (1.8.0): ústa podle skutečné hlasitosti přehrávaného zvuku (--tsai-mouth nastavuje widget) */
 .tsai-live[data-state=speaking] .tsai-bot-mouth rect{animation:none;transform:scaleY(var(--tsai-mouth,1))}
 .tsai-live[data-state=speaking] .tsai-bot-mouth rect:nth-child(2){transform:scaleY(calc(var(--tsai-mouth,1) * 1.3))}
+/* audit webu v chatu (1.9.0) */
+.tsai-audit{max-width:100%;width:100%}
+.tsai-abar{height:6px;border-radius:99px;background:var(--tsai-line);overflow:hidden;margin-top:8px}.tsai-abar span{display:block;height:100%;width:5%;background:var(--tsai-accent);transition:width .6s}
+.tsai-ascores{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;text-align:center}.tsai-ascores th,.tsai-ascores td{padding:4px 2px;border-bottom:1px solid var(--tsai-line)}
+.tsai-ascores th[scope=row]{text-align:start;font-weight:600}.tsai-ascores td{font-weight:800;font-size:15px}
+.tsai-ok{color:#0c7a43}.tsai-mid{color:#b25e00}.tsai-bad{color:#c8102e}
+.tsai-ah{margin:8px 0 2px;font-weight:700;font-size:13px}.tsai-audit ul{margin:0;padding-inline-start:18px;font-size:13px}
+.tsai-anote{margin:8px 0 0;font-size:11px;color:var(--tsai-muted)}

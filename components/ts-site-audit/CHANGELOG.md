@@ -1,5 +1,8 @@
 # ts-site-audit – změny
 
+## 1.1.3 – 2026-11-01
+- Chybová stránka (Lighthouse `http-status-code` = 0, např. 404): audit skončí po prvním měření s chybou `http` a zbytečně neměří dál; administrace ukáže srozumitelnou hlášku. Zjištěno na stagingu (tasstudio.eu/en/ je 404).
+
 ## 1.1.2 – 2026-11-01
 - Vizuální hodnocení: u Gemma 4 vypnuté „přemýšlení“ (`extra.chat_template_kwargs.enable_thinking = false`) – jinak spotřebovalo limit tokenů a odpověď zůstala prázdná; bez zálohy z `reasoning_content`, opsaná šablona z pokynů se zahodí. Ověřeno na stagingu: Gemma 4, Llama 4 Scout i Mistral Small 3.1 čtou text ze snímku správně; Gemma bez přemýšlení ~1 s a ~3–15 neuronů.
 

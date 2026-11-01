@@ -11,7 +11,7 @@
   var T = {
     cs: { title: 'Audit webu', url: 'Adresa webu', run: 'Spustit audit', running: 'Audit běží…', s_queued: 'Měřím web na mobilu…', s_desktop: 'Měřím web na počítači…', s_vision: 'Hodnotím vzhled…',
       e_url: 'Tuto adresu nelze auditovat (jen veřejné weby přes http/https).', e_limit: 'Limit auditů je pro dnešek vyčerpaný, zkuste to zítra.', e_disabled: 'Audit je teď vypnutý.', e_server: 'Audit se nepodařil, zkuste to později.',
-      ee_site: 'Web se nepodařilo načíst (nedostupný, blokuje měření nebo vrací chybu).', ee_limit: 'Měřicí služba je teď vytížená (kvóta), zkuste to později.', ee_auth: 'Měřicí služba odmítla přístup (klíč).', ee_timeout: 'Měření trvalo příliš dlouho.',
+      ee_site: 'Web se nepodařilo načíst (nedostupný, blokuje měření nebo vrací chybu).', ee_http: 'Stránka na této adrese vrací chybu (např. 404 – neexistuje). Zkontrolujte adresu.', ee_limit: 'Měřicí služba je teď vytížená (kvóta), zkuste to později.', ee_auth: 'Měřicí služba odmítla přístup (klíč).', ee_timeout: 'Měření trvalo příliš dlouho.',
       mobile: 'Mobil', desktop: 'Počítač', performance: 'Výkon', accessibility: 'Přístupnost', 'best-practices': 'Osvědčené postupy', seo: 'SEO',
       fcp: 'První vykreslení obsahu', lcp: 'Vykreslení největšího obsahu', tbt: 'Celková doba blokování', cls: 'Kumulativní posun rozvržení', si: 'Index rychlosti',
       measured: 'Měřeno', source: 'Zdroj', facts: 'Zjištěno měřením', ai: 'Doporučení AI k vzhledu (subjektivní)', noai: 'Hodnocení vzhledu AI není k dispozici', fullpage: 'Celá stránka', shot: 'Snímek obrazovky',
@@ -20,7 +20,7 @@
       r_off: 'hodnocení není zapnuté', r_quota: 'denní strop hodnocení je vyčerpaný', r_noshot: 'chybí snímek', r_empty: 'model nevrátil použitelná doporučení', r_error: 'služba hodnocení nebyla dostupná' },
     en: { title: 'Website audit', url: 'Website address', run: 'Run audit', running: 'Audit running…', s_queued: 'Measuring on mobile…', s_desktop: 'Measuring on desktop…', s_vision: 'Reviewing the design…',
       e_url: 'This address cannot be audited (public http/https websites only).', e_limit: 'The audit limit for today has been reached.', e_disabled: 'The audit is switched off.', e_server: 'The audit failed, please try later.',
-      ee_site: 'The website could not be loaded.', ee_limit: 'The measuring service is busy (quota).', ee_auth: 'The measuring service refused access.', ee_timeout: 'The measurement took too long.',
+      ee_site: 'The website could not be loaded.', ee_http: 'The page at this address returns an error (e.g. 404 – not found). Check the address.', ee_limit: 'The measuring service is busy (quota).', ee_auth: 'The measuring service refused access.', ee_timeout: 'The measurement took too long.',
       mobile: 'Mobile', desktop: 'Desktop', performance: 'Performance', accessibility: 'Accessibility', 'best-practices': 'Best practices', seo: 'SEO',
       fcp: 'First Contentful Paint', lcp: 'Largest Contentful Paint', tbt: 'Total Blocking Time', cls: 'Cumulative Layout Shift', si: 'Speed Index',
       measured: 'Measured', source: 'Source', facts: 'Found by measurement', ai: 'AI design recommendations (subjective)', noai: 'AI design review not available', fullpage: 'Full page', shot: 'Screenshot',

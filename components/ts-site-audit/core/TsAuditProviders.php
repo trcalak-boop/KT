@@ -90,7 +90,8 @@ final class TsAuditPageSpeed implements TsAuditMeter
             'screenshot' => $img($A['final-screenshot']['details']['data'] ?? null), 'fullpage' => $img($A['full-page-screenshot']['details']['screenshot']['data'] ?? null),
             'finalUrl' => (string) ($L['finalDisplayedUrl'] ?? $L['finalUrl'] ?? ''), 'fetchTime' => (string) ($L['fetchTime'] ?? ''),
             'lighthouse' => (string) ($L['lighthouseVersion'] ?? ''), 'warnings' => array_slice(array_map('strval', $L['runWarnings'] ?? []), 0, 5),
-            'device' => (string) ($L['configSettings']['formFactor'] ?? '')];
+            'device' => (string) ($L['configSettings']['formFactor'] ?? ''),
+            'httpError' => isset($A['http-status-code']['score']) && $A['http-status-code']['score'] === 0];     /* stránka vrací chybu (404, 500…) */
     }
 }
 

@@ -285,3 +285,26 @@ foreach (glob("$dir/private/data/hlas/*.mp3") as $f) touch($f, time() - 40 * 864
 $g = gws($hs, [$say('x')], new TsAiFakeSpeech(), $fp); (new PDO("sqlite:$dir/private/data/ai$n.sqlite"))->exec("DELETE FROM ts_ai_rate");
 msg($g, ['text' => 'Ahoj', 'lang' => 'cs']);
 t_eq(count(glob("$dir/private/data/hlas/*.mp3")), 0, 'hlas: namluvené odpovědi se mažou s retencí konverzací');
+
+/* --- audit webu (1.9.0): nabídka u adresy, výsledek do konverzace --- */
+foreach (['Můj web je www.kavarna-u-mostu.cz, co s ním?' => 'www.kavarna-u-mostu.cz', 'Mrkněte na https://example.cz/o-nas.' => 'https://example.cz/o-nas', 'Pište na info@firma.cz' => '',
+  'soubor index.html' => '', 'example.co.uk/shop?x=1' => 'example.co.uk/shop?x=1', 'za 3.5 hodiny' => ''] as $in => $exp) t_eq(TsAiConsultant::findUrl($in), $exp, 'adresa webu ve zprávě: ' . $in);
+$rep = ['url' => 'https://kavarna.cz/', 'measuredAt' => '2026-11-01T20:00:00.000Z', 'devices' => ['mobile' => ['scores' => ['performance' => 41, 'accessibility' => 80, 'best-practices' => 92, 'seo' => 90]], 'desktop' => ['scores' => ['performance' => 77, 'accessibility' => 80, 'best-practices' => 92, 'seo' => 90]]],
+  'recommendations' => [['basis' => 'measurement', 'text' => 'Zlepšete zobrazování obrázků', 'detail' => 'Odh. úspora: 600 KiB'], ['basis' => 'ai', 'text' => 'Tlačítko rezervace není vidět.']]];
+$AUD = str_repeat('ab', 24);
+$look = fn ($t) => $t === $AUD ? ['ok' => true, 'status' => 'done', 'report' => $rep] : ($t === str_repeat('cd', 24) ? ['ok' => true, 'status' => 'desktop'] : null);
+$g = gw(['audit' => ['enabled' => true, 'lookup' => $look]] + $base, [$say('Ráda se na web podívám.'), $say('Výkon na mobilu je 41.')], $fp);
+$a = msg($g, ['text' => 'Můj web je kavarna.cz, je dobrý?', 'lang' => 'cs']);
+t_ok(in_array('audit', $a['reply']['actions'], true) && $a['reply']['auditUrl'] === 'kavarna.cz', 'audit: u zprávy s adresou nabídka (akce audit + adresa), spustí až návštěvník');
+t_eq(msg(gw($base, [$say('ok')]), ['text' => 'Web kavarna.cz', 'lang' => 'cs'])['reply']['actions'], [], 'audit vypnutý: žádná nabídka');
+[$c, $o] = $g->handle('POST', 'audit-note', json_encode(['conversation' => $a['conversation'], 'audit' => str_repeat('cd', 24)]), $H, '10.0.0.1');
+t_ok($c === 409 && $o['error'] === 'not_done', 'audit-note: nedokončený audit se neuloží');
+[$c] = $g->handle('POST', 'audit-note', json_encode(['conversation' => $a['conversation'], 'audit' => 'zly'] ), $H, '10.0.0.1'); t_eq($c, 422, 'audit-note: neplatný token auditu');
+[$c] = $g->handle('POST', 'audit-note', json_encode(['conversation' => str_repeat('ef', 24), 'audit' => $AUD]), $H, '10.0.0.1'); t_eq($c, 404, 'audit-note: bez platné konverzace nic');
+[$c, $o] = $g->handle('POST', 'audit-note', json_encode(['conversation' => $a['conversation'], 'audit' => $AUD]), $H, '10.0.0.1');
+t_ok($c === 200 && $o['ok'], 'audit-note: hotový audit uložen do konverzace');
+msg($g, ['text' => 'Jak dopadl mobil?', 'lang' => 'cs', 'conversation' => $a['conversation']]);
+$hist = json_encode($fp->requests[1]['messages'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+t_ok(strpos($hist, '[Výsledek auditu webu https://kavarna.cz/') !== false && strpos($hist, 'mobil: výkon 41') !== false && strpos($hist, 'Zlepšete zobrazování obrázků (Odh. úspora: 600 KiB)') !== false && strpos($hist, 'subjektivní') !== false, 'model zná výsledek auditu (skóre, zjištění, AI označené jako subjektivní)');
+t_eq(gw($base)->handle('POST', 'audit-note', json_encode(['conversation' => $a['conversation'], 'audit' => $AUD]), $H, '10.0.0.1')[0], 404, 'audit-note bez nastavení: 404');
+t_ok(strpos($fp->requests[0]['system'], 'nikdy netvrď, že ses na něj podívala') !== false && strpos($fp->requests[0]['system'], 'kavarna.cz') !== false, 'audit: u adresy pokyn modelu – web neviděla, odkáže na tlačítko auditu');

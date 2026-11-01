@@ -5,6 +5,9 @@
    POST ?r=message  { conversation?, text, lang, page? }             → { ok, conversation, reply: { text, links, actions, summary? } }
    POST ?r=lead     { conversation?, submission_id, name, email, phone?, company?, website?, message, consent: true, lang, hp: '', openedMs }
                     → { ok, duplicate? }   (osobní údaje jdou jen sem, nikdy k poskytovateli AI)
+   POST ?r=audit-note { conversation, audit } → { ok }: výsledek auditu webu (ts-site-audit, token úlohy) se uloží do konverzace,
+                    aby na něj asistent mohl navázat ('audit' => ['enabled' => true, 'lookup' => fn(token): ?array status auditu]).
+                    U zprávy s adresou webu přidá odpověď akci 'audit' a 'auditUrl' – audit spustí až návštěvník tlačítkem.
    POST ?r=speech   { conversation, lang }  → audio/mpeg: poslední odpověď asistenta převedená na řeč (hlas persony, 'speech')
                     Číst jde jen odpověď, kterou brána sama uložila – cizí text nikdo nepřečte (kredity hlasu nejdou zneužít).
                     Chyba, strop nebo vypnutý hlas → JSON { ok: false, error } a widget použije hlas prohlížeče.
@@ -77,7 +80,7 @@ final class TsAiConsultant
         try {
             if (!$this->accessOk($headers)) return [403, ['ok' => false, 'error' => 'access']];     /* neveřejný staging: bez přístupové cookie nic */
             if ($route === 'status' && $method === 'GET') return [200, ['ok' => true, 'enabled' => $this->enabled(), 'langs' => TsAiTexts::LANGS, 'speech' => $this->enabled() && $this->speechOn()]];
-            if (!in_array($route, ['message', 'lead', 'speech'], true)) return [404, ['ok' => false, 'error' => 'route']];
+            if (!in_array($route, ['message', 'lead', 'speech', 'audit-note'], true)) return [404, ['ok' => false, 'error' => 'route']];
             if ($method !== 'POST') return [405, ['ok' => false, 'error' => 'method']];
             if (!$this->originOk($headers)) return [403, ['ok' => false, 'error' => 'origin']];
             if (stripos($headers['content-type'] ?? '', 'application/json') !== 0) return [415, ['ok' => false, 'error' => 'type']];
@@ -88,6 +91,7 @@ final class TsAiConsultant
                 $this->speechCleanup((int) $this->c['retention']['conversationDays']);
             }
             if ($route === 'speech') return $this->speech($b, $ip);
+            if ($route === 'audit-note') return $this->auditNote($b, $ip);
             return $route === 'message' ? $this->message($b, $ip) : $this->lead($b, $ip);
         } catch (Throwable $e) {
             error_log('ts-ai: ' . get_class($e) . ': ' . $this->redact($e->getMessage()));
@@ -185,6 +189,8 @@ final class TsAiConsultant
         }
         $lastUser = ''; foreach (array_reverse($history) as $m) if ($m['role'] === 'user') { $lastUser .= ' ' . $m['content']; if (mb_strlen($lastUser) > 600) break; }
         $system = $this->systemPrompt($lang, $lastUser);
+        $auditUrl = !empty($this->c['audit']['enabled']) ? self::findUrl($text) : '';
+        if ($auditUrl !== '') $system .= "\n\n# Adresa webu ve zprávě\nNávštěvník uvedl adresu webu " . $auditUrl . ". Web si neumíš otevřít a nic o něm nevíš – nikdy netvrď, že ses na něj podívala, ani neodhaduj jeho kvalitu. Řekni, že pod touto odpovědí je tlačítko pro spuštění auditu (měření rychlosti, přístupnosti, SEO a postřehy ke vzhledu, výsledek do 1–3 minut).";
         if (($b['mode'] ?? '') === 'voice') $system .= "\n\n# Hlasový režim\nNávštěvník mluví a odpověď se mu bude předčítat: piš krátké věty, nejvýš asi 60 slov, bez výčtů a bez emotikonů. Odkaz ponech, předčítá se jen jeho název.";
         $tools = $this->c['contactMode'] === 'marker' ? [] : [[
             'name' => self::TOOL_CONTACT,
@@ -245,8 +251,10 @@ final class TsAiConsultant
             $this->store->settle(null, ['conv' => $conv, 'model' => $this->provider->model(), 'outcome' => 'price_guard']);
         }
         $this->store->addMessage($conv, 'assistant', $reply, $outcome);
+        if ($auditUrl !== '') $actions[] = 'audit';
         $out = ['text' => $reply, 'links' => $links, 'actions' => array_values(array_unique($actions))];
         if ($summary !== '') $out['summary'] = $summary;
+        if ($auditUrl !== '') $out['auditUrl'] = $auditUrl;
         return [200, ['ok' => true, 'conversation' => $token, 'reply' => $out]];
     }
 
@@ -312,6 +320,50 @@ final class TsAiConsultant
         }, $t);
         $t = preg_replace('/\[([^\]]+)\]\(\s*\)/u', '$1', $t);           /* markdown odkaz bez povolené adresy → jen text */
         return [trim(preg_replace('/[ \t]{2,}/', ' ', $t)), array_values($found)];
+    }
+
+    /* ---------- audit webu: nabídka u adresy, výsledek do konverzace ---------- */
+    /* první adresa webu ve zprávě návštěvníka (ne e-mail); ověří ji až audit (SSRF, DNS) */
+    public static function findUrl(string $t): string
+    {
+        if (!preg_match('~(?<![@\w.\-])((?:https?://)?(?:[a-z0-9\x{00C0}-\x{024F}](?:[a-z0-9\x{00C0}-\x{024F}\-]{0,61}[a-z0-9\x{00C0}-\x{024F}])?\.)+[a-z]{2,24}(?::\d{2,5})?(?:/[^\s<>"\']*)?)~iu', $t, $m)) return '';
+        $u = rtrim($m[1], '.,;:!?)\'"');
+        if (!preg_match('~^https?://~i', $u) && preg_match('~\.(?:html?|php|jpg|png|pdf|js|css|txt)$~i', $u) && strpos($u, '/') === false) return '';   /* soubor, ne web */
+        return mb_substr($u, 0, 300);
+    }
+    private function auditNote(array $b, string $ip): array
+    {
+        $A = $this->c['audit'] ?? [];
+        if (empty($A['enabled']) || !is_callable($A['lookup'] ?? null)) return [404, ['ok' => false, 'error' => 'audit_off']];
+        $token = (string) ($b['conversation'] ?? '');
+        $conv = preg_match('/^[a-f0-9]{48}$/', $token) ? hash('sha256', $token) : '';
+        $row = $conv !== '' ? $this->store->conversation($conv) : null;
+        if (!$row) return [404, ['ok' => false, 'error' => 'conversation']];
+        if (!preg_match('/^[a-f0-9]{48}$/', (string) ($b['audit'] ?? ''))) return [422, ['ok' => false, 'error' => 'audit']];
+        if (!$this->store->hit('anote:' . $conv, 5, 86400)) return [429, ['ok' => false, 'error' => 'limit']];
+        $st = ($A['lookup'])((string) $b['audit']);
+        if (!is_array($st) || ($st['status'] ?? '') !== 'done' || empty($st['report'])) return [409, ['ok' => false, 'error' => 'not_done']];
+        $this->store->addMessage($conv, 'assistant', self::auditSummary($st['report']), 'audit');
+        return [200, ['ok' => true]];
+    }
+    /* stručný faktický souhrn pro kontext modelu (ne pro zobrazení) */
+    public static function auditSummary(array $r): string
+    {
+        $dev = ['mobile' => 'mobil', 'desktop' => 'počítač']; $cat = ['performance' => 'výkon', 'accessibility' => 'přístupnost', 'best-practices' => 'osvědčené postupy', 'seo' => 'SEO'];
+        $p = [];
+        foreach ($dev as $k => $n) if (!empty($r['devices'][$k]['scores'])) {
+            $x = []; foreach ($cat as $c => $cn) if (isset($r['devices'][$k]['scores'][$c])) $x[] = $cn . ' ' . $r['devices'][$k]['scores'][$c];
+            $p[] = $n . ': ' . implode(', ', $x);
+        }
+        $f = []; $ai = [];
+        foreach ($r['recommendations'] ?? [] as $x) {
+            if ($x['basis'] === 'measurement' && count($f) < 5) $f[] = $x['text'] . (!empty($x['detail']) ? ' (' . $x['detail'] . ')' : '');
+            if ($x['basis'] === 'ai' && count($ai) < 3) $ai[] = $x['text'];
+        }
+        return '[Výsledek auditu webu ' . ($r['url'] ?? '') . ', laboratorní měření Google Lighthouse ' . substr((string) ($r['measuredAt'] ?? ''), 0, 10) . ', skóre 0–100] '
+            . implode('; ', $p) . '. Hlavní zjištění: ' . ($f ? implode('; ', $f) : 'žádná výrazná') . '.'
+            . ($ai ? ' Postřehy AI ke vzhledu (subjektivní): ' . implode(' ', $ai) : '')
+            . ' Návštěvník výsledek vidí v chatu. Čísla uváděj jen z tohoto souhrnu, nic nedomýšlej; podrobný rozbor a nápravu nabídni přes konzultaci se studiem.';
     }
 
     /* ---------- hlas persony (převod odpovědi na řeč) ---------- */
