@@ -134,6 +134,7 @@ try:
     ok(not os.path.exists(os.path.join(PR, 'posta.log')), 'scénář 10: uložením e-mailu se nic neodeslalo')
     J("document.querySelector('[data-dact=send]').click()", 1.5)
     ok(until("document.querySelector('dialog.tss-dialog[open]') && document.querySelector('.tss-sum').textContent.indexOf('petra@salon.example')>=0"), 'potvrzovací okno se shrnutím příjemce')
+    ok(J("['rgba(0, 0, 0, 0)','transparent'].indexOf(getComputedStyle(document.querySelector('dialog.tss-dialog')).backgroundColor)<0 && document.querySelector('dialog.tss-dialog').parentNode.classList.contains('tss')"), 'potvrzovací okno má vlastní pozadí (uvnitř rozhraní)')
     J("var d=document.querySelector('dialog.tss-dialog'); d.querySelector('[name=confirm]').value='jina@adresa.cz'; d.querySelector('[type=submit]').click()", 1.5)
     ok(J("!!document.querySelector('dialog.tss-dialog[open]')") and not os.path.exists(os.path.join(PR, 'posta.log')), 'špatně opsaná adresa → okno zůstane, nic neodejde')
     J("var d=document.querySelector('dialog.tss-dialog'); d.querySelector('[name=confirm]').value='petra@salon.example'; d.querySelector('[type=submit]').click()", 2)

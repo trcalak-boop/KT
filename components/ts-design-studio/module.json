@@ -1,6 +1,6 @@
 {
   "name": "ts-design-studio",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",

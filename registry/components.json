@@ -212,7 +212,7 @@
     },
     {
       "name": "ts-design-studio",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
@@ -463,5 +463,5 @@
       "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-02T11:00:51"
+  "generated": "2026-11-02T12:59:09"
 }

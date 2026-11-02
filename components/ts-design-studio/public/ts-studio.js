@@ -272,7 +272,7 @@
         '<details><summary>Text e-mailu</summary><pre class="tss-mail">' + esc(d.message.text) + '</pre></details>' +
         '<label class="tss-f"><span>Pro potvrzení opište e-mail příjemce</span><input name="confirm" autocomplete="off" spellcheck="false" required></label>' +
         '<p class="tss-dlg-b"><button type="button" class="tss-btn ghost" value="cancel" data-close>Zrušit</button><button type="submit" class="tss-btn" value="send">Odeslat e-mail</button></p></form>';
-      root.appendChild(dlg); dlg.showModal();
+      $('.tss').appendChild(dlg); dlg.showModal();   /* uvnitř .tss – tam jsou proměnné barev rozhraní */
       dlg.querySelector('[data-close]').addEventListener('click', function () { dlg.close(); dlg.remove(); });
       dlg.querySelector('form').addEventListener('submit', function (e) {
         e.preventDefault(); var btn = dlg.querySelector('[type=submit]'); btn.disabled = true;

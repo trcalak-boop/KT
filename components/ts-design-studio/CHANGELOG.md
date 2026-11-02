@@ -1,5 +1,8 @@
 # ts-design-studio – změny
 
+## 0.4.1 – 2026-11-02
+- Potvrzovací okno odeslání se vkládá dovnitř rozhraní (`.tss`) – na stagingu bylo bez barev rozhraní (průhledné). Test v Chromu nově kontroluje pozadí okna.
+
 ## 0.4.0 – 2026-11-02
 - Schválení a doručení klientovi (etapa 6.4a, `docs/ai/09-schvalovani-dorucovani-plan.md`): doručení `prepared → ready_to_send → sending → sent | failed`, odvolání `revoked` (migrace 003). Sdílet jde jen přijatou verzi interně schváleného projektu; interní schválení samo nic nevytvoří ani neodešle.
 - Neveřejný odkaz `previewBase/<token>/`: v databázi jen otisk, token z HMAC tajného klíče (`deliverySecret`); aktivuje se až odesláním e-mailu nebo zkopírováním (ruční cesta, zaznamená se); platnost od aktivace (1–90 dní), počítadlo otevření bez IP.
