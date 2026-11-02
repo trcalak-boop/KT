@@ -8,6 +8,7 @@
    ========================================================================== */
 final class TsDesignStudio
 {
+    use TsStudioDeliveryOps;   /* doručení klientovi – core/TsStudioDelivery.php */
     const SOURCES = ['new', 'redesign', 'crm'];
     const STATUS = ['draft', 'in_review', 'approved_internal', 'archived'];
     private array $c; private TsStudioStore $store; private array $tpl = [];

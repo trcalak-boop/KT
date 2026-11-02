@@ -1,6 +1,6 @@
 {
-  "at": "2026-11-02T08:12:23",
-  "pass": 194,
+  "at": "2026-11-02T11:01:38",
+  "pass": 284,
   "fail": 0,
   "files": [
     {
@@ -11,7 +11,13 @@
     },
     {
       "file": "components/ts-design-studio/tests/api_test.php",
-      "pass": 39,
+      "pass": 55,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/delivery_test.php",
+      "pass": 59,
       "fail": 0,
       "log": []
     },
@@ -23,7 +29,7 @@
     },
     {
       "file": "components/ts-design-studio/tests/ui_test.py",
-      "pass": 27,
+      "pass": 42,
       "fail": 0,
       "log": []
     }

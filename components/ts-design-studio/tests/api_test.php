@@ -89,3 +89,37 @@ $x = $noai->handle('POST', 'ai-create', json_encode(['brief' => ['name' => 'A']]
 t_ok($x[0] === 503 && $x[1]['kind'] === 'disabled' && $noai->handle('GET', 'templates', '', [], [])[1]['ai'] === false, 'bez AI → 503 disabled, šablony hlásí ai = false');
 $ro = new TsStudioApi(ts_design_studio(['db' => ['dsn' => "sqlite:$dir/api.sqlite"], 'can' => fn ($u, $a) => $a === 'view']), ['uid' => 7, 'jobsDir' => "$dir/ulohy", 'allowedOrigins' => [$O]]);
 t_ok($ro->handle('GET', 'project', '', ['pid' => $pid], [])[0] === 200 && $ro->handle('POST', 'accept', json_encode(['pid' => $pid, 'num' => 3]), [], $H)[0] === 403 && $ro->handle('GET', 'export', '', ['pid' => $pid, 'num' => 3], [])[0] === 403, 'jen prohlížení: detail ano, přijetí a export 403');
+
+/* --- doručení přes API (role sales/designer, falešný odesílač) --- */
+final class ApiFakeMail { public array $sent = []; public function send(string $to, string $s, string $t, string $h, ?string $r = null, string $n = ''): array { $this->sent[] = [$to, $s, $t, $r, $n]; return ['ok' => true]; } }
+$fm = new ApiFakeMail(); $rolesA = [1 => 'admin', 2 => 'designer', 3 => 'sales'];
+$SD = ts_design_studio(['db' => ['dsn' => "sqlite:$dir/del.sqlite"], 'deliverySecret' => str_repeat('s', 40), 'previewBase' => 'https://nahledy.example/', 'mailer' => $fm,
+    'can' => fn ($u, $a) => TsStudioRoles::allows($rolesA[$u] ?? '', $a)]);
+$mkApi = fn (int $uid) => new TsStudioApi($SD, ['uid' => $uid, 'role' => $rolesA[$uid], 'sender' => ['name' => 'Matouš', 'email' => 'matous@tasstudio.example'], 'jobsDir' => "$dir/ulohy", 'allowedOrigins' => [$O]]);
+$des = $mkApi(2); $sal = $mkApi(3);
+$P = fn (TsStudioApi $a, string $r, array $b) => $a->handle('POST', $r, json_encode($b), [], $H);
+$t = $des->handle('GET', 'templates', '', [], [])[1];
+t_ok($t['role'] === 'designer' && in_array('status', $t['actions'], true) && !in_array('deliver', $t['actions'], true) && $t['delivery'] === true, 'šablony: role, povolené akce a zapnuté doručení pro rozhraní');
+$dp = $P($des, 'create', ['name' => 'Salon API', 'template' => 'salon'])[1]['id'];
+t_eq($P($sal, 'delivery-prepare', ['pid' => $dp, 'num' => 1])[0], 400, 'příprava před schválením → 400');
+t_eq($P($sal, 'status', ['pid' => $dp, 'status' => 'approved_internal'])[0], 403, 'sales nemůže schválit → 403');
+t_eq($P($des, 'status', ['pid' => $dp, 'status' => 'approved_internal'])[0], 200, 'designer schválí interně');
+t_eq($P($des, 'delivery-prepare', ['pid' => $dp, 'num' => 1])[0], 403, 'designer nemůže připravit sdílení → 403');
+[$c, $o] = $P($sal, 'delivery-prepare', ['pid' => $dp, 'num' => 1, 'days' => 10]); $did = $o['delivery']['id'];
+t_ok($c === 201 && $o['delivery']['status'] === 'prepared' && $o['delivery']['days'] === 10 && !isset($o['delivery']['url']), 'sales připraví sdílení (bez odkazu v odpovědi)');
+[$c, $o] = $P($sal, 'delivery-draft', ['id' => $did, 'to_email' => 'klient@example.cz', 'subject' => 'Návrh', 'body' => "Dobrý den,\n{odkaz}\n{jmeno}"]);
+t_ok($c === 200 && $o['delivery']['status'] === 'ready_to_send', 'e-mail připravený');
+[$c, $o] = $sal->handle('GET', 'delivery', '', ['id' => $did], []);
+t_ok($c === 200 && strpos($o['delivery']['message']['text'], '[odkaz se aktivuje odesláním]') !== false && strpos($o['delivery']['message']['text'], 'Matouš') !== false, 'náhled e-mailu: podpis pracovníka, odkaz skrytý do odeslání');
+t_eq($P($sal, 'delivery-send', ['id' => $did, 'confirm' => 'jiny@example.cz', 'idem' => 'abcdefgh1'])[0], 400, 'odeslání s nesprávným potvrzením → 400');
+[$c, $o] = $P($sal, 'delivery-send', ['id' => $did, 'confirm' => 'klient@example.cz', 'idem' => 'abcdefgh1']);
+t_ok($c === 200 && $o['delivery']['status'] === 'sent' && count($fm->sent) === 1 && $fm->sent[0][3] === 'matous@tasstudio.example', 'odesláno: jeden e-mail, Reply-To pracovníka');
+$P($sal, 'delivery-send', ['id' => $did, 'confirm' => 'klient@example.cz', 'idem' => 'abcdefgh1']); t_eq(count($fm->sent), 1, 'opakovaný požadavek se stejným klíčem neodešle druhý e-mail');
+[$c, $o] = $sal->handle('GET', 'deliveries', '', ['pid' => $dp], []);
+t_ok($c === 200 && count($o['deliveries']) === 1 && $o['deliveries'][0]['active'] && !isset($o['deliveries'][0]['token_hash']), 'seznam doručení bez otisků tokenů');
+[$c, $o] = $P($sal, 'delivery-link', ['id' => $did]);
+t_ok($c === 200 && str_starts_with($o['delivery']['url'], 'https://nahledy.example/'), 'zkopírování odkazu vrátí adresu');
+$x = $sal->handle('GET', 'export', '', ['pid' => $dp, 'num' => 1, 'delivery' => $did], []);
+t_ok($x[0] === 200 && in_array('delivery.download', array_column($SD->get($dp, 1)['log'], 'action'), true), 'stažení balíčku k doručení zaznamenané');
+t_eq($P($des, 'delivery-revoke', ['id' => $did])[0], 403, 'designer nemůže odvolat → 403');
+[$c, $o] = $P($sal, 'delivery-revoke', ['id' => $did]); t_ok($c === 200 && $o['delivery']['status'] === 'revoked', 'sales odvolá odkaz');

@@ -72,3 +72,16 @@
 .tss-busy,.tss-toast{position:fixed;right:16px;max-width:min(440px,calc(100vw - 32px));padding:10px 14px;border-radius:8px;font-size:14px;z-index:50;display:none}
 .tss-busy{bottom:16px;background:var(--tss-ink);color:var(--tss-bg)}.tss-busy.on{display:block}
 .tss-toast{bottom:70px;background:var(--tss-accent);color:var(--tss-accent-ink)}.tss-toast.on{display:block}.tss-toast.bad{background:var(--tss-bad);color:#fff}
+/* doručení klientovi */
+.tss-dhead{background:var(--tss-surface);border:1px solid var(--tss-line);border-radius:8px;padding:10px 14px;margin-bottom:12px}.tss-dhead p{margin:6px 0}.tss-dhead select{width:auto}
+.tss-dhead .tss-row label{flex:0 1 auto;display:flex;gap:6px;align-items:center;font-size:13px}
+.tss-dcard{background:var(--tss-surface);border:1px solid var(--tss-line);border-left:4px solid var(--tss-line);border-radius:8px;padding:10px 14px;margin-bottom:10px}.tss-dcard p{margin:4px 0;font-size:14px}
+.tss-dcard.ds-sent{border-left-color:var(--tss-ok)}.tss-dcard.ds-ready_to_send{border-left-color:var(--tss-accent)}.tss-dcard.ds-failed{border-left-color:var(--tss-bad)}.tss-dcard.ds-revoked{opacity:.7}
+.tss-dtop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.tss-dst{font-size:13px;font-weight:700;color:var(--tss-muted)}
+.tss-dacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tss-btn.danger{color:var(--tss-bad)}
+.tss-dform form{margin-top:12px;border-top:1px solid var(--tss-line);padding-top:12px}
+.tss-dialog{border:1px solid var(--tss-line);border-radius:10px;padding:18px;max-width:min(560px,calc(100vw - 32px));background:var(--tss-surface);color:var(--tss-ink)}
+.tss-dialog::backdrop{background:rgba(0,0,0,.55)}.tss-dialog h2{color:var(--tss-ink);text-transform:none;letter-spacing:0;font-size:20px}
+.tss-sum{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px;font-size:14px}.tss-sum dt{color:var(--tss-muted)}.tss-sum dd{margin:0;font-weight:650;overflow-wrap:anywhere}
+.tss-mail{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:var(--tss-bg);padding:10px;border-radius:6px;max-height:240px;overflow:auto}
+.tss-dlg-b{display:flex;justify-content:flex-end;gap:8px;margin:12px 0 0}

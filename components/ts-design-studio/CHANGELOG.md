@@ -1,5 +1,13 @@
 # ts-design-studio – změny
 
+## 0.4.0 – 2026-11-02
+- Schválení a doručení klientovi (etapa 6.4a, `docs/ai/09-schvalovani-dorucovani-plan.md`): doručení `prepared → ready_to_send → sending → sent | failed`, odvolání `revoked` (migrace 003). Sdílet jde jen přijatou verzi interně schváleného projektu; interní schválení samo nic nevytvoří ani neodešle.
+- Neveřejný odkaz `previewBase/<token>/`: v databázi jen otisk, token z HMAC tajného klíče (`deliverySecret`); aktivuje se až odesláním e-mailu nebo zkopírováním (ruční cesta, zaznamená se); platnost od aktivace (1–90 dní), počítadlo otevření bez IP.
+- E-mail přes `ts-mailer-php` (`mail` v konfiguraci) nebo vlastní `mailer`; odeslání jen se samostatným potvrzením (opsaná adresa příjemce) a klíčem idempotence; podpis a Reply-To přihlášeného pracovníka; výchozí text s `{odkaz}`, `{datum}`, `{jmeno}`; příjemce předvyplněný z CRM (`leadLookup`).
+- `TsStudioPreviewGate` – brána náhledu na samostatném originu: jen aktivní doručení, přísná CSP, `noindex`, `robots.txt`, bez cookies, pruh s platností, neutrální 404, blokace hádání tokenu (otisk IP po hodinách).
+- `TsStudioRoles` – admin / designer / sales / viewer → akce `view, edit, accept, status, deliver, export, settings`. API vrací roli a povolené akce, rozhraní podle nich skrývá tlačítka (rozhoduje server).
+- Rozhraní: tlačítko „Schválit interně“, záložka Doručení (příprava, e-mail, potvrzovací okno, zkopírování odkazu, balíček, odvolání, historie otevření).
+
 ## 0.3.0 – 2026-11-02
 - Administrace (etapa 6.3): `TsStudioApi` – JSON API pro rozhraní (šablony, projekty, verze, soubory, rozdíl, náhled, export ZIP, ruční úprava obsahu a kódu, přijetí/zamítnutí/návrat, stav, návrh a úprava AI jako úlohy na pozadí). POST jen s JSON a povoleným původem; přihlášení a číslo uživatele dodává vstupní bod.
 - Rozhraní `public/ts-studio.js` + `ts-studio.css` (bez knihoven): seznam projektů, nový projekt ze šablony nebo s AI (nový / redesign / lead), editor – verze, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev ze schématu šablony (zvýraznění „[doplnit]“), editor kódu se stromem souborů, barevný rozdíl, kontroly a seznam k doplnění, konverzace s AI, ukazatel spotřeby; světlý i tmavý režim, mobil.

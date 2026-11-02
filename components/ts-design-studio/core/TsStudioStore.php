@@ -109,4 +109,26 @@ final class TsStudioStore
         $r = $this->q('SELECT COUNT(*) AS calls, COALESCE(SUM(neurons), 0) AS neurons, COALESCE(SUM(tokens_in), 0) AS tokens_in, COALESCE(SUM(tokens_out), 0) AS tokens_out FROM studio_usage WHERE day = ?', [$day ?? gmdate('Y-m-d')])->fetch();
         return array_map('intval', $r);
     }
+
+    /* doručení klientovi (migrace 003) */
+    public function addDelivery(array $d): int
+    {
+        $t = self::now(); $cols = array_keys($d);
+        $this->q('INSERT INTO studio_deliveries (' . implode(', ', $cols) . ', created_at, updated_at) VALUES (' . implode(', ', array_fill(0, count($cols), '?')) . ', ?, ?)', array_merge(array_values($d), [$t, $t]));
+        return (int) $this->db->lastInsertId();
+    }
+    public function delivery(int $id): ?array { $r = $this->q('SELECT * FROM studio_deliveries WHERE id = ?', [$id])->fetch(); return $r ?: null; }
+    public function deliveryByHash(string $h): ?array { $r = $this->q('SELECT * FROM studio_deliveries WHERE token_hash = ?', [$h])->fetch(); return $r ?: null; }
+    public function deliveries(int $pid): array { return $this->q('SELECT * FROM studio_deliveries WHERE project_id = ? ORDER BY id DESC', [$pid])->fetchAll(); }
+    public function setDelivery(int $id, array $f): void
+    {
+        $f['updated_at'] = self::now(); $set = implode(', ', array_map(fn ($k) => "$k = ?", array_keys($f)));
+        $this->q("UPDATE studio_deliveries SET $set WHERE id = ?", array_merge(array_values($f), [$id]));
+    }
+    /* podmíněná změna stavu (ochrana proti souběhu dvou odeslání) → true, když se řádek změnil */
+    public function swapDeliveryStatus(int $id, array $from, string $to): bool
+    {
+        $in = implode(', ', array_fill(0, count($from), '?'));
+        return $this->q("UPDATE studio_deliveries SET status = ?, updated_at = ? WHERE id = ? AND status IN ($in)", array_merge([$to, self::now(), $id], $from))->rowCount() === 1;
+    }
 }

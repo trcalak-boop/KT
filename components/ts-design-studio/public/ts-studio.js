@@ -7,10 +7,12 @@
   'use strict';
   var C = window.TS_STUDIO_CONFIG || {}, API = C.api || '/api/studio/studio.php';
   var root = document.getElementById('ts-studio'); if (!root) return;
-  var S = { templates: [], ai: false, usage: null, p: null, sel: 0, ver: null, tab: 'preview', width: 1280, file: null, dirty: false };
+  var S = { templates: [], ai: false, actions: [], delivery: false, deliveries: [], usage: null, p: null, sel: 0, ver: null, tab: 'preview', width: 1280, file: null, dirty: false };
   var STATUS = { draft: 'Koncept', in_review: 'Ke kontrole', approved_internal: 'Schváleno interně', archived: 'Archiv' };
   var VST = { candidate: 'návrh', accepted: 'přijatá', rejected: 'zamítnutá' };
   var SRC = { 'new': 'nový', redesign: 'redesign', crm: 'z CRM' };
+  var DST = { prepared: 'připraveno (odkaz neaktivní)', ready_to_send: 'e-mail připravený', sending: 'odesílá se', sent: 'odesláno', failed: 'odeslání selhalo', revoked: 'odvoláno' };
+  var can = function (a) { return S.actions.indexOf(a) >= 0; };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var $ = function (s, r) { return (r || root).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || root).querySelectorAll(s)); };
@@ -60,7 +62,7 @@
       var rows = j.projects.map(function (p) {
         return '<tr><td><a href="#/p/' + p.id + '">' + esc(p.name) + '</a></td><td>' + esc(p.template) + '</td><td>' + esc(SRC[p.source] || p.source) + '</td><td><span class="tss-st st-' + esc(p.status) + '">' + esc(STATUS[p.status] || p.status) + '</span></td><td>v' + esc(p.current_num) + '</td><td>' + esc(String(p.updated_at).slice(0, 16)) + '</td></tr>';
       }).join('');
-      $('.tss-main').innerHTML = '<div class="tss-bar"><h1>Projekty</h1><button type="button" class="tss-btn" data-act="new">Nový projekt</button></div>' +
+      $('.tss-main').innerHTML = '<div class="tss-bar"><h1>Projekty</h1>' + (can('edit') ? '<button type="button" class="tss-btn" data-act="new">Nový projekt</button>' : '') + '</div>' +
         (rows ? '<div class="tss-scroll"><table class="tss-table"><thead><tr><th>Název</th><th>Šablona</th><th>Zdroj</th><th>Stav</th><th>Přijatá verze</th><th>Změna</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="tss-muted">Zatím žádný projekt.</p>') +
         '<div class="tss-new" hidden></div>';
     });
@@ -120,9 +122,9 @@
     var p = S.p.project;
     var st = Object.keys(STATUS).map(function (k) { return '<option value="' + k + '"' + (k === p.status ? ' selected' : '') + '>' + STATUS[k] + '</option>'; }).join('');
     $('.tss-main').innerHTML = '<div class="tss-bar"><div><a href="#/" class="tss-back">← Projekty</a><h1>' + esc(p.name) + '</h1><span class="tss-muted">šablona ' + esc(p.template) + ' · ' + esc(SRC[p.source] || p.source) + ' · přijatá verze ' + esc(p.current_num) + '</span></div>' +
-      '<div class="tss-bar-r"><label class="tss-inline">Stav <select data-act="status">' + st + '</select></label><a class="tss-btn ghost" data-act="export" href="#">Stáhnout ZIP</a></div></div>' +
+      '<div class="tss-bar-r"><label class="tss-inline">Stav <select data-act="status"' + (can('status') ? '' : ' disabled') + '>' + st + '</select></label>' + (can('export') ? '<a class="tss-btn ghost" data-act="export" href="#">Stáhnout ZIP</a>' : '') + '</div></div>' +
       '<div class="tss-ed"><aside class="tss-vers" aria-label="Verze"><h2>Verze</h2><ol></ol></aside><section class="tss-work"><div class="tss-vhead"></div><div class="tss-tabs" role="tablist">' +
-      [['preview', 'Náhled'], ['content', 'Obsah a barvy'], ['code', 'Kód'], ['diff', 'Rozdíl'], ['checks', 'Kontroly']].map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') +
+      [['preview', 'Náhled'], ['content', 'Obsah a barvy'], ['code', 'Kód'], ['diff', 'Rozdíl'], ['checks', 'Kontroly']].concat(S.delivery ? [['deliver', 'Doručení']] : []).map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') +
       '</div><div class="tss-pane"></div></section>' + (S.ai ? '<aside class="tss-chat" aria-label="Konverzace s AI"><h2>AI úpravy</h2><div class="tss-msgs"></div><form class="tss-ask"><textarea name="text" rows="3" maxlength="1500" placeholder="Např. „Barvy teplejší, menší logotyp, v úvodníku zmínit svatební účesy“" aria-label="Pokyn pro AI"></textarea><button class="tss-btn" type="submit">Poslat</button><small class="tss-muted">Úprava vznikne jako návrh verze – přijímáte ji vy.</small></form></aside>' : '') + '</div>';
     renderVersions(); renderMsgs();
   }
@@ -145,14 +147,15 @@
       var errs = v.checks.filter(function (c) { return c.level === 'error'; }).length, cur = num === S.p.project.current_num;
       $('.tss-vhead').innerHTML = '<div><b>Verze ' + v.num + '</b> · <span class="vs-' + v.status + '">' + VST[v.status] + '</span>' + (v.author === 'ai' ? ' · AI' : '') + ' · ' + esc(v.message) + (v.parent ? ' <span class="tss-muted">(z v' + v.parent + ')</span>' : '') + '</div>' +
         '<div class="tss-vact"><span class="' + (errs ? 'tss-err' : 'tss-ok') + '">' + (errs ? errs + ' chyb kontrol' : 'kontroly v pořádku') + '</span>' + (v.todo.length ? ' · <span class="tss-warn">' + v.todo.length + ' k doplnění</span>' : '') +
-        (v.status === 'candidate' ? ' <button type="button" class="tss-btn" data-act="accept"' + (errs ? ' disabled title="Nejdřív opravte chyby kontrol"' : '') + '>Přijmout</button> <button type="button" class="tss-btn ghost" data-act="reject">Zamítnout</button>' : '') +
-        (!cur && v.status !== 'candidate' ? ' <button type="button" class="tss-btn ghost" data-act="revert">Vrátit se k této verzi</button>' : '') + '</div>';
+        (v.status === 'candidate' && can('accept') ? ' <button type="button" class="tss-btn" data-act="accept"' + (errs ? ' disabled title="Nejdřív opravte chyby kontrol"' : '') + '>Přijmout</button>' : '') + (v.status === 'candidate' && can('edit') ? ' <button type="button" class="tss-btn ghost" data-act="reject">Zamítnout</button>' : '') +
+        (!cur && v.status !== 'candidate' && can('edit') ? ' <button type="button" class="tss-btn ghost" data-act="revert">Vrátit se k této verzi</button>' : '') +
+        (cur && v.status === 'accepted' && can('status') && S.p.project.status !== 'approved_internal' ? ' <button type="button" class="tss-btn" data-act="approve" title="Nic se neodesílá ani nezveřejňuje">Schválit interně</button>' : '') + '</div>';
       renderTab();
     });
   }
   function renderTab() {
     $$('.tss-work [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-tab') === S.tab)); });
-    ({ preview: tabPreview, content: tabContent, code: tabCode, diff: tabDiff, checks: tabChecks })[S.tab]();
+    ({ preview: tabPreview, content: tabContent, code: tabCode, diff: tabDiff, checks: tabChecks, deliver: tabDeliver })[S.tab]();
   }
   function tabPreview() {
     var W = [[1280, 'Počítač'], [820, 'Tablet'], [390, 'Mobil']];
@@ -182,7 +185,7 @@
         html += '<label class="tss-f' + (todo ? ' todo' : '') + '"><span>' + esc(s.label || k) + (s.grounded ? ' <small>(jen ze zadání)</small>' : '') + '</span>' + (s.type === 'multiline' ? '<textarea rows="3"' + a + '>' + esc(val) + '</textarea>' : '<input' + a + ' value="' + esc(val) + '">') + '</label>';
       }
     });
-    html += '</fieldset><p class="tss-sticky"><input class="tss-msg" name="message" maxlength="300" placeholder="Popis změny (nepovinné)" aria-label="Popis změny"><button class="tss-btn" type="submit">Uložit jako novou verzi</button></p></form>';
+    html += '</fieldset>' + (can('edit') ? '<p class="tss-sticky"><input class="tss-msg" name="message" maxlength="300" placeholder="Popis změny (nepovinné)" aria-label="Popis změny"><button class="tss-btn" type="submit">Uložit jako novou verzi</button></p>' : '') + '</form>';
     $('.tss-pane').innerHTML = html;
   }
   function listRow(s, row) {
@@ -207,7 +210,7 @@
     $('.tss-pane').innerHTML = '<div class="tss-code"><nav class="tss-tree" aria-label="Soubory">' + files.map(function (f) {
       return f.text ? '<button type="button" data-file="' + esc(f.path) + '" class="' + (f.path === S.file ? 'on' : '') + '">' + esc(f.path) + '</button>' : '<span title="Binární soubor ze šablony (písmo, obrázek)">' + esc(f.path) + ' <small>' + Math.round(f.size / 1024) + ' kB</small></span>';
     }).join('') + '</nav><div class="tss-src"><div class="tss-srch"><b>' + esc(S.file) + '</b> <span class="tss-muted">verze ' + S.sel + '</span></div><textarea spellcheck="false" wrap="off" aria-label="Zdrojový kód ' + esc(S.file) + '"></textarea>' +
-      '<p class="tss-sticky"><input class="tss-msg" maxlength="300" placeholder="Popis změny" aria-label="Popis změny"><button type="button" class="tss-btn" data-act="savecode">Uložit jako novou verzi</button></p></div></div>';
+      (can('edit') ? '<p class="tss-sticky"><input class="tss-msg" maxlength="300" placeholder="Popis změny" aria-label="Popis změny"><button type="button" class="tss-btn" data-act="savecode">Uložit jako novou verzi</button></p>' : '') + '</div></div>';
     api('file', null, '&pid=' + S.p.project.id + '&num=' + S.sel + '&path=' + encodeURIComponent(S.file)).then(function (j) { var t = $('.tss-src textarea'); if (t) { t.value = j.source || ''; S.dirty = false; } });
   }
   function tabDiff() {
@@ -229,10 +232,93 @@
       '<h3>K doplnění</h3>' + (v.todo.length ? '<p>Tyto sloty obsahují „[doplnit]“ – před předáním klientovi je vyplňte v záložce Obsah a barvy:</p><ul class="tss-todo">' + v.todo.map(function (t) { return '<li><code>' + esc(t) + '</code></li>'; }).join('') + '</ul>' : '<p class="tss-ok">Nic.</p>');
   }
 
+  /* ---------- doručení klientovi ---------- */
+  function tabDeliver() {
+    var p = S.p.project, v = S.ver, okPrep = can('deliver') && p.status === 'approved_internal' && v.status === 'accepted';
+    api('deliveries', null, '&pid=' + p.id).then(function (j) {
+      S.deliveries = j.deliveries || [];
+      var head = '<div class="tss-dhead"><p>Schválení nic neodesílá. Odkaz pro klienta vznikne až tady: připravte sdílení konkrétní přijaté verze, upravte e-mail a odeslání samostatně potvrďte.</p>' +
+        (can('deliver') ? (okPrep ? '<p class="tss-row"><label>Platnost odkazu <select data-days><option value="7">7 dní</option><option value="14" selected>14 dní</option><option value="30">30 dní</option></select></label><button type="button" class="tss-btn" data-act="prepare">Připravit sdílení verze ' + v.num + '</button></p>'
+          : '<p class="tss-warn">' + (p.status !== 'approved_internal' ? 'Projekt není interně schválený (stav „' + esc(STATUS[p.status]) + '“).' : 'Sdílet jde jen přijatou verzi – vyberte ji vlevo.') + '</p>') : '<p class="tss-muted">Doručovat může role sales nebo admin.</p>') + '</div>';
+      $('.tss-pane').innerHTML = head + (S.deliveries.length ? S.deliveries.map(deliveryCard).join('') : '<p class="tss-muted">Zatím žádné doručení.</p>');
+    });
+  }
+  function deliveryCard(d) {
+    var acts = '';
+    if (can('deliver') && ['prepared', 'ready_to_send', 'failed'].indexOf(d.status) >= 0) acts += '<button type="button" class="tss-btn ghost sm" data-dact="draft" data-id="' + d.id + '">Upravit e-mail</button>';
+    if (can('deliver') && (d.status === 'ready_to_send' || d.status === 'failed')) acts += '<button type="button" class="tss-btn sm" data-dact="send" data-id="' + d.id + '">Odeslat…</button>';
+    if (can('deliver') && d.status !== 'revoked' && d.status !== 'sending') acts += '<button type="button" class="tss-btn ghost sm" data-dact="link" data-id="' + d.id + '">' + (d.active ? 'Zkopírovat odkaz' : 'Zkopírovat odkaz (aktivuje ho)') + '</button>';
+    if (can('export')) acts += '<button type="button" class="tss-btn ghost sm" data-dact="zip" data-id="' + d.id + '" data-num="' + d.num + '">Stáhnout balíček</button>';
+    if (can('deliver') && d.status !== 'revoked') acts += '<button type="button" class="tss-btn ghost sm danger" data-dact="revoke" data-id="' + d.id + '">Odvolat</button>';
+    return '<article class="tss-dcard ds-' + esc(d.status) + '"><div class="tss-dtop"><b>Doručení #' + d.id + ' · verze ' + d.num + '</b><span class="tss-dst">' + esc(DST[d.status] || d.status) + (d.method === 'manual' ? ' ručně' : '') + '</span></div>' +
+      '<p>' + (d.to_email ? 'Příjemce: <b>' + esc(d.to_name ? d.to_name + ' <' + d.to_email + '>' : d.to_email) + '</b> · ' : '') + (d.active ? 'odkaz aktivní do ' + esc(d.expires_at.slice(0, 16)) : 'odkaz neaktivní') + ' · platnost ' + d.days + ' dní' +
+      (d.views ? ' · otevřeno ' + d.views + '× (naposledy ' + esc(d.last_view_at.slice(5, 16)) + ')' : '') + (d.sent_at ? ' · ' + (d.method === 'manual' ? 'předáno' : 'odesláno') + ' ' + esc(d.sent_at.slice(5, 16)) : '') + (d.revoked_at ? ' · odvoláno ' + esc(d.revoked_at.slice(5, 16)) : '') + '</p>' +
+      (d.error ? '<p class="tss-err">Chyba: ' + esc(d.error) + '</p>' : '') + '<div class="tss-dacts">' + acts + '</div><div class="tss-dform" data-form-for="' + d.id + '"></div></article>';
+  }
+  function draftForm(id) {
+    var d = S.deliveries.filter(function (x) { return x.id === id; })[0], box = $('[data-form-for="' + id + '"]');
+    box.innerHTML = '<form class="tss-form" data-draft="' + id + '"><div class="tss-grid2">' + field('to_email', 'E-mail příjemce', { max: 190, req: true }) + field('to_name', 'Jméno příjemce', { max: 120 }) + '</div>' +
+      field('subject', 'Předmět', { max: 200, req: true }) + field('body', 'Text e-mailu', { area: true, rows: 10, max: 5000, hint: 'Zástupné texty: {odkaz} (povinné), {datum} – platnost odkazu, {jmeno} – váš podpis.' }) +
+      '<label class="tss-f"><span>Platnost odkazu</span><select name="days"><option value="7">7 dní</option><option value="14">14 dní</option><option value="30">30 dní</option></select></label><p><button class="tss-btn" type="submit">Uložit e-mail</button> <span class="tss-muted">Uložením se nic neodesílá.</span></p></form>';
+    var f = box.querySelector('form'); f.to_email.value = d.to_email; f.to_name.value = d.to_name; f.subject.value = d.subject; f.body.value = d.body; f.days.value = String([7, 14, 30].indexOf(d.days) >= 0 ? d.days : 14);
+    f.to_email.focus();
+  }
+  function sendDialog(id) {
+    api('delivery', null, '&id=' + id).then(function (j) {
+      if (!j.ok) return toast(errText(j), true);
+      var d = j.delivery, idem = 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      var dlg = document.createElement('dialog'); dlg.className = 'tss-dialog';
+      dlg.innerHTML = '<form method="dialog" class="tss-form"><h2>Odeslat návrh klientovi?</h2><dl class="tss-sum"><dt>Příjemce</dt><dd>' + esc(d.to_name ? d.to_name + ' <' + d.to_email + '>' : d.to_email) + '</dd><dt>Projekt a verze</dt><dd>' + esc(S.p.project.name) + ' · verze ' + d.num + '</dd><dt>Platnost odkazu</dt><dd>' + d.days + ' dní od odeslání</dd><dt>Předmět</dt><dd>' + esc(d.message.subject) + '</dd></dl>' +
+        '<details><summary>Text e-mailu</summary><pre class="tss-mail">' + esc(d.message.text) + '</pre></details>' +
+        '<label class="tss-f"><span>Pro potvrzení opište e-mail příjemce</span><input name="confirm" autocomplete="off" spellcheck="false" required></label>' +
+        '<p class="tss-dlg-b"><button type="button" class="tss-btn ghost" value="cancel" data-close>Zrušit</button><button type="submit" class="tss-btn" value="send">Odeslat e-mail</button></p></form>';
+      root.appendChild(dlg); dlg.showModal();
+      dlg.querySelector('[data-close]').addEventListener('click', function () { dlg.close(); dlg.remove(); });
+      dlg.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault(); var btn = dlg.querySelector('[type=submit]'); btn.disabled = true;
+        api('delivery-send', { id: id, confirm: dlg.querySelector('[name=confirm]').value, idem: idem }).then(function (r) {
+          btn.disabled = false;
+          if (!r.ok && r.error !== 'mail') return toast(errText(r), true);
+          dlg.close(); dlg.remove();
+          if (r.error === 'mail') toast('Odeslání selhalo: ' + (r.detail || ''), true); else toast('Odesláno na ' + r.delivery.to_email + '. Odkaz je aktivní.');
+          tabDeliver(); loadProject(S.p.project.id, true);
+        });
+      });
+    });
+  }
+  function dact(name, id, el) {
+    var pid = S.p.project.id;
+    if (name === 'draft') return draftForm(id);
+    if (name === 'send') return sendDialog(id);
+    if (name === 'zip') { location.href = API + '?r=export&pid=' + pid + '&num=' + el.getAttribute('data-num') + '&delivery=' + id; return; }
+    if (name === 'link') {
+      var d = S.deliveries.filter(function (x) { return x.id === id; })[0];
+      if (!d.active && !confirm('Zkopírováním se odkaz aktivuje a začne platit (' + d.days + ' dní). Pošlete ho klientovi sami mimo systém. Pokračovat?')) return;
+      return api('delivery-link', { id: id }).then(function (j) {
+        if (!j.ok) return toast(errText(j), true);
+        var done = function () { toast('Odkaz zkopírován: ' + j.delivery.url); }, show = function () { prompt('Odkaz pro klienta (zkopírujte):', j.delivery.url); };
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(j.delivery.url).then(done, show); else show();
+        tabDeliver();
+      });
+    }
+    if (name === 'revoke') {
+      if (!confirm('Odvolat odkaz? Klientovi přestane okamžitě fungovat.')) return;
+      return api('delivery-revoke', { id: id }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('Odkaz odvolán.'); tabDeliver(); });
+    }
+  }
+
   /* ---------- akce ---------- */
   function act(name, el) {
     var pid = S.p && S.p.project.id;
     if (name === 'new') return viewNew();
+    if (name === 'approve') {
+      if (!confirm('Schválit projekt interně? Nic se neodesílá ani nezveřejňuje – doručení klientovi je samostatný krok.')) return;
+      return api('status', { pid: pid, status: 'approved_internal' }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('Projekt je interně schválený.'); loadProject(pid, true); });
+    }
+    if (name === 'prepare') {
+      var days = +($('[data-days]') || { value: 14 }).value;
+      return api('delivery-prepare', { pid: pid, num: S.sel, days: days }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('Sdílení připravené – odkaz zatím neplatí.'); S.tab = 'deliver'; tabDeliver(); setTimeout(function () { draftForm(j.delivery.id); }, 400); });
+    }
     if (name === 'accept' || name === 'reject') return api(name, { pid: pid, num: S.sel }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast(name === 'accept' ? 'Verze ' + S.sel + ' přijata.' : 'Verze zamítnuta.'); loadProject(pid, true); });
     if (name === 'revert') return api('revert', { pid: pid, num: S.sel }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('Vznikla verze ' + j.num + ' se soubory verze ' + S.sel + '.'); S.sel = j.num; loadProject(pid, true); });
     if (name === 'export') { location.href = API + '?r=export&pid=' + pid + '&num=' + S.sel; return; }
@@ -248,6 +334,7 @@
   root.addEventListener('click', function (e) {
     var b = e.target.closest('button, a[data-act]'); if (!b || !root.contains(b)) return;
     if (b.hasAttribute('data-act')) { e.preventDefault(); act(b.getAttribute('data-act'), b); }
+    else if (b.hasAttribute('data-dact')) dact(b.getAttribute('data-dact'), +b.getAttribute('data-id'), b);
     else if (b.hasAttribute('data-ver')) selectVersion(+b.getAttribute('data-ver'));
     else if (b.hasAttribute('data-tab')) { if (S.tab === 'code' && S.dirty && !confirm('Neuložené změny v kódu se zahodí. Pokračovat?')) return; S.dirty = false; S.tab = b.getAttribute('data-tab'); renderTab(); }
     else if (b.hasAttribute('data-w')) { S.width = +b.getAttribute('data-w'); tabPreview(); }
@@ -266,6 +353,11 @@
   });
   root.addEventListener('submit', function (e) {
     e.preventDefault(); var f = e.target;
+    if (f.matches('[data-draft]')) {
+      var dd = {}; new FormData(f).forEach(function (v, k) { dd[k] = String(v); }); dd.id = +f.getAttribute('data-draft'); dd.days = +dd.days;
+      api('delivery-draft', dd).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('E-mail uložený – nic se neodeslalo.'); tabDeliver(); });
+      return;
+    }
     if (f.matches('[data-form]')) submitNew(f);
     else if (f.matches('.tss-cform')) saveContent(f);
     else if (f.matches('.tss-ask')) {
@@ -289,5 +381,5 @@
     if (m) loadProject(+m[1]); else viewList();
   }
   window.addEventListener('hashchange', route);
-  api('templates').then(function (j) { S.templates = j.templates || []; S.ai = !!j.ai; route(); });
+  api('templates').then(function (j) { S.templates = j.templates || []; S.ai = !!j.ai && (j.actions || []).indexOf('edit') >= 0; S.actions = j.actions || []; S.delivery = !!j.delivery; route(); });
 })();

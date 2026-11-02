@@ -11,8 +11,11 @@ require_once __DIR__ . '/TsStudioZip.php';
 require_once __DIR__ . '/TsStudioStore.php';
 require_once __DIR__ . '/TsStudioModels.php';
 require_once __DIR__ . '/TsStudioAi.php';
+require_once __DIR__ . '/TsStudioDelivery.php';
 require_once __DIR__ . '/TsDesignStudio.php';
 require_once __DIR__ . '/TsStudioApi.php';
+require_once __DIR__ . '/TsStudioPreviewGate.php';
+require_once __DIR__ . '/TsStudioRoles.php';
 
 function ts_design_studio(array $s): TsDesignStudio
 {
@@ -24,5 +27,10 @@ function ts_design_studio(array $s): TsDesignStudio
     if (!empty($s['ai']) && !(($s['ai']['model'] ?? null) instanceof TsStudioModel)) $s['ai']['model'] = match ($s['ai']['provider'] ?? 'cloudflare') {
         'cloudflare' => new TsStudioCloudflareModel($s['ai']), 'fake' => new TsStudioFakeModel($s['ai']),
         default => throw new InvalidArgumentException('neznámý poskytovatel AI ' . $s['ai']['provider']) };
-    return new TsDesignStudio(['store' => $stores[$k]] + array_diff_key($s, array_flip(['db', 'timezone'])));
+    /* e-mail klientovi: 'mail' => konfigurace TsMailer (knihovna ts-mailer-php vedle této komponenty: vendor/ts/ts-mailer-php) */
+    if (!empty($s['mail']) && empty($s['mailer'])) {
+        if (!class_exists('TsMailer')) require_once __DIR__ . '/../../ts-mailer-php/core/TsMailer.php';
+        $s['mailer'] = new TsMailer($s['mail']);
+    }
+    return new TsDesignStudio(['store' => $stores[$k]] + array_diff_key($s, array_flip(['db', 'timezone', 'mail'])));
 }

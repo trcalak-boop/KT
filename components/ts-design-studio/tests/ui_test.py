@@ -2,11 +2,11 @@
 """Integrační test rozhraní administrace ts-design-studio: TsStudioApi přes php -S s falešným modelem (bez sítě) a public/ts-studio.js v Chromu.
 Průchod: prázdný seznam → projekt ze šablony → náhled ve 3 šířkách → obsah a barvy → přijetí → kód → rozdíl → kontroly → návrat → export →
 návrh s AI z formuláře → úprava v konverzaci → mobil. Poslední řádek: RESULT pass=N fail=M"""
-import json, os, shutil, subprocess, sys, tempfile, time, urllib.request
+import json, os, shutil, subprocess, sys, tempfile, time, urllib.error, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__)); COMP = os.path.abspath(os.path.join(HERE, '..')); LIB = os.path.abspath(os.path.join(COMP, '..', '..'))
 sys.path.insert(0, os.path.join(LIB, 'tools', 'lib'))
 from cdp import Browser
-PHP = os.path.expanduser('~/TS-Studio/tools/php/php'); PORT = 8291; BASE = 'http://localhost:%d' % PORT
+PHP = os.path.expanduser('~/TS-Studio/tools/php/php'); PORT, GPORT = 8291, 8292; BASE = 'http://localhost:%d' % PORT; GBASE = 'http://127.0.0.1:%d' % GPORT
 P = F = 0
 
 
@@ -25,17 +25,29 @@ $fake = function (array $m) {
     if (strpos($m[0]['content'], 'upravuješ web') !== false) return json_encode(['reply' => 'Zvětšila jsem logotyp.', 'css' => '.logotype{font-size:min(18vw,280px)}']);
     return json_encode(['content' => ['brand' => 'Salon Vlna', 'title' => 'Salon Vlna', 'phone' => '+420 731 555 210', 'phone_href' => 'tel:+420731555210'], 'tokens' => ['accent' => '#3d6b57'], 'notes' => 'Doplnit ceny.'], JSON_UNESCAPED_UNICODE);
 };
-return ['db' => ['dsn' => 'sqlite:' . __DIR__ . '/studio.sqlite'], 'ai' => ['provider' => 'fake', 'script' => [$fake], 'neuronsPerDay' => 5000]];
-''')
-open(os.path.join(W, 'api', 'studio.php'), 'w').write('''<?php
+/* falešný odesílač: e-maily jen do souboru */
+$mailer = new class { public function send($to, $s, $t, $h, $r = null, $n = '') { file_put_contents(__DIR__ . '/posta.log', json_encode([$to, $s, $t, $r, $n], JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND); return ['ok' => true]; } };
+return ['db' => ['dsn' => 'sqlite:' . __DIR__ . '/studio.sqlite'], 'ai' => ['provider' => 'fake', 'script' => [$fake], 'neuronsPerDay' => 5000],
+  'deliverySecret' => str_repeat('t', 40), 'previewBase' => 'GBASE_URL/', 'mailer' => $mailer, 'can' => fn ($u, $a) => TsStudioRoles::allows($u === 2 ? 'designer' : 'admin', $a)];
+'''.replace('GBASE_URL', GBASE))
+API_SRC = '''<?php
 require __DIR__ . '/../vendor/ts/ts-design-studio/core/bootstrap.php';
 $s = ts_design_studio(require dirname(__DIR__, 2) . '/private/studio.php');
-(new TsStudioApi($s, ['uid' => 1, 'jobsDir' => dirname(__DIR__, 2) . '/private/ulohy', 'allowedOrigins' => ['%s']]))->serve();
-''' % BASE)
-open(os.path.join(W, 'index.html'), 'w').write('''<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Studio</title>
+$uid = basename(__FILE__) === 'studio-designer.php' ? 2 : 1;
+(new TsStudioApi($s, ['uid' => $uid, 'role' => $uid === 2 ? 'designer' : 'admin', 'sender' => ['name' => 'Matouš', 'email' => 'matous@example.test'], 'jobsDir' => dirname(__DIR__, 2) . '/private/ulohy', 'allowedOrigins' => ['%s']]))->serve();
+''' % BASE
+open(os.path.join(W, 'api', 'studio.php'), 'w').write(API_SRC); open(os.path.join(W, 'api', 'studio-designer.php'), 'w').write(API_SRC)
+G = os.path.join(tmp, 'gate'); os.makedirs(G)
+open(os.path.join(G, 'router.php'), 'w').write('''<?php
+require %r . '/vendor/ts/ts-design-studio/core/bootstrap.php';
+(new TsStudioPreviewGate(ts_design_studio(require %r . '/studio.php'), ['failDir' => %r . '/brana', 'contact' => 'tasstudio.eu']))->serve();
+''' % (W, PR, PR))
+PAGE = '''<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Studio</title>
 <link rel="stylesheet" href="/vendor/ts/ts-design-studio/public/ts-studio.css"><style>body{margin:0}main{max-width:1500px;margin:0 auto;padding:16px}</style></head>
-<body><main><div id="ts-studio"></div></main><script>window.TS_STUDIO_CONFIG = { api: '/api/studio.php' };</script><script src="/vendor/ts/ts-design-studio/public/ts-studio.js"></script></body></html>''')
-srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True); time.sleep(1.2)
+<body><main><div id="ts-studio"></div></main><script>window.TS_STUDIO_CONFIG = { api: '/api/API.php' };</script><script src="/vendor/ts/ts-design-studio/public/ts-studio.js"></script></body></html>'''
+open(os.path.join(W, 'index.html'), 'w').write(PAGE.replace('API', 'studio')); open(os.path.join(W, 'designer.html'), 'w').write(PAGE.replace('API', 'studio-designer'))
+srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+gsrv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', '127.0.0.1:%d' % GPORT, os.path.join(G, 'router.php')], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True); time.sleep(1.2)
 
 b = None
 try:
@@ -106,6 +118,39 @@ try:
     ok(until("document.querySelectorAll('.tss-vers [data-ver]').length===2 && document.querySelector('.tss-msgs').textContent.indexOf('Zvětšila jsem logotyp')>=0", 25), 'úprava v konverzaci → návrh verze 2 a odpověď')
     ok(until("document.querySelector('.tss-frame iframe') && document.querySelector('.tss-frame iframe').srcdoc.indexOf('min(18vw,280px)')>=0"), 'náhled návrhu s vrstvou CSS')
     ok('AI dnes:' in J("document.querySelector('.tss-u').textContent"), 'ukazatel spotřeby AI')
+    # doručení klientovi (projekt 2): schválit → připravit → e-mail → potvrzení → odkaz přes bránu → odvolat
+    J("window.confirm=function(){return true}; window.prompt=function(){return null}")
+    J("document.querySelector('[data-ver=\"1\"]').click()", 1.2)
+    ok(until("document.querySelector('[data-act=approve]')"), 'aktuální přijatá verze: tlačítko Schválit interně')
+    J("document.querySelector('[data-act=approve]').click()", 1.5)
+    ok(until("document.querySelector('[data-act=status]') && document.querySelector('[data-act=status]').value==='approved_internal'"), 'interní schválení (stav approved_internal)')
+    ok(not os.path.exists(os.path.join(PR, 'posta.log')), 'scénář 9: po schválení žádný e-mail')
+    J("window.confirm=function(){return true}; document.querySelector('[data-tab=deliver]').click()", 1.2)
+    ok(until("document.querySelector('[data-act=prepare]')"), 'záložka Doručení: Připravit sdílení')
+    J("document.querySelector('[data-act=prepare]').click()", 2)
+    ok(until("document.querySelector('[data-draft] [name=to_email]') && document.querySelector('.ds-prepared')"), 'připravené doručení (odkaz neaktivní) a formulář e-mailu')
+    J("var f=document.querySelector('[data-draft]'); f.to_email.value='petra@salon.example'; f.to_name.value='Petra'; f.querySelector('[type=submit]').click()", 1.5)
+    ok(until("document.querySelector('.ds-ready_to_send [data-dact=send]')"), 'e-mail uložený → stav připraveno k odeslání')
+    ok(not os.path.exists(os.path.join(PR, 'posta.log')), 'scénář 10: uložením e-mailu se nic neodeslalo')
+    J("document.querySelector('[data-dact=send]').click()", 1.5)
+    ok(until("document.querySelector('dialog.tss-dialog[open]') && document.querySelector('.tss-sum').textContent.indexOf('petra@salon.example')>=0"), 'potvrzovací okno se shrnutím příjemce')
+    J("var d=document.querySelector('dialog.tss-dialog'); d.querySelector('[name=confirm]').value='jina@adresa.cz'; d.querySelector('[type=submit]').click()", 1.5)
+    ok(J("!!document.querySelector('dialog.tss-dialog[open]')") and not os.path.exists(os.path.join(PR, 'posta.log')), 'špatně opsaná adresa → okno zůstane, nic neodejde')
+    J("var d=document.querySelector('dialog.tss-dialog'); d.querySelector('[name=confirm]').value='petra@salon.example'; d.querySelector('[type=submit]').click()", 2)
+    ok(until("document.querySelector('.ds-sent')") and len(open(os.path.join(PR, 'posta.log')).read().strip().split('\n')) == 1, 'odesláno po potvrzení: jeden e-mail, doručení odesláno')
+    mail = json.loads(open(os.path.join(PR, 'posta.log')).read().strip())
+    ok(mail[0] == 'petra@salon.example' and GBASE in mail[2] and mail[3] == 'matous@example.test', 'e-mail: příjemce, odkaz na bránu, Reply-To pracovníka', mail)
+    link = [w for w in mail[2].split() if w.startswith(GBASE)][0]
+    with urllib.request.urlopen(link) as r: page = r.read().decode(); hdr = r.headers
+    ok('neveřejný odkaz platí do' in page and 'noindex' in hdr.get('X-Robots-Tag', '') and hdr.get('Set-Cookie') is None, 'odkaz z e-mailu: náhled přes bránu s pruhem, noindex, bez cookies')
+    J("document.querySelector('[data-dact=revoke]').click()", 1.5)
+    ok(until("document.querySelector('.ds-revoked')"), 'odvolání v rozhraní')
+    try: urllib.request.urlopen(link); ok(False, 'odvolaný odkaz')
+    except urllib.error.HTTPError as e: ok(e.code == 404, 'scénář 11: odvolaný odkaz vrací 404')
+    # role designer: bez akcí doručení
+    b.go(BASE + '/designer.html#/p/2', 2); until("document.querySelector('[data-tab=deliver]')")
+    J("document.querySelector('[data-tab=deliver]').click()", 1.2)
+    ok(until("document.querySelector('.tss-dhead')") and 'Doručovat může role sales nebo admin' in J("document.querySelector('.tss-dhead').textContent") and not J("!!document.querySelector('[data-dact=send],[data-dact=revoke],[data-act=prepare]')"), 'designer: v Doručení jen přehled, bez akcí')
     b.shot(os.path.join(tmp, 'editor.jpg'), quality=70)
     # mobil
     b.size(390, 844, 2, True); b.go(BASE + '/index.html#/p/1', 2); until("document.querySelector('.tss-frame iframe')")
@@ -113,6 +158,6 @@ try:
     shutil.copy(os.path.join(tmp, 'editor.jpg'), os.path.join(LIB, 'reports', 'ts-design-studio-editor.jpg')) if os.path.isdir(os.path.join(LIB, 'reports')) else None
 finally:
     if b: b.close()
-    os.killpg(srv.pid, 15)
+    os.killpg(srv.pid, 15); os.killpg(gsrv.pid, 15)
     shutil.rmtree(tmp, ignore_errors=True)
 print('RESULT pass=%d fail=%d' % (P, F))

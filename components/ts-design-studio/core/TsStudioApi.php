@@ -12,7 +12,8 @@ final class TsStudioApi
     public function __construct(TsDesignStudio $studio, array $c)
     {
         $this->s = $studio;
-        $this->c = $c + ['uid' => 0, 'jobsDir' => '', 'allowedOrigins' => [], 'processAfterResponse' => true, 'jobSeconds' => 300, 'maxBody' => 1500000];
+        /* 'role' a 'sender' (['name', 'email'] přihlášeného – podpis a Reply-To e-mailu klientovi) dodává vstupní bod */
+        $this->c = $c + ['uid' => 0, 'role' => '', 'sender' => [], 'jobsDir' => '', 'allowedOrigins' => [], 'processAfterResponse' => true, 'jobSeconds' => 300, 'maxBody' => 1500000];
     }
 
     public function serve(): void
@@ -73,6 +74,14 @@ final class TsStudioApi
                     case 'reject': $S->reject($pid, $num, $uid); return [200, ['ok' => true]];
                     case 'revert': return [201, ['ok' => true] + $S->revert($pid, $num, $uid)];
                     case 'status': $S->setStatus($pid, (string) ($b['status'] ?? ''), $uid); return [200, ['ok' => true]];
+                    case 'delivery-prepare': return [201, ['ok' => true, 'delivery' => $S->prepareDelivery($pid, $num, $uid, (int) ($b['days'] ?? 14))]];
+                    case 'delivery-draft': return [200, ['ok' => true, 'delivery' => $S->draftDelivery((int) ($b['id'] ?? 0), $uid, $b)]];
+                    case 'delivery-send':
+                        $sd = (array) $this->c['sender'];
+                        $d = $S->sendDelivery((int) ($b['id'] ?? 0), $uid, (string) ($b['confirm'] ?? ''), (string) ($b['idem'] ?? ''), (string) ($sd['email'] ?? ''), (string) ($sd['name'] ?? ''));
+                        return [$d['status'] === 'failed' ? 502 : 200, ['ok' => $d['status'] !== 'failed', 'delivery' => $d] + ($d['status'] === 'failed' ? ['error' => 'mail', 'detail' => $d['error']] : [])];
+                    case 'delivery-link': return [200, ['ok' => true, 'delivery' => $S->copyLink((int) ($b['id'] ?? 0), $uid)]];
+                    case 'delivery-revoke': return [200, ['ok' => true, 'delivery' => $S->revokeDelivery((int) ($b['id'] ?? 0), $uid)]];
                 }
                 return [404, ['ok' => false, 'error' => 'route']];
             }
@@ -80,7 +89,13 @@ final class TsStudioApi
             switch ($route) {
                 case 'templates':
                     $out = []; foreach ($S->templates() as $id => $t) $out[] = ['id' => $id, 'name' => $t->t['name'], 'obor' => $t->t['obor'] ?? [], 'description' => $t->t['description'] ?? ''];
-                    return [200, ['ok' => true, 'templates' => $out, 'ai' => $S->hasAi()]];
+                    $role = (string) $this->c['role'];
+                    return [200, ['ok' => true, 'templates' => $out, 'ai' => $S->hasAi(), 'role' => $role, 'actions' => $role !== '' ? TsStudioRoles::actions($role) : array_keys(TsStudioRoles::MATRIX), 'delivery' => $S->hasDelivery()]];
+                case 'deliveries':
+                    return [200, ['ok' => true, 'deliveries' => $S->deliveries($pid, $uid)]];
+                case 'delivery':
+                    $d = $S->deliveryDetail((int) ($get['id'] ?? 0), $uid, (string) (((array) $this->c['sender'])['name'] ?? ''));
+                    return [200, ['ok' => true, 'delivery' => $d]];
                 case 'list':
                     return [200, ['ok' => true, 'projects' => $S->projects($uid), 'usage' => $S->usage()]];
                 case 'project':
@@ -103,7 +118,9 @@ final class TsStudioApi
                 case 'export':
                     $p = $S->get($pid, $uid)['project'];
                     $slug = self::slug($p['name']);
-                    return [200, ['zip' => $S->exportZip($pid, $num, $uid), 'name' => $slug . '-v' . $num . '.zip']];
+                    $zip = $S->exportZip($pid, $num, $uid);
+                    if (!empty($get['delivery'])) $S->logDownload($pid, $num, $uid, (int) $get['delivery']);
+                    return [200, ['zip' => $zip, 'name' => $slug . '-v' . $num . '.zip']];
                 case 'job':
                     $id = (string) ($get['id'] ?? ''); $f = rtrim((string) $this->c['jobsDir'], '/') . "/$id.json";
                     if (!preg_match('/^[0-9a-f]{16}$/', $id) || !is_file($f)) return [404, ['ok' => false, 'error' => 'job']];

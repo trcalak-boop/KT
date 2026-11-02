@@ -69,3 +69,16 @@ $studio = ts_design_studio(require $private . '/studio.php');           // klí�
 | `job&id` | stav úlohy (jen stejný uživatel) | | |
 Chyby: 400 vstup, 403 původ/oprávnění, 413 velikost, 415 typ, 422 `checks` (seznam chyb), 429 limit AI, 503 AI vypnutá.
 Rozhraní: `<div id="ts-studio"></div>`, `window.TS_STUDIO_CONFIG = { api }`, `public/ts-studio.css` + `ts-studio.js`. CSP stránky musí povolit inline skripty a `data:` písma (náhled v `srcdoc` dědí CSP stránky).
+
+## Schválení a doručení (0.4.0)
+Konfigurace: `'deliverySecret'` (≥ 32 znaků, mimo git), `'previewBase' => 'https://nahledy.example/'`, `'mail' => [TsMailer: from, smtp_*, redirectTo?]` nebo `'mailer'`, `'leadLookup' => fn($leadRef) => ['email', 'name']`, `'deliveryText' => ['subject', 'body']`.
+Role: `'can' => fn ($uid, $akce) => TsStudioRoles::allows($role, $akce)`; API dostane `'role'` a `'sender' => ['name', 'email']`.
+| POST `?r=` | | GET `?r=` | |
+|---|---|---|---|
+| `status {pid, status: approved_internal}` | interní schválení (nic neodesílá) | `deliveries&pid` | seznam doručení (bez tokenů) |
+| `delivery-prepare {pid, num, days}` | připravit sdílení, odkaz neaktivní | `delivery&id` | detail + náhled e-mailu (odkaz skrytý do odeslání) |
+| `delivery-draft {id, to_email, to_name, subject, body, days}` | e-mail → `ready_to_send` | `export&pid&num&delivery` | balíček (zaznamená stažení) |
+| `delivery-send {id, confirm, idem}` | odeslat – `confirm` = opsaná adresa, `idem` 8–64 znaků; 502 při chybě SMTP | | |
+| `delivery-link {id}` | aktivuje a vrátí odkaz (ruční cesta) | | |
+| `delivery-revoke {id}` | odvolat | | |
+Brána: složka subdomény s `.htaccess` (`RewriteRule ^ index.php [L]`) a `index.php`: `(new TsStudioPreviewGate(ts_design_studio($cfg), ['failDir' => …, 'contact' => '…']))->serve();`

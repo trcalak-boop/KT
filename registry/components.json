@@ -212,28 +212,31 @@
     },
     {
       "name": "ts-design-studio",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
-      "summary": "AI Design Studio (jen administrace): weby ze šablon (sloty + tokeny), verze, kontroly, diff, náhled se sandboxem, export ZIP; AI ze zadání a úpravy v konverzaci; HTTP API a rozhraní editoru (náhled ve 3 šířkách, obsah, kód, verze).",
+      "summary": "AI Design Studio (jen administrace): weby ze šablon, verze, kontroly, diff, náhled, ZIP; AI ze zadání a úpravy v konverzaci; rozhraní editoru; schválení a doručení klientovi (neveřejný odkaz přes bránu, e-mail s potvrzením, odvolání, role).",
       "runtime": [
         "php",
         "browser"
       ],
-      "dependencies": {},
+      "dependencies": {
+        "ts-mailer-php": "^1.1.0"
+      },
       "skill": null,
       "api": "api/ts-design-studio.md",
       "works": [
         "74 testů bez sítě: šablonovací jazyk (vše escapované), čištění obsahu a tokenů (délky, adresy, e-mail, telefon, barvy), diff, kontroly HTML/CSS/JS a kontrastu, ZIP, verze (kandidát/přijatá/zamítnutá, návrat, úprava souborů), náhled s CSP, oprávnění, záznam akcí.",
         "54 testů AI vrstvy s falešným modelem: čtení JSON (i s textem okolo, useknutý), tokeny a písma, osnova stránky, zdroje zadání (lead, audit s označením práv), návrh bez faktů ze vzoru a s escapováním, ztmavení barev s nízkým kontrastem, ukotvení citátů/recenzí/jmen v zadání, dnešní datum a pravidla CSS v pokynech, výběr šablony modelem, opakování, chyby a denní strop, oprávnění, úpravy obsahu/tokenů/CSS v jedné verzi, cizí zdroj v CSS zablokuje přijetí, konverzace a spotřeba.",
-        "39 testů HTTP API: ochrana POST (původ, JSON, velikost), šablony, ruční projekt, verze a soubory, úprava obsahu a kódu, kontroly blokují přijetí, rozdíl, návrat, stav, náhled, export ZIP, úlohy AI jen pro stejného uživatele, strop a vypnutá AI hned, role jen pro prohlížení.",
-        "27 kroků rozhraní v Chromu: seznam, projekt ze šablony, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev, přijetí, kód, rozdíl, kontroly, cizí skript zablokuje přijetí, zamítnutí, návrat, export, stav, návrh s AI z formuláře (lead), úprava v konverzaci, mobil.",
+        "59 testů doručení a brány (včetně skutečného TsMailer v testovacím režimu): příprava jen po interním schválení a pro přijatou verzi, neaktivní odkaz do odeslání, e-mail jen s opsanou adresou a klíčem idempotence (dvojí klik = jeden e-mail), vložené hlavičky odstraněny, ruční cesta a stažení zaznamenané, selhání SMTP, expirace, odvolání, role, brána (CSP, noindex, robots, průchod adresáři, binární soubory, blokace hádání tokenu bez IP v datech, jiný tajný klíč).",
+        "55 testů HTTP API (včetně tras doručení a rolí): ochrana POST (původ, JSON, velikost), šablony, ruční projekt, verze a soubory, úprava obsahu a kódu, kontroly blokují přijetí, rozdíl, návrat, stav, náhled, export ZIP, úlohy AI jen pro stejného uživatele, strop a vypnutá AI hned, role jen pro prohlížení.",
+        "42 kroků rozhraní v Chromu (včetně doručení: schválení, příprava, e-mail, potvrzovací okno, odkaz přes bránu, odvolání, role designer): seznam, projekt ze šablony, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev, přijetí, kód, rozdíl, kontroly, cizí skript zablokuje přijetí, zamítnutí, návrat, export, stav, návrh s AI z formuláře (lead), úprava v konverzaci, mobil.",
         "Šablony restaurace (Kořen) a salon (Lokna): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku."
       ],
       "missingForProduction": [
-        "Napojení na přihlášení administrace a role (6.4); na stagingu jeden uživatel za přístupovou cookie.",
-        "Schvalování a předání klientovi – sdílení náhledu, e-mail s druhým potvrzením (6.4), další šablony (6.5)."
+        "Staging (6.4b): brána na nahledy.tasstudio.eu, SMTP v /private, e-maily jen na testovací adresu (redirectTo).",
+        "Produkce (6.5): přihlášení administrace a role z CRM (users.role), data /private/studio, další šablony."
       ],
       "path": "components/ts-design-studio"
     },
@@ -460,5 +463,5 @@
       "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-02T08:11:54"
+  "generated": "2026-11-02T11:00:51"
 }
