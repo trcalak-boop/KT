@@ -38,3 +38,15 @@ Nová šablona = převodní skript v `tools/` (vzor `sablona_restaurace.py`, `sa
 
 ## Databáze
 `migrations/001_studio.{sqlite,mysql}.sql` (rollback `001_studio.down.sql`): `studio_projects`, `studio_versions` (soubory verze jako JSON, jen textové), `studio_log`, `studio_schema`.
+
+## AI (0.2.0)
+Konfigurace: `'ai' => ['provider' => 'cloudflare', 'apiKeyFile', 'accountIdFile', 'model'?, 'maxTokens'?, 'neuronsPerDay' => 3000]` (nebo `'model' => TsStudioModel`).
+| Metoda | Výsledek |
+|---|---|
+| `aiCreate($brief, $uid, ['source', 'lead_ref', 'audit_ref'])` | `{id, version, checks, template, notes, todo[], errors[], tokensFixed[], rights}` |
+| `aiEdit($pid, $uid, $pokyn)` | `{num \| null (beze změny), reply, checks, changed[], todo[]}` – verze-kandidát, přijímá člověk |
+| `messages($pid, $uid)`, `usage()` | konverzace projektu; spotřeba dne UTC `{calls, neurons, tokens_in, tokens_out, limit, model}` |
+
+Zadání (`TsStudioAi::cleanBrief`): `name, obor, audience, style, services, facts, texts, notes, lang, template?, audit?, rights?`; z CRM `TsStudioAi::briefFromLead($lead, $poznamky)`, z auditu `briefFromAudit($report, $texty, $dalsi)`.
+Chyby modelu `TsStudioModelError->kind`: `disabled, auth, limit, timeout, connection, request, format`. Projekt při chybě nevznikne.
+Vrstva úprav CSS: blok `/*@ai*/…/*@ai-end*/` na konci `assets/styles.css` (TsStudioAi::aiCss / withAiCss).

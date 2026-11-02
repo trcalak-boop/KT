@@ -31,13 +31,13 @@ SLOTS = {
     'logo_text': T(120, 'Logotyp pro čtečky (celý název a popis)'),
     'issue': T(30, 'Záhlaví – vydání (např. Vydání 07)'), 'season': T(30, 'Záhlaví – období (např. Podzim 2026)'), 'where': T(70, 'Záhlaví – obor a místo'),
     'cta_label': T(30, 'Text hlavního tlačítka'), 'cta_url': {'type': 'url', 'label': 'Odkaz hlavního tlačítka (#rezervace, tel:…, https://…)'},
-    'cover_quote': T(90, 'Obálka – citát'), 'cover_quote_by': T(50, 'Obálka – autor citátu'),
+    'cover_quote': dict(T(90, 'Obálka – citát'), grounded=True), 'cover_quote_by': dict(T(50, 'Obálka – autor citátu'), grounded=True),
     'cover_price_title': T(50, 'Obálka – ceník, nadpis'), 'cover_price_note': T(50, 'Obálka – ceník, poznámka'),
     'cover_shades': T(60, 'Obálka – vzorník, nadpis'), 'cover_book_title': T(50, 'Obálka – rezervace, nadpis'), 'cover_book_note': T(60, 'Obálka – rezervace, poznámka'),
     'cover_caption': T(50, 'Obálka – popisek kresby'), 'cover_strip': T(60, 'Obálka – svislý pruh (služby)'),
     'toc_services': T(50, 'Obsah – služby, podtitulek'), 'toc_team': T(50, 'Obsah – tým, podtitulek'), 'hours_short': T(50, 'Otevírací doba stručně'),
     'ed_running': T(60, 'Úvodník – záhlaví (obor, místo, rok)'), 'ed_title': T(50, 'Úvodník – nadpis'), 'ed_em': T(40, 'Úvodník – zvýrazněný konec nadpisu'),
-    'ed_lead': {'type': 'multiline', 'max': 320, 'label': 'Úvodník – odstavec'}, 'ed_pull': T(80, 'Úvodník – citát'), 'ed_pull_by': T(50, 'Úvodník – autor citátu'),
+    'ed_lead': {'type': 'multiline', 'max': 320, 'label': 'Úvodník – odstavec'}, 'ed_pull': dict(T(80, 'Úvodník – citát'), grounded=True), 'ed_pull_by': dict(T(50, 'Úvodník – autor citátu'), grounded=True),
     'address_short': T(50, 'Adresa stručně'),
     'price_title': T(30, 'Ceník – nadpis'), 'price_em': T(30, 'Ceník – zvýrazněné slovo'), 'price_title_end': T(30, 'Ceník – konec nadpisu'),
     'price_text': {'type': 'multiline', 'max': 260, 'label': 'Ceník – úvodní text'},
@@ -48,9 +48,9 @@ SLOTS = {
     'shades_title': T(40, 'Vzorník – nadpis'), 'shades_em': T(30, 'Vzorník – zvýrazněné slovo'), 'shades_text': {'type': 'multiline', 'max': 260, 'label': 'Vzorník – text'},
     'shades': {'type': 'list', 'items': 8, 'label': 'Vzorník – odstíny', 'fields': {'code': T(8, ''), 'name': T(30, ''), 'top': {'type': 'color'}, 'bottom': {'type': 'color'}, 'light_text': T(3, 'Světlý text na tmavém odstínu (ano = cokoli, ne = prázdné)')}},
     'team_title': T(40, 'Tým – nadpis'), 'team_em': T(30, 'Tým – zvýrazněný konec'), 'team_text': {'type': 'multiline', 'max': 260, 'label': 'Tým – text'},
-    'team': {'type': 'list', 'items': 4, 'label': 'Tým', 'fields': {'role': T(50, ''), 'name': T(40, ''), 'quote': T(100, ''), 'bio': T(220, ''), 'days': T(50, '')}},
-    'quote_big': T(140, 'Recenze – velký citát'),
-    'reviews': {'type': 'list', 'items': 3, 'label': 'Recenze', 'fields': {'text': T(220, ''), 'by': T(40, '')}},
+    'team': {'type': 'list', 'items': 4, 'label': 'Tým', 'fields': {'role': T(50, ''), 'name': dict(T(40, ''), grounded=True), 'quote': dict(T(100, ''), grounded=True), 'bio': T(220, ''), 'days': T(50, '')}},
+    'quote_big': dict(T(140, 'Recenze – velký citát'), grounded=True),
+    'reviews': {'type': 'list', 'items': 3, 'label': 'Recenze', 'fields': {'text': dict(T(220, ''), grounded=True), 'by': dict(T(40, ''), grounded=True)}},
     'area': T(30, 'Návštěva – čtvrť / místo'),
     'address': T(80, 'Adresa celá'), 'transport': T(160, 'Jak k nám (doprava, volitelné)'), 'map_url': {'type': 'url', 'label': 'Odkaz na mapu (volitelné)'},
     'hours': {'type': 'list', 'items': 7, 'label': 'Otevírací doba', 'fields': {'days': T(30, ''), 'time': T(30, '')}},
@@ -375,7 +375,8 @@ def main():
          'render': ['index.html', 'assets/styles.css'],
          'tokens': dict({k: {'var': v[0], 'type': v[1], 'value': v[2], 'label': v[3]} for k, v in TOKENS.items()}, **{k: {'var': v[0], 'type': 'font', 'value': v[1], 'options': v[2], 'label': v[3]} for k, v in FONTS.items()}),
          'slots': SLOTS, 'contrast': [['ink', 'paper'], ['muted', 'paper'], ['ink2', 'paper2'], ['accent', 'paper']], 'content': CONTENT,
-         'licenses': ['assets/fonts/' + l for l in lic]}
+         'licenses': ['assets/fonts/' + l for l in lic],
+         'cssHints': ['.logotype', '.word', '.cover-art', '.ed-h', '.pr-intro h2', '.quick h2', '.spread-head h2', '.team-head h2', '.q-big', '.btn', '.bands', '.member h3']}
     json.dump(t, open(os.path.join(OUT, 'template.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
     print('šablona salon:', sum(len(fs) for _, _, fs in os.walk(F)), 'souborů')
 

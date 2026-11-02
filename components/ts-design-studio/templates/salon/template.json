@@ -165,12 +165,14 @@
     "cover_quote": {
       "type": "text",
       "max": 90,
-      "label": "Obálka – citát"
+      "label": "Obálka – citát",
+      "grounded": true
     },
     "cover_quote_by": {
       "type": "text",
       "max": 50,
-      "label": "Obálka – autor citátu"
+      "label": "Obálka – autor citátu",
+      "grounded": true
     },
     "cover_price_title": {
       "type": "text",
@@ -245,12 +247,14 @@
     "ed_pull": {
       "type": "text",
       "max": 80,
-      "label": "Úvodník – citát"
+      "label": "Úvodník – citát",
+      "grounded": true
     },
     "ed_pull_by": {
       "type": "text",
       "max": 50,
-      "label": "Úvodník – autor citátu"
+      "label": "Úvodník – autor citátu",
+      "grounded": true
     },
     "address_short": {
       "type": "text",
@@ -415,12 +419,14 @@
         "name": {
           "type": "text",
           "max": 40,
-          "label": ""
+          "label": "",
+          "grounded": true
         },
         "quote": {
           "type": "text",
           "max": 100,
-          "label": ""
+          "label": "",
+          "grounded": true
         },
         "bio": {
           "type": "text",
@@ -437,7 +443,8 @@
     "quote_big": {
       "type": "text",
       "max": 140,
-      "label": "Recenze – velký citát"
+      "label": "Recenze – velký citát",
+      "grounded": true
     },
     "reviews": {
       "type": "list",
@@ -447,12 +454,14 @@
         "text": {
           "type": "text",
           "max": 220,
-          "label": ""
+          "label": "",
+          "grounded": true
         },
         "by": {
           "type": "text",
           "max": 40,
-          "label": ""
+          "label": "",
+          "grounded": true
         }
       }
     },
@@ -741,5 +750,19 @@
     "assets/fonts/Sora-OFL.txt",
     "assets/fonts/DM_Serif_Display-OFL.txt",
     "assets/fonts/Outfit-OFL.txt"
+  ],
+  "cssHints": [
+    ".logotype",
+    ".word",
+    ".cover-art",
+    ".ed-h",
+    ".pr-intro h2",
+    ".quick h2",
+    ".spread-head h2",
+    ".team-head h2",
+    ".q-big",
+    ".btn",
+    ".bands",
+    ".member h3"
   ]
 }

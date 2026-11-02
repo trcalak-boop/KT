@@ -88,4 +88,25 @@ final class TsStudioStore
         $this->q('INSERT INTO studio_log (project_id, num, uid, action, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)', [$pid, $num, $uid, $action, mb_substr($detail, 0, 500), self::now()]);
     }
     public function logOf(int $pid, int $limit = 200): array { return $this->q('SELECT num, uid, action, detail, created_at FROM studio_log WHERE project_id = ? ORDER BY id DESC LIMIT ' . max(1, $limit), [$pid])->fetchAll(); }
+
+    /* konverzace s AI a spotřeba modelu (migrace 002) */
+    public function addMessage(int $pid, int $num, int $uid, string $role, string $text): void
+    {
+        $this->q('INSERT INTO studio_messages (project_id, num, uid, role, text, created_at) VALUES (?, ?, ?, ?, ?, ?)', [$pid, $num, $uid, $role, mb_substr($text, 0, 4000), self::now()]);
+    }
+    public function messages(int $pid, int $limit = 50): array
+    {
+        return array_reverse($this->q('SELECT num, uid, role, text, created_at FROM studio_messages WHERE project_id = ? ORDER BY id DESC LIMIT ' . max(1, $limit), [$pid])->fetchAll());
+    }
+    public function addUsage(array $u): void
+    {
+        $this->q('INSERT INTO studio_usage (day, project_id, uid, kind, model, tokens_in, tokens_out, neurons, ok, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [gmdate('Y-m-d'), (int) ($u['project'] ?? 0), (int) ($u['uid'] ?? 0), (string) $u['kind'], mb_substr((string) $u['model'], 0, 80), (int) ($u['in'] ?? 0), (int) ($u['out'] ?? 0), (int) ($u['neurons'] ?? 0), empty($u['fail']) ? 1 : 0, self::now()]);
+    }
+    /* spotřeba za den UTC (kvóta Cloudflare se nuluje o půlnoci UTC) */
+    public function usageDay(?string $day = null): array
+    {
+        $r = $this->q('SELECT COUNT(*) AS calls, COALESCE(SUM(neurons), 0) AS neurons, COALESCE(SUM(tokens_in), 0) AS tokens_in, COALESCE(SUM(tokens_out), 0) AS tokens_out FROM studio_usage WHERE day = ?', [$day ?? gmdate('Y-m-d')])->fetch();
+        return array_map('intval', $r);
+    }
 }

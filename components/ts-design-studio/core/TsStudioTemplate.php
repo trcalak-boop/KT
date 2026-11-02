@@ -145,6 +145,18 @@ final class TsStudioTemplate
     }
 
     /* ---------- kontrast tokenů (WCAG) ---------- */
+    /* popředí posunuté k černé (světlé pozadí) nebo k bílé (tmavé pozadí), dokud nemá kontrast alespoň $min */
+    public static function ensureContrast(string $fg, string $bg, float $min = 4.5): string
+    {
+        if (self::contrast($fg, $bg) >= $min) return strtolower($fg);
+        $rgb = fn (string $h) => [hexdec(substr($h, 1, 2)), hexdec(substr($h, 3, 2)), hexdec(substr($h, 5, 2))];
+        $to = self::contrast('#000000', $bg) >= self::contrast('#ffffff', $bg) ? 0 : 255; $c = $rgb($fg);
+        for ($k = 1; $k <= 20; $k++) {
+            $x = sprintf('#%02x%02x%02x', ...array_map(fn ($v) => (int) round($v + ($to - $v) * $k / 20), $c));
+            if (self::contrast($x, $bg) >= $min) return $x;
+        }
+        return $to ? '#ffffff' : '#000000';
+    }
     public static function contrast(string $a, string $b): float
     {
         $l = function (string $h): float {

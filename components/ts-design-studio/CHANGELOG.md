@@ -1,5 +1,17 @@
 # ts-design-studio – změny
 
+## 0.2.1 – 2026-11-02
+- Po testu s Gemma 4 na stagingu (3 zadání): model vymýšlel recenze a citáty majitelky → sloty šablon označené `grounded` (citáty, recenze, jména, autoři) smí obsahovat jen text ze zadání (≥ 80 % slov), jinak „[doplnit]“; zahozené texty Studio vypíše (`dropped`).
+- Dnešní datum a roční období v pokynech (model psal „Jaro 2024“ ze vzoru).
+- Barvy s kontrastem pod 4,5:1 se místo vrácení na výchozí ztmaví/zesvětlí (`TsStudioTemplate::ensureContrast`) – i při úpravě, takže verze projde kontrolami.
+- Úpravy CSS: v pokynech současná pravidla klíčových prvků šablony (`cssHints`) a zákaz em/% u velikostí (model zmenšoval logotyp na `.8em`); jako změněné se počítají jen sloty a tokeny, které se opravdu liší.
+
+## 0.2.0 – 2026-11-01
+- AI vrstva (etapa 6.2): `aiCreate()` – zadání → výběr šablony (podle oboru, jinak modelem) → obsah slotů a tokeny jako JSON → projekt s verzí 1 od AI; zdroje A nový, B redesign z auditu (`TsStudioAi::briefFromAudit`, převzaté texty označené „ověřit práva“), C lead z CRM (`briefFromLead`).
+- Fakta se nevymýšlejí: chybějící sloty = „[doplnit]“ (kontakty a odkazy prázdné), nikdy obsah ze vzorové ukázky; seznam k doplnění (`todo`). Barvy pod 4,5:1 se vrátí na výchozí šablony.
+- `aiEdit()` – konverzační úprava aktuální verze: změny obsahu, tokenů a vrstvy CSS `/*@ai*/…/*@ai-end*/` (osnova stránky pro selektory) jako jedna nová verze-kandidát; vrstva CSS přežije nové vykreslení ze šablony.
+- Modely: Cloudflare Workers AI (výchozí Gemma 4 26B bez „přemýšlení“, neurony podle ceníku) a falešný model pro testy; jedno opakování při nečitelném JSON, denní strop neuronů Studia, záznam spotřeby a konverzace (migrace 002).
+
 ## 0.1.0 – 2026-11-01
 - První verze (etapa 6.1, `docs/ai/08-design-studio-plan.md` v projektu T&S): jádro AI Design Studia jen pro administraci – projekty (zdroj new/redesign/crm, stav draft/in_review/approved_internal/archived), verze jako nové záznamy (kandidát → přijatá/zamítnutá, návrat = nová verze), úprava textových souborů, záznam akcí, oprávnění přes `can(uid, akce, projekt)`.
 - Šablony: `template.json` (tokeny, sloty, kontrast, výchozí obsah) + `files/`; podmnožina Mustache, která vždy escapuje; barvy a písma v bloku CSS `/*@tokens*/…/*@end*/`. Typy slotů text, multiline, url, email, phone, color, list.

@@ -246,17 +246,20 @@
     "quote_label": {
       "type": "text",
       "max": 50,
-      "label": "Citace – autor"
+      "label": "Citace – autor",
+      "grounded": true
     },
     "quote_1": {
       "type": "text",
       "max": 40,
-      "label": "Citace – 1. řádek"
+      "label": "Citace – 1. řádek",
+      "grounded": true
     },
     "quote_2": {
       "type": "text",
       "max": 40,
-      "label": "Citace – 2. řádek (zvýrazněný)"
+      "label": "Citace – 2. řádek (zvýrazněný)",
+      "grounded": true
     },
     "quote_text": {
       "type": "multiline",
@@ -426,5 +429,15 @@
   "licenses": [
     "assets/fonts/Alegreya-OFL.txt",
     "assets/fonts/Alegreya_Sans-OFL.txt"
+  ],
+  "cssHints": [
+    ".brand",
+    ".hero h1",
+    ".hero-lead",
+    ".sh h2",
+    ".btn",
+    ".teaser h2",
+    ".band h2",
+    ".hv"
   ]
 }

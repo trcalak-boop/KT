@@ -4,6 +4,7 @@
    Každá změna (vykreslení z obsahu a tokenů, úprava souborů, AI úprava) vzniká jako NOVÁ verze ve stavu „candidate“;
    přijmout ji jde jen bez chyb kontrol. Návrat k verzi = nová verze se soubory staré. Nic se nenasazuje ani neodesílá.
    Oprávnění: 'can' => fn(int $uid, string $akce, ?array $projekt): bool (akce view|edit|accept|export|status); výchozí = vše.
+   AI (volitelné): 'ai' => ['model' => TsStudioModel, 'neuronsPerDay' => 3000] – návrh ze zadání (aiCreate) a konverzační úpravy (aiEdit), viz TsStudioAi.
    ========================================================================== */
 final class TsDesignStudio
 {
@@ -13,7 +14,7 @@ final class TsDesignStudio
 
     public function __construct(array $c)
     {
-        $this->c = $c + ['templatesDir' => __DIR__ . '/../templates', 'can' => null];
+        $this->c = $c + ['templatesDir' => __DIR__ . '/../templates', 'can' => null, 'ai' => null];
         $this->store = $c['store'];
     }
     public function store(): TsStudioStore { return $this->store; }
@@ -49,7 +50,7 @@ final class TsDesignStudio
         $pid = $this->store->createProject(['name' => $name, 'source' => $p['source'], 'template' => $t->id(), 'lead_ref' => mb_substr((string) ($p['lead_ref'] ?? ''), 0, 64),
             'audit_ref' => mb_substr((string) ($p['audit_ref'] ?? ''), 0, 64), 'owner_uid' => $uid, 'brief' => (array) ($p['brief'] ?? [])]);
         $this->store->log($pid, 0, $uid, 'project.create', $p['source'] . ' · ' . $t->id());
-        $v = $this->renderVersion($pid, $uid, $content + $t->t['content'], $tokens, 'Výchozí verze ze šablony ' . $t->t['name'], 'system');
+        $v = $this->renderVersion($pid, $uid, $content + $t->t['content'], $tokens, (string) ($p['message'] ?? 'Výchozí verze ze šablony ' . $t->t['name']), (string) ($p['author'] ?? 'system'));
         if (!TsStudioChecks::errors($v['checks'])) $this->accept($pid, $v['num'], $uid);
         return ['id' => $pid, 'version' => $v['num'], 'checks' => $v['checks']];
     }
@@ -72,7 +73,11 @@ final class TsDesignStudio
     {
         $p = $this->project($pid, $uid, 'edit'); $t = $this->template($p['template']);
         [$c, $e1] = $t->cleanContent($content); [$tk, $e2] = $t->cleanTokens($tokens);
-        $files = $t->render($c, $tk); $checks = TsStudioChecks::run($files, $t, $tk);
+        $files = $t->render($c, $tk);
+        /* vrstva úprav CSS (/*@ai*\/…) z aktuální verze přežije nové vykreslení; ostatní ruční úpravy souborů ne */
+        $cur = $p['current_num'] ? $this->store->version($pid, (int) $p['current_num']) : null;
+        if ($cur && isset($files['assets/styles.css']) && ($layer = TsStudioAi::aiCss($cur['files']['assets/styles.css'] ?? '')) !== '') $files['assets/styles.css'] = TsStudioAi::withAiCss($files['assets/styles.css'], $layer);
+        $checks = TsStudioChecks::run($files, $t, $tk);
         $num = $this->store->addVersion($pid, ['parent' => (int) $p['current_num'], 'kind' => 'render', 'uid' => $uid, 'author_kind' => $authorKind, 'message' => $message,
             'files' => $files, 'content' => $c, 'tokens' => $tk, 'checks' => $checks]);
         $this->store->log($pid, $num, $uid, 'version.render', $message);
@@ -136,6 +141,102 @@ final class TsDesignStudio
         $sum = TsStudioDiff::files($va['files'], $vb['files']); $txt = [];
         foreach ($sum as $path => $s) $txt[$path] = TsStudioDiff::unified($va['files'][$path] ?? '', $vb['files'][$path] ?? '', $path);
         return ['files' => $sum, 'diff' => $txt];
+    }
+
+    /* ---------- AI ---------- */
+    /* návrh ze zadání: výběr šablony, obsah a tokeny od modelu → nový projekt s verzí 1 (autor ai). $p = { source: new|redesign|crm, lead_ref?, audit_ref? } */
+    public function aiCreate(array $brief, int $uid, array $p = []): array
+    {
+        $this->can($uid, 'edit'); $b = TsStudioAi::cleanBrief($brief);
+        if ($b['name'] === '') throw new InvalidArgumentException('chybí název podniku');
+        $tid = TsStudioAi::pickTemplate($this->templates(), $b);
+        if ($tid === null) {
+            $j = $this->ask(TsStudioAi::pickPrompt($this->templates(), $b), 'pick', 0, $uid, ['maxTokens' => 60, 'temperature' => 0]);
+            $tid = isset($this->templates()[(string) ($j['template'] ?? '')]) ? (string) $j['template'] : array_key_first($this->templates());
+        }
+        $t = $this->template($tid);
+        $j = $this->ask(TsStudioAi::createPrompt($t, $b), 'create', 0, $uid);
+        [$content, $errors] = self::fill($t, (array) ($j['content'] ?? []));
+        [$content, $dropped] = TsStudioAi::ground($t, $content, TsStudioAi::briefSource($b));
+        [$tokens, $fixed] = self::safeTokens($t, TsStudioAi::normTokens($t, $j['tokens'] ?? []));
+        $notes = trim(mb_substr((string) ($j['notes'] ?? ''), 0, 600));
+        $r = $this->createProject(['name' => $b['name'], 'source' => $p['source'] ?? ($b['audit'] ? 'redesign' : 'new'), 'template' => $tid, 'lead_ref' => $p['lead_ref'] ?? '', 'audit_ref' => $p['audit_ref'] ?? '',
+            'brief' => $b, 'message' => 'Návrh AI ze zadání (' . $this->modelName() . ')', 'author' => 'ai'], $uid, $content, $tokens);
+        $todo = TsStudioAi::todo($content);
+        $this->store->addMessage($r['id'], 0, $uid, 'user', "Zadání:\n" . TsStudioAi::briefText($b));
+        $this->store->addMessage($r['id'], $r['version'], 0, 'assistant', trim($notes . ($fixed ? "\nKvůli čitelnosti jsem upravila barvy: " . implode(', ', $fixed) . '.' : '') . ($dropped ? "\nCitáty a jména bez podkladu v zadání jsem nahradila [doplnit]: " . implode(', ', $dropped) . '.' : '') . ($todo ? "\nK doplnění: " . implode(', ', $todo) . '.' : '')));
+        return $r + ['template' => $tid, 'notes' => $notes, 'todo' => $todo, 'errors' => $errors, 'tokensFixed' => $fixed, 'dropped' => $dropped, 'rights' => $b['rights']];
+    }
+    /* konverzační úprava aktuální verze: změny obsahu, tokenů a vrstvy CSS → jedna nová verze-kandidát (autor ai) */
+    public function aiEdit(int $pid, int $uid, string $instruction): array
+    {
+        $p = $this->project($pid, $uid, 'edit'); $t = $this->template($p['template']);
+        $instruction = trim(mb_substr($instruction, 0, 1500)); if ($instruction === '') throw new InvalidArgumentException('prázdný pokyn');
+        $base = $this->store->version($pid, (int) $p['current_num']); if (!$base) throw new InvalidArgumentException('projekt nemá přijatou verzi');
+        $hist = $this->store->messages($pid, 6);
+        $this->store->addMessage($pid, (int) $base['num'], $uid, 'user', $instruction);
+        $j = $this->ask(TsStudioAi::editPrompt($t, $base, $instruction, $hist), 'edit', $pid, $uid);
+        $reply = trim(mb_substr((string) ($j['reply'] ?? ''), 0, 800));
+        $dc = is_array($j['content'] ?? null) ? array_intersect_key($j['content'], $t->t['slots']) : [];
+        $dt = TsStudioAi::normTokens($t, $j['tokens'] ?? []);
+        /* jen skutečné změny (model často pošle i neměněné sloty) */
+        [$cleanDc] = $t->cleanContent($dc + $base['content']); foreach ($dc as $k => $x) if (($cleanDc[$k] ?? null) === ($base['content'][$k] ?? null)) unset($dc[$k]);
+        foreach ($dt as $k => $x) if (strtolower($x) === strtolower((string) ($base['tokens'][$k] ?? ''))) unset($dt[$k]);
+        $hasCss = isset($j['css']) && is_string($j['css']);
+        if (!$dc && !$dt && !$hasCss) { $this->store->addMessage($pid, (int) $base['num'], 0, 'assistant', $reply ?: 'Beze změny.'); return ['num' => null, 'reply' => $reply ?: 'Beze změny.', 'checks' => [], 'changed' => []]; }
+        [$c, $e1] = $t->cleanContent($dc + $base['content']); [$tk, $e2] = $t->cleanTokens($dt + $base['tokens']);
+        [$c, $dropped] = TsStudioAi::ground($t, $c, TsStudioAi::briefSource((array) $p['brief']) . "\n" . $instruction . "\n" . json_encode($base['content'], JSON_UNESCAPED_UNICODE));
+        [$tk, $fixed] = self::safeTokens($t, $tk);
+        if ($fixed) $reply = trim($reply . ' Kvůli čitelnosti jsem ztmavila/zesvětlila: ' . implode(', ', $fixed) . '.');
+        if ($dropped) $reply = trim($reply . ' Citáty a jména bez podkladu jsem nahradila [doplnit]: ' . implode(', ', $dropped) . '.');
+        $files = ($dc || $dt || $fixed || $dropped) ? $t->render($c, $tk) + $base['files'] : $base['files'];
+        $layer = $hasCss ? $j['css'] : TsStudioAi::aiCss($base['files']['assets/styles.css'] ?? '');
+        if (isset($files['assets/styles.css'])) $files['assets/styles.css'] = TsStudioAi::withAiCss($files['assets/styles.css'], $layer);
+        if ($files === $base['files'] && $c === $base['content'] && $tk === $base['tokens']) { $this->store->addMessage($pid, (int) $base['num'], 0, 'assistant', $reply ?: 'Beze změny.'); return ['num' => null, 'reply' => $reply ?: 'Beze změny.', 'checks' => [], 'changed' => []]; }
+        $checks = TsStudioChecks::run($files, $t, $tk);
+        $changed = array_merge(array_keys($dc), array_map(fn ($k) => "token:$k", array_keys($dt)), $hasCss ? ['css'] : []);
+        $msg = 'AI: ' . mb_substr($instruction, 0, 200);
+        $num = $this->store->addVersion($pid, ['parent' => (int) $base['num'], 'kind' => 'ai', 'uid' => $uid, 'author_kind' => 'ai', 'message' => $msg, 'files' => $files, 'content' => $c, 'tokens' => $tk, 'checks' => $checks]);
+        $this->store->log($pid, $num, $uid, 'version.ai', implode(', ', $changed));
+        $this->store->addMessage($pid, $num, 0, 'assistant', $reply);
+        return ['num' => $num, 'reply' => $reply, 'checks' => $checks, 'changed' => $changed, 'errors' => array_merge($e1, $e2), 'todo' => TsStudioAi::todo($c)];
+    }
+    public function messages(int $pid, int $uid): array { $this->project($pid, $uid, 'view'); return $this->store->messages($pid); }
+    public function usage(): array { $u = $this->store->usageDay(); return $u + ['limit' => (int) ($this->c['ai']['neuronsPerDay'] ?? 0), 'model' => $this->modelName()]; }
+    private function modelName(): string { return isset($this->c['ai']['model']) ? $this->c['ai']['model']->model() : ''; }
+    /* jeden dotaz na model s denním stropem, záznamem spotřeby a jedním opakováním při nečitelném JSON */
+    private function ask(array $messages, string $kind, int $pid, int $uid, array $opt = []): array
+    {
+        $m = $this->c['ai']['model'] ?? null; if (!$m instanceof TsStudioModel) throw new TsStudioModelError('disabled', 'AI není nastavená');
+        $limit = (int) ($this->c['ai']['neuronsPerDay'] ?? 0);
+        if ($limit > 0 && $this->store->usageDay()['neurons'] >= $limit) throw new TsStudioModelError('limit', 'denní strop AI Studia vyčerpán');
+        for ($try = 0; $try < 2; $try++) {
+            try { $r = $m->complete($messages, $opt); }
+            catch (TsStudioModelError $e) { $this->store->addUsage(['project' => $pid, 'uid' => $uid, 'kind' => $kind, 'model' => $m->model(), 'fail' => 1]); throw $e; }
+            $this->store->addUsage(['project' => $pid, 'uid' => $uid, 'kind' => $kind, 'model' => $m->model(), 'in' => $r['in'], 'out' => $r['out'], 'neurons' => $m->neurons($r['in'], $r['out'])]);
+            $j = TsStudioAi::parseJson($r['text']); if ($j !== null) return $j;
+            $messages[] = ['role' => 'assistant', 'content' => mb_substr($r['text'], 0, 2000)];
+            $messages[] = ['role' => 'user', 'content' => 'Odpověď nebyla platný JSON' . ($r['finish'] === 'length' ? ' (byla useknutá – zkrať texty)' : '') . '. Pošli znovu jen platný JSON objekt podle zadání.'];
+        }
+        throw new TsStudioModelError('format', 'model nevrátil platný JSON');
+    }
+    /* obsah od modelu: chybějící sloty = „[doplnit]“ (kontakty a odkazy prázdné), nikdy fakta ze vzorové ukázky */
+    private static function fill(TsStudioTemplate $t, array $c): array
+    {
+        foreach ($t->t['slots'] as $k => $s) {
+            if (array_key_exists($k, $c)) continue;
+            $type = $s['type'] ?? 'text';
+            $c[$k] = $type === 'list' ? [] : (in_array($type, ['url', 'email', 'phone', 'color'], true) ? '' : ($k === 'lang' ? ($t->t['content']['lang'] ?? 'cs') : TsStudioAi::TODO));
+        }
+        [$clean, $err] = $t->cleanContent($c);
+        return [$clean, $err];
+    }
+    /* dvojice tokenů z „contrast“ pod 4,5:1 → popředí se ztmaví/zesvětlí, dokud není čitelné (odstín zůstane) */
+    private static function safeTokens(TsStudioTemplate $t, array $tk): array
+    {
+        [$tk] = $t->cleanTokens($tk); $fixed = [];
+        foreach ($t->t['contrast'] as [$fg, $bg]) if (TsStudioTemplate::contrast($tk[$fg], $tk[$bg]) < 4.5) { $tk[$fg] = TsStudioTemplate::ensureContrast($tk[$fg], $tk[$bg]); $fixed[$fg] = $fg; }
+        return [$tk, array_values($fixed)];
     }
 
     /* ---------- export a náhled ---------- */

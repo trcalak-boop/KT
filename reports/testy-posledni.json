@@ -1,8 +1,14 @@
 {
-  "at": "2026-11-01T23:48:50",
-  "pass": 74,
+  "at": "2026-11-02T07:05:37",
+  "pass": 128,
   "fail": 0,
   "files": [
+    {
+      "file": "components/ts-design-studio/tests/ai_test.php",
+      "pass": 54,
+      "fail": 0,
+      "log": []
+    },
     {
       "file": "components/ts-design-studio/tests/studio_test.php",
       "pass": 74,

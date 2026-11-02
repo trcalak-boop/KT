@@ -43,9 +43,9 @@ SLOTS = {
     'tasting_days': {'type': 'text', 'max': 90, 'label': 'Karta degustace – kdy'},
     'reserve_title': {'type': 'text', 'max': 40, 'label': 'Karta rezervace – nadpis'},
     'reserve_text': {'type': 'text', 'max': 160, 'label': 'Karta rezervace – text'},
-    'quote_label': {'type': 'text', 'max': 50, 'label': 'Citace – autor'},
-    'quote_1': {'type': 'text', 'max': 40, 'label': 'Citace – 1. řádek'},
-    'quote_2': {'type': 'text', 'max': 40, 'label': 'Citace – 2. řádek (zvýrazněný)'},
+    'quote_label': {'type': 'text', 'max': 50, 'label': 'Citace – autor', 'grounded': True},
+    'quote_1': {'type': 'text', 'max': 40, 'label': 'Citace – 1. řádek', 'grounded': True},
+    'quote_2': {'type': 'text', 'max': 40, 'label': 'Citace – 2. řádek (zvýrazněný)', 'grounded': True},
     'quote_text': {'type': 'multiline', 'max': 300, 'label': 'Text vedle citace'},
     'hours': {'type': 'list', 'items': 7, 'label': 'Otevírací doba', 'fields': {'days': {'type': 'text', 'max': 30}, 'time': {'type': 'text', 'max': 30}}},
     'hours_note': {'type': 'text', 'max': 160, 'label': 'Poznámka k otevírací době (volitelné)'},
@@ -204,7 +204,8 @@ def main():
          'render': ['index.html', 'assets/styles.css'],
          'tokens': dict({k: {'var': v[0], 'type': v[1], 'value': v[2], 'label': v[3]} for k, v in TOKENS.items()}, **{k: {'var': v[0], 'type': 'font', 'value': v[1], 'options': v[2], 'label': v[3]} for k, v in FONTS.items()}),
          'slots': SLOTS, 'contrast': [['ink', 'bg'], ['muted', 'bg'], ['band_ink', 'band'], ['ink', 'deeper']], 'content': CONTENT,
-         'licenses': ['assets/fonts/Alegreya-OFL.txt', 'assets/fonts/Alegreya_Sans-OFL.txt']}
+         'licenses': ['assets/fonts/Alegreya-OFL.txt', 'assets/fonts/Alegreya_Sans-OFL.txt'],
+         'cssHints': ['.brand', '.hero h1', '.hero-lead', '.sh h2', '.btn', '.teaser h2', '.band h2', '.hv']}
     json.dump(t, open(os.path.join(OUT, 'template.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
     print('šablona restaurace:', sum(len(fs) for _, _, fs in os.walk(F)), 'souborů')
 
