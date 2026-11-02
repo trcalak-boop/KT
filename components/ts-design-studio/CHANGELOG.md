@@ -1,5 +1,8 @@
 # ts-design-studio – změny
 
+## 0.5.1 – 2026-11-02
+- `public/.htaccess` povolí jen JS a CSS rozhraní, když je nadřazená složka `vendor/` na hostingu zakázaná (na produkci tasstudio.eu vracely 403; staging tuto zábranu nemá).
+
 ## 0.5.0 – 2026-11-02
 - Produkční napojení (etapa 6.5a, `docs/ai/10-studio-produkce-plan.md`): `TsStudioApi` kontroluje token CSRF relace (`'csrf' => fn($token)`, hlavička `X-CSRF`, rozhraní ho posílá z `TS_STUDIO_CONFIG.csrf`) a má vypínač (`'enabled' => false` → 503 `disabled`, rozhraní ukáže „Studio je vypnuté“).
 - Návrh z leadu CRM podle čísla: `'leadBrief' => fn($ref) => ['lead' => řádek, 'notes' => [...]]` (jen čtení CRM); neexistující lead → 400 bez dotazu na model; formulář má pole „Číslo leadu v CRM“.

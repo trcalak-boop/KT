@@ -1,6 +1,6 @@
 {
   "name": "ts-design-studio",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
@@ -54,6 +54,7 @@
     "migrations/.htaccess",
     "public/*.css",
     "public/*.js",
+    "public/.htaccess",
     "templates/**/*",
     "templates/.htaccess"
   ],
