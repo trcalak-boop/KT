@@ -70,6 +70,7 @@ open(os.path.join(PR, 'ai-consultant.php'), 'w').write('''<?php
 return ['timezone' => 'Europe/Prague', 'business' => 'Studio Test', 'contactEmail' => 'info@studio.test', 'defaultLang' => 'cs',
   'provider' => 'claude', 'apiKeyFile' => __DIR__ . '/klic.txt', 'sdkAutoload' => %r,
   'claude' => ['model' => 'claude-opus-5-5', 'effort' => 'low', 'baseUrl' => 'http://127.0.0.1:%d', 'maxRetries' => 0, 'timeout' => 10],
+  'guard' => ['pow' => 0, 'requireOrigin' => false, 'blockBots' => false], 
   'knowledgeFile' => __DIR__ . '/znalosti.json', 'db' => ['dsn' => 'sqlite:' . __DIR__ . '/data/ai.sqlite'], 'salt' => 'x', 'monthlyBudgetUsd' => 10.0,
   'notify' => ['to' => 'poptavky@studio.test'], 'mail' => ['transport' => 'log', 'logFile' => __DIR__ . '/data/mail.log', 'from' => 'web@studio.test', 'domain' => 'studio.test', 'redirectTo' => 'test@studio.test'],
   'consentText' => 'Souhlas.'];
@@ -79,6 +80,7 @@ return ['timezone' => 'Europe/Prague', 'business' => 'Studio Test', 'contactEmai
   'provider' => 'cloudflare', 'apiKeyFile' => __DIR__ . '/cf-token.txt',
   'cloudflare' => ['accountId' => '0123456789abcdef0123456789abcdef', 'baseUrl' => 'http://127.0.0.1:%d/client/v4/accounts/0123456789abcdef0123456789abcdef/ai/v1', 'timeout' => 10],
   'contactMode' => 'marker', 'knowledgeMaxChars' => 4000, 'maxTokens' => 500, 'budget' => ['limit' => 9500, 'period' => 'day', 'unit' => 'neuron'],
+  'guard' => ['pow' => 0, 'requireOrigin' => false, 'blockBots' => false], 
   'knowledgeFile' => __DIR__ . '/znalosti.json', 'db' => ['dsn' => 'sqlite:' . __DIR__ . '/data/cf.sqlite'], 'salt' => 'x'];
 ''' % MOCK)
 open(os.path.join(PR, 'cf-token.txt'), 'w').write('CF-TOKEN-FALESNY-0000\n')
@@ -139,6 +141,10 @@ open(os.path.join(PR, 'ai-cfa.php'), 'w').write(open(os.path.join(PR, 'ai-cf.php
     "/data/cfa.sqlite'], 'salt' => 'x', 'audit' => ['enabled' => true, 'lookup' => function ($t) { require_once dirname(__DIR__) . '/web/vendor/ts/ts-site-audit/core/bootstrap.php'; return ts_site_audit(require __DIR__ . '/site-audit.php')->status($t); }]];"))
 open(os.path.join(W, 'api', 'ai', 'chat-cfa.php'), 'w').write(api.replace('/ai-consultant.php', '/ai-cfa.php'))
 open(os.path.join(W, 'auditchat.html'), 'w').write(idx.replace('/api/ai/chat.php', '/api/ai/chat-cfa.php').replace("privacyUrl: '/privacy.html' };", "privacyUrl: '/privacy.html', name: 'Tessa', mascot: true, audit: '/api/audit/verejny.php' };"))
+# ochrana proti robotům zapnutá (výzva 10 bitů; filtr robotů vypnutý, test běží v bezhlavém Chromu)
+open(os.path.join(PR, 'ai-guard.php'), 'w').write(open(os.path.join(PR, 'ai-cf.php')).read().replace("'guard' => ['pow' => 0, 'requireOrigin' => false, 'blockBots' => false], ", "'guard' => ['pow' => 10, 'blockBots' => false], ").replace('/data/cf.sqlite', '/data/guard.sqlite'))
+open(os.path.join(W, 'api', 'ai', 'chat-guard.php'), 'w').write(api.replace('/ai-consultant.php', '/ai-guard.php'))
+open(os.path.join(W, 'guard.html'), 'w').write(idx.replace('/api/ai/chat.php', '/api/ai/chat-guard.php'))
 open(os.path.join(W, 'down.html'), 'w').write(open(os.path.join(W, 'index.html')).read().replace("/api/ai/chat.php", "/api/neexistuje.php"))
 srv = subprocess.Popen([PHP, '-d', 'opcache.enable=0', '-S', 'localhost:%d' % PORT, '-t', W], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1.2)
 
@@ -343,6 +349,21 @@ try:
             br.js("document.querySelector('.tsai-audit-btn').click()", wait=1.5)
             ok('nelze auditovat' in br.js("return document.querySelector('.tsai-audit').textContent"), 'audit: interní adresa → srozumitelná hláška')
         else: ok(True, 'audit: IP adresa se jako web nenabídne')
+        # ochrana proti robotům: skript bez Origin / bez výzvy neprojde, widget v prohlížeči výzvu vyřeší sám
+        def gpost(body, hdr):
+            req = urllib.request.Request(BASE + '/api/ai/chat-guard.php?r=message', data=json.dumps(body).encode(), headers=dict({'Content-Type': 'application/json'}, **hdr), method='POST')
+            try:
+                with urllib.request.urlopen(req, timeout=20) as r: return r.status, json.loads(r.read())
+            except urllib.error.HTTPError as e: return e.code, json.loads(e.read() or b'{}')
+        st, b = gpost({'text': 'Ahoj', 'lang': 'cs'}, {})
+        ok(st == 403 and b.get('error') == 'origin', 'ochrana: skript bez hlavičky Origin → 403', (st, b))
+        st, b = gpost({'text': 'Ahoj', 'lang': 'cs'}, {'Origin': BASE})
+        ok(st == 403 and b.get('error') == 'challenge', 'ochrana: bez vyřešené výzvy → 403 challenge', (st, b))
+        n0 = len(REQS)
+        br.js("sessionStorage.clear()"); br.go(BASE + '/guard.html', wait=1.2); br.js("TSAiWidget.open()", wait=.8); br.js("TSAiWidget.send('Máte podobný projekt?')", wait=3)
+        ok(br.js("return document.querySelectorAll('.tsai-msg-assistant, .tsai-bubble-assistant, [data-role=assistant]').length >= 1 || document.querySelector('.tsai-log').children.length >= 3") and len(REQS) > n0 and not br.js("return !!document.querySelector('.tsai-form')"), 'ochrana: widget vyřeší výzvu a dostane odpověď (bez chybového formuláře)')
+        br.js("TSAiWidget.send('A ještě?')", wait=2.5)
+        ok(len([x for x in REQS[n0:] if 'chat/completions' in x['path']]) == 2, 'ochrana: další zpráva konverzace bez nové výzvy')
         br.js("sessionStorage.clear()")
         br.size(1280, 900); br.go(BASE + '/down.html', wait=1.2)
         ok(br.js("return document.querySelector('.tsai').hidden === true"), 'nedostupná brána: tlačítko asistenta se vůbec neukáže')

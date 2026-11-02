@@ -1,41 +1,29 @@
 {
-  "at": "2026-11-02T14:39:02",
-  "pass": 325,
+  "at": "2026-11-02T15:11:41",
+  "pass": 261,
   "fail": 0,
   "files": [
     {
-      "file": "components/ts-design-studio/tests/ai_test.php",
-      "pass": 61,
+      "file": "components/ts-ai-consultant/tests/check_test.php",
+      "pass": 12,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-design-studio/tests/api_test.php",
-      "pass": 63,
+      "file": "components/ts-ai-consultant/tests/consultant_test.php",
+      "pass": 138,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-design-studio/tests/delivery_test.php",
-      "pass": 62,
+      "file": "components/ts-ai-consultant/tests/guard_test.php",
+      "pass": 27,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-design-studio/tests/studio_test.php",
-      "pass": 92,
-      "fail": 0,
-      "log": []
-    },
-    {
-      "file": "components/ts-design-studio/tests/cloudflare_test.py",
-      "pass": 4,
-      "fail": 0,
-      "log": []
-    },
-    {
-      "file": "components/ts-design-studio/tests/ui_test.py",
-      "pass": 43,
+      "file": "components/ts-ai-consultant/tests/http_test.py",
+      "pass": 84,
       "fail": 0,
       "log": []
     }

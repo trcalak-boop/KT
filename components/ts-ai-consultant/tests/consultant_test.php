@@ -11,6 +11,7 @@ $base = ['timezone' => 'Europe/Prague', 'business' => 'Studio Test', 'contactEma
   'knowledgeFile' => __DIR__ . '/fixtures/znalosti.json', 'salt' => 'testovaci-sul', 'monthlyBudgetUsd' => 10.0,
   'pricing' => ['fake' => [4.0, 20.0, 0.40, 5.0]], 'consentText' => 'Souhlasím (server).',
   'notify' => ['to' => 'poptavky@studio.test'], 'apiKeyFile' => "$dir/private/klic.txt",
+  'guard' => ['pow' => 0, 'requireOrigin' => false, 'blockBots' => false], 'limits' => ['newConvPerIpHour' => 0],   /* ochrana proti robotům má vlastní testy (guard_test.php) */
   'mail' => ['transport' => 'log', 'logFile' => "$dir/private/data/mail.log", 'from' => 'web@studio.test', 'domain' => 'studio.test', 'redirectTo' => 'test@studio.test']];
 $n = 0;
 function gw(array $s, array $script = [], ?TsAiFakeProvider &$fp = null): TsAiConsultant

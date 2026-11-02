@@ -111,6 +111,58 @@
           function (e) { clearTimeout(tm); throw e; });
     }
 
+    /* ---------- ochrana proti robotům: před první zprávou nové konverzace výzva z brány (r=challenge) ----------
+       proof-of-work (SHA-256 s d nulovými bity, počítá se při otevření panelu, řádově desetiny sekundy) a volitelně Cloudflare Turnstile –
+       jeho skript se načte až při otevření panelu a jen když ho brána vyžaduje. */
+    function sha256hex(str) {
+      var K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+      var b = [], i, j, l = str.length;                                   /* vstup je ASCII (hex výzvy a číslo) */
+      for (i = 0; i < l; i++) b[i >> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
+      b[l >> 2] |= 0x80 << (24 - (l % 4) * 8); b[((l + 8) >> 6 << 4) + 15] = l * 8;
+      var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19], W = [];
+      var r = function (x, n) { return (x >>> n) | (x << (32 - n)); };
+      for (j = 0; j < b.length; j += 16) {
+        var a = H[0], c = H[1], d = H[2], e = H[3], f = H[4], g = H[5], h = H[6], k = H[7];
+        for (i = 0; i < 64; i++) {
+          if (i < 16) W[i] = b[j + i] | 0;
+          else W[i] = (r(W[i - 2], 17) ^ r(W[i - 2], 19) ^ (W[i - 2] >>> 10)) + W[i - 7] + (r(W[i - 15], 7) ^ r(W[i - 15], 18) ^ (W[i - 15] >>> 3)) + W[i - 16] | 0;
+          var t1 = k + (r(f, 6) ^ r(f, 11) ^ r(f, 25)) + ((f & g) ^ (~f & h)) + K[i] + W[i] | 0, t2 = (r(a, 2) ^ r(a, 13) ^ r(a, 22)) + ((a & c) ^ (a & d) ^ (c & d)) | 0;
+          k = h; h = g; g = f; f = e + t1 | 0; e = d; d = c; c = a; a = t1 + t2 | 0;
+        }
+        H[0] = H[0] + a | 0; H[1] = H[1] + c | 0; H[2] = H[2] + d | 0; H[3] = H[3] + e | 0; H[4] = H[4] + f | 0; H[5] = H[5] + g | 0; H[6] = H[6] + h | 0; H[7] = H[7] + k | 0;
+      }
+      return H.map(function (x) { return ('0000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
+    }
+    function zeros(hex) { var n = 0; for (var i = 0; i < hex.length; i++) { var v = parseInt(hex[i], 16); n += [4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0][v]; if (v) break; } return n; }
+    var proofP = null, tsKey = null, tsId = null, tsToken = '', tsWait = [];
+    function solve(p) {                                     /* po dávkách, aby se stránka nezasekla */
+      return new Promise(function (res) {
+        var n = 0; (function step() { var end = n + 4000; for (; n < end; n++) if (zeros(sha256hex(p.c + ':' + n)) >= p.d) return res({ c: p.c, d: p.d, e: p.e, s: p.s, n: String(n) }); setTimeout(step, 0); })();
+      });
+    }
+    function prepare() {                                   /* výzva pro příští novou konverzaci */
+      if (proofP || conv) return proofP;
+      proofP = fetch(API + (API.indexOf('?') < 0 ? '?' : '&') + 'r=challenge', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j.turnstile) turnstile(j.turnstile); return j.pow ? solve(j.pow) : null; })
+        .catch(function () { proofP = null; return null; });
+      return proofP;
+    }
+    function turnstile(key) {
+      if (tsKey) return; tsKey = key;
+      var box = el('div', { class: 'tsai-ts' }); panel.insertBefore(box, composer);
+      window.tsaiTurnstileReady = function () {
+        try { tsId = window.turnstile.render(box, { sitekey: key, appearance: 'interaction-only', language: lang, callback: function (t) { tsToken = t; tsWait.splice(0).forEach(function (f) { f(t); }); }, 'expired-callback': function () { tsToken = ''; }, 'error-callback': function () { tsToken = ''; } }); } catch (e) { }
+      };
+      var sc = document.createElement('script'); sc.async = true; sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=tsaiTurnstileReady'; document.head.appendChild(sc);
+    }
+    function tsGet() {                                      /* token Turnstile (počká na něj nejvýš 20 s) */
+      if (!tsKey) return Promise.resolve(undefined);
+      if (tsToken) return Promise.resolve(tsToken);
+      return new Promise(function (res) { tsWait.push(res); setTimeout(function () { res(undefined); }, 20000); });
+    }
+    function tsUsed() { tsToken = ''; try { if (tsId !== null && window.turnstile) window.turnstile.reset(tsId); } catch (e) { } }
+
     /* ---------- DOM ---------- */
     var root = el('div', { class: 'tsai', 'data-open': 'false' });
     var launcher = el('button', { type: 'button', class: 'tsai-launcher', 'aria-expanded': 'false', 'aria-controls': 'tsai-panel' });
@@ -221,8 +273,21 @@
       if (speakOn) unlockAudio();
       busy = true; sendBtn.disabled = true; input.value = ''; grow(); add('user', text);
       log.setAttribute('aria-busy', 'true'); status.textContent = t('typing'); root.classList.add('tsai-busy'); stopSpeak(); state('processing');
-      post('message', { conversation: conv || undefined, text: text, lang: lang, page: location.pathname, mode: mode === 'voice' ? 'voice' : undefined })
+      var retried = false;
+      var go = function () {
+        var body = { conversation: conv || undefined, text: text, lang: lang, page: location.pathname, mode: mode === 'voice' ? 'voice' : undefined };
+        if (conv) return post('message', body);
+        return Promise.all([prepare(), tsGet()]).then(function (x) {
+          proofP = null; if (x[0]) body.proof = x[0]; if (x[1]) body.turnstile = x[1]; tsUsed();
+          return post('message', body);
+        }).then(function (j) {                         /* výzva prošlá nebo konverzace na serveru už smazaná: jednou znovu s novou výzvou */
+          if (j.error === 'challenge' && !retried) { retried = true; conv = ''; store.set('conv', null); return go(); }
+          return j;
+        });
+      };
+      go()
         .then(function (j) {
+          if (j.error === 'challenge') { add('assistant', t('err')); showForm(''); return; }
           if (j.conversation) { conv = j.conversation; store.set('conv', conv); }
           var r = j.reply;
           if (r && (r.text || (r.actions || []).length)) {
@@ -456,13 +521,13 @@
     /* ---------- otevření / zavření ---------- */
     function open() {
       panel.hidden = false; root.setAttribute('data-open', 'true'); launcher.setAttribute('aria-expanded', 'true'); store.set('open', '1');
-      render(); setTimeout(function () { input.focus(); }, 30);
+      render(); setTimeout(function () { input.focus(); }, 30); prepare();
     }
     function close() { stopListen(); stopSpeak(); if (form) { form.remove(); form = null; } panel.hidden = true; root.setAttribute('data-open', 'false'); launcher.setAttribute('aria-expanded', 'false'); store.set('open', null); launcher.focus(); }
     function grow() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 140) + 'px'; }
     launcher.addEventListener('click', function () { panel.hidden ? open() : close(); });
     closeBtn.addEventListener('click', close);
-    newBtn.addEventListener('click', function () { stopSpeak(); conv = ''; history = []; store.set('conv', null); store.set('hist', null); if (form) { form.remove(); form = null; } render(); input.focus(); });
+    newBtn.addEventListener('click', function () { stopSpeak(); conv = ''; history = []; store.set('conv', null); store.set('hist', null); if (form) { form.remove(); form = null; } render(); input.focus(); prepare(); });
     langSel.addEventListener('change', function () { lang = pick(langSel.value) || 'en'; store.set('lang', lang); label(); langSel.focus(); });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); if (listening) stopListen(); else if (playing || queued || (SS && (SS.speaking || SS.pending))) stopSpeak(); else close(); } });
     input.addEventListener('input', grow);

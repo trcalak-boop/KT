@@ -38,6 +38,7 @@
 .tsai-status{margin:0;padding:0 16px;min-height:0;font-size:13px;color:var(--tsai-muted)}
 .tsai-status:not(:empty){padding-bottom:6px}
 .tsai-composer{display:flex;gap:8px;align-items:flex-end;padding:10px;border-top:1px solid var(--tsai-line)}
+.tsai-ts{display:flex;justify-content:center;padding:0 10px}.tsai-ts:empty{display:none}
 .tsai-input{flex:1;min-height:44px;max-height:140px;resize:none;padding:11px 12px;border:1px solid var(--tsai-line);border-radius:10px;background:var(--tsai-bg);color:var(--tsai-ink);font:inherit}
 .tsai-send{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--tsai-accent);color:var(--tsai-accent-ink);font:inherit;font-weight:700;cursor:pointer}
 .tsai-send:disabled{opacity:.55;cursor:progress}

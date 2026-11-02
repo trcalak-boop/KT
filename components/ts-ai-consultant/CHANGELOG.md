@@ -1,5 +1,13 @@
 # ts-ai-consultant – změny
 
+## 1.10.0 – 2026-11-02
+- Ochrana proti robotům (`'guard'`), aby bezplatnou kvótu AI nevyčerpaly skripty:
+  - nová konverzace jen s vyřešenou výzvou `GET ?r=challenge`: proof-of-work v prohlížeči (SHA-256 s 15 nulovými bity, podepsaná solí, platí 10 minut a jen jednou; widget ji spočítá při otevření panelu, řádově desetiny sekundy),
+  - volitelně Cloudflare Turnstile (`'turnstile' => ['siteKey', 'secretFile']`): skript se načte až při otevření panelu, token se ověří na serveru; výpadek Cloudflare asistenta nevypne,
+  - POST bez hlavičky Origin se odmítne (`requireOrigin`), zjevní roboti a skripty podle User-Agent také (`blockBots`),
+  - nové limity: `newConvPerIpHour` (6 nových konverzací za hodinu na adresu), `globalDay` (denní strop zpráv celého webu, výchozí vypnuto); přísnější výchozí limity 12 zpráv za 10 minut a 40 za den na adresu.
+- Kontrola prostředí (jeden skutečný dotaz) výzvu obchází, je chráněná kódem.
+
 ## 1.9.2 – 2026-11-01
 - Audit v chatu: u chybové stránky (404) vlastní hláška v 18 jazycích místo obecné chyby.
 

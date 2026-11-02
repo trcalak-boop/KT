@@ -53,7 +53,7 @@ final class TsAiCheck
     /* jeden skutečný dotaz přes bránu (stejné limity, rozpočet a pojistky jako widget) */
     public function live(): array
     {
-        $g = ts_ai_consultant(['access' => null] + $this->s);          /* kontrola chráněná kódem obchází přístupovou cookie stagingu */
+        $g = ts_ai_consultant(['access' => null, 'guard' => ['pow' => 0, 'requireOrigin' => false, 'blockBots' => false, 'turnstile' => null]] + $this->s);   /* kontrola chráněná kódem obchází přístupovou cookie stagingu i výzvu proti robotům */
         if (!$g->enabled()) return [false, 'asistent je vypnutý (chybí klíč/SDK nebo vyčerpaný rozpočet)'];
         [$code, $o] = $g->handle('POST', 'message', json_encode(['text' => 'Dobrý den, jakou službu mi doporučíte pro nový web kavárny? Odpovězte jednou větou.', 'lang' => 'cs']),
             ['content-type' => 'application/json', 'host' => $_SERVER['HTTP_HOST'] ?? ''], (string) ($_SERVER['REMOTE_ADDR'] ?? ''));

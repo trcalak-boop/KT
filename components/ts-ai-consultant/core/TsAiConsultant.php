@@ -2,6 +2,7 @@
 /* ==========================================================================
    ts-ai-consultant – brána textového AI konzultanta (JSON API pro widget)
    GET  ?r=status   → { ok, enabled, langs }                         (nevolá AI)
+   GET  ?r=challenge → { ok, pow: { c, d, e, s }, turnstile: siteKey|null }   výzva před první zprávou nové konverzace (ochrana proti robotům)
    POST ?r=message  { conversation?, text, lang, page? }             → { ok, conversation, reply: { text, links, actions, summary? } }
    POST ?r=lead     { conversation?, submission_id, name, email, phone?, company?, website?, message, consent: true, lang, hp: '', openedMs }
                     → { ok, duplicate? }   (osobní údaje jdou jen sem, nikdy k poskytovateli AI)
@@ -17,6 +18,9 @@
    - znalosti jen z řízeného souboru (knowledgeFile), odkazy v odpovědi jen ze seznamu povolených,
    - částky v odpovědi zablokuje cenová pojistka (pricePolicy.noAmounts) a nahradí je pravidlem,
    - limity na adresu, konverzaci i celý web, měsíční rozpočet v USD (rezervace před voláním),
+   - ochrana proti robotům ('guard'): nová konverzace jen s vyřešenou výzvou (proof-of-work v prohlížeči, d bitů nul SHA-256, jednorázová,
+     podepsaná solí) a volitelně s tokenem Cloudflare Turnstile; požadavek bez hlavičky Origin a zjevní roboti (User-Agent) se odmítnou,
+     limit nových konverzací na adresu a denní strop zpráv celého webu,
    - výpadek poskytovatele = náhradní text s kontaktem, web běží dál.
    ========================================================================== */
 final class TsAiConsultant
@@ -38,12 +42,15 @@ final class TsAiConsultant
     {
         $this->c = $c + [
             'enabled' => true, 'maxTokens' => 1200, 'monthlyBudgetUsd' => 10.0, 'pricing' => [],
-            'limits' => ['perIp10min' => 20, 'perIpDay' => 80, 'globalMinute' => 30, 'turnsPerConversation' => 20, 'leadsPerIpHour' => 5],
+            'limits' => ['perIp10min' => 12, 'perIpDay' => 40, 'globalMinute' => 30, 'turnsPerConversation' => 20, 'leadsPerIpHour' => 5],
             'maxChars' => 1000, 'historyMessages' => 12, 'maxToolRounds' => 3, 'allowedOrigins' => [], 'minFillSeconds' => 3,
             'retention' => ['conversationDays' => 30, 'leadDays' => 90], 'texts' => [], 'notify' => [], 'leadSink' => null,
             'consentText' => '', 'defaultLang' => 'cs', 'processQueue' => 2, 'redact' => [],
         ];
-        $this->c['limits'] += ['perIp10min' => 20, 'perIpDay' => 80, 'globalMinute' => 30, 'turnsPerConversation' => 20, 'leadsPerIpHour' => 5];
+        $this->c['limits'] += ['perIp10min' => 12, 'perIpDay' => 40, 'globalMinute' => 30, 'turnsPerConversation' => 20, 'leadsPerIpHour' => 5, 'newConvPerIpHour' => 6, 'globalDay' => 0];
+        /* ochrana proti robotům: 'guard' => ['requireOrigin' => true, 'blockBots' => true, 'pow' => 15 (bitů, 0 = vypnuto),
+           'turnstile' => ['siteKey' => '…', 'secretFile' => '…' | 'secret' => '…', 'verifyUrl' => …, 'verify' => fn(token, ip): bool (testy)]] */
+        $this->c['guard'] = (array) ($c['guard'] ?? []) + ['requireOrigin' => true, 'blockBots' => true, 'pow' => 15, 'turnstile' => null];
         /* rozpočet: placené služby měsíčně v USD (monthlyBudgetUsd), bezplatné denní kvóty ('budget' => ['limit' => 9500, 'period' => 'day', 'unit' => 'neuron']) */
         $this->c['budget'] = ($c['budget'] ?? []) + ['limit' => (float) $this->c['monthlyBudgetUsd'], 'period' => 'month', 'unit' => 'USD'];
         $this->c += ['contactMode' => 'tool', 'knowledgeMaxChars' => 0];
@@ -80,6 +87,8 @@ final class TsAiConsultant
         try {
             if (!$this->accessOk($headers)) return [403, ['ok' => false, 'error' => 'access']];     /* neveřejný staging: bez přístupové cookie nic */
             if ($route === 'status' && $method === 'GET') return [200, ['ok' => true, 'enabled' => $this->enabled(), 'langs' => TsAiTexts::LANGS, 'speech' => $this->enabled() && $this->speechOn()]];
+            if ($this->isBot($headers)) return [403, ['ok' => false, 'error' => 'bot']];
+            if ($route === 'challenge' && $method === 'GET') return [200, ['ok' => true, 'pow' => $this->powChallenge(), 'turnstile' => $this->turnstileKey()]];
             if (!in_array($route, ['message', 'lead', 'speech', 'audit-note'], true)) return [404, ['ok' => false, 'error' => 'route']];
             if ($method !== 'POST') return [405, ['ok' => false, 'error' => 'method']];
             if (!$this->originOk($headers)) return [403, ['ok' => false, 'error' => 'origin']];
@@ -107,7 +116,7 @@ final class TsAiConsultant
     private function originOk(array $h): bool
     {
         $o = $h['origin'] ?? '';
-        if ($o === '') return true;                            /* stejný původ bez hlavičky (starší prohlížeče) */
+        if ($o === '') return !$this->c['guard']['requireOrigin'];   /* prohlížeče hlavičku u POST z fetch posílají vždy; skripty ji vynechávají */
         if ($this->c['allowedOrigins']) return in_array(rtrim($o, '/'), $this->c['allowedOrigins'], true);
         $host = $h['host'] ?? '';
         return $host !== '' && preg_replace('#^https?://#', '', rtrim($o, '/')) === $host;
@@ -128,6 +137,49 @@ final class TsAiConsultant
         $caps = $this->c['capabilities'] ?? [];
         if (!$caps && !empty($this->c['capabilitiesFile']) && is_file($this->c['capabilitiesFile'])) $caps = json_decode((string) file_get_contents($this->c['capabilitiesFile']), true)['funkce'] ?? [];
         return ['name' => (string) ($p['name'] ?? ''), 'text' => $text, 'caps' => is_array($caps) ? $caps : []];
+    }
+
+    /* ---------- ochrana proti robotům ---------- */
+    private function isBot(array $h): bool
+    {
+        if (!$this->c['guard']['blockBots']) return false;
+        $ua = (string) ($h['user-agent'] ?? '');
+        return $ua === '' || (bool) preg_match('~bot\b|bot/|crawl|spider|slurp|curl|wget|python|httpclient|http-client|okhttp|go-http|java/|libwww|scrapy|headless|phantom|puppeteer|playwright|selenium|axios|node-fetch|postman|insomnia~i', $ua);
+    }
+    private function secret(): string { return (string) ($this->c['salt'] ?? 'ts-ai') . '|guard'; }
+    public function powChallenge(): ?array
+    {
+        $d = (int) $this->c['guard']['pow']; if ($d <= 0) return null;
+        $c = bin2hex(random_bytes(12)); $e = time() + 600;
+        return ['c' => $c, 'd' => $d, 'e' => $e, 's' => hash_hmac('sha256', "$c|$d|$e", $this->secret())];
+    }
+    /* proof-of-work: sha256(c + ':' + n) začíná d nulovými bity; výzva podepsaná, platí 10 minut a jen jednou */
+    private function powOk($p): bool
+    {
+        $d = (int) $this->c['guard']['pow']; if ($d <= 0) return true;
+        if (!is_array($p)) return false;
+        $c = (string) ($p['c'] ?? ''); $e = (int) ($p['e'] ?? 0); $n = (string) ($p['n'] ?? ''); $pd = (int) ($p['d'] ?? 0);
+        if (!preg_match('/^[a-f0-9]{24}$/', $c) || !preg_match('/^\d{1,12}$/', $n) || $pd < $d || $e < time()) return false;
+        if (!hash_equals(hash_hmac('sha256', "$c|$pd|$e", $this->secret()), (string) ($p['s'] ?? ''))) return false;
+        $h = hash('sha256', $c . ':' . $n); $bits = 0;
+        for ($i = 0; $i < 64 && $bits < $pd; $i++) { $v = hexdec($h[$i]); $bits += [4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0][$v]; if ($v) break; }
+        if ($bits < $pd) return false;
+        return $this->store->hit('pow:' . $c, 1, 900);                  /* jednorázová: druhé použití stejné výzvy neprojde */
+    }
+    private function turnstileKey(): ?string { $t = $this->c['guard']['turnstile']; return is_array($t) && !empty($t['siteKey']) ? (string) $t['siteKey'] : null; }
+    private function turnstileOk($token): bool
+    {
+        $t = $this->c['guard']['turnstile']; if (!is_array($t) || empty($t['siteKey'])) return true;
+        if (!is_string($token) || $token === '' || strlen($token) > 4096) return false;
+        if (isset($t['verify']) && is_callable($t['verify'])) return (bool) ($t['verify'])($token);
+        $secret = (string) ($t['secret'] ?? (!empty($t['secretFile']) && is_file($t['secretFile']) ? trim((string) file_get_contents($t['secretFile'])) : ''));
+        if ($secret === '' || !function_exists('curl_init')) { error_log('ts-ai: Turnstile bez tajného klíče nebo curl – výzva se přeskočí'); return true; }
+        $ch = curl_init((string) ($t['verifyUrl'] ?? 'https://challenges.cloudflare.com/turnstile/v0/siteverify'));
+        curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => http_build_query(['secret' => $secret, 'response' => $token]), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10, CURLOPT_CONNECTTIMEOUT => 5]);
+        $r = curl_exec($ch); $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($r === false || $code >= 500) { error_log('ts-ai: Turnstile nedostupný – výzva se přeskočí'); return true; }     /* výpadek Cloudflare nesmí vypnout asistenta; zbývají limity a proof-of-work */
+        $j = json_decode((string) $r, true);
+        return is_array($j) && !empty($j['success']);
     }
 
     private function ipHash(string $ip): string { return substr(hash('sha256', ($this->c['salt'] ?? 'ts-ai') . '|' . $ip), 0, 32); }
@@ -159,13 +211,16 @@ final class TsAiConsultant
             $row = $this->store->conversation($conv);
             if ((int) $row['turns'] >= (int) $L['turnsPerConversation']) return $this->fallback($lang, 'ended', $token, 200, '');
         }
-        if (!$this->store->hit('ip10:' . $iph, (int) $L['perIp10min'], 600) || !$this->store->hit('ipday:' . $iph, (int) $L['perIpDay'], 86400) || !$this->store->hit('global', (int) $L['globalMinute'], 60)) {
+        if (!$this->store->hit('ip10:' . $iph, (int) $L['perIp10min'], 600) || !$this->store->hit('ipday:' . $iph, (int) $L['perIpDay'], 86400) || !$this->store->hit('global', (int) $L['globalMinute'], 60)
+            || ((int) $L['globalDay'] > 0 && !$this->store->hit('globalday', (int) $L['globalDay'], 86400))) {
             $this->store->settle(null, ['conv' => $conv, 'model' => $this->provider->model(), 'outcome' => 'limit']);
             return $this->fallback($lang, 'limit', $token ?: null, 429, 'limit');
         }
         $price = $this->c['pricing'][$this->provider->model()] ?? self::PRICING[$this->provider->model()] ?? null;
         if ($price === null) { error_log('ts-ai: neznámý ceník modelu ' . $this->provider->model()); return $this->fallback($lang, 'unavailable', null, 503, 'pricing'); }
         if ($conv === null) {
+            if (!$this->powOk($b['proof'] ?? null) || !$this->turnstileOk($b['turnstile'] ?? null)) return [403, ['ok' => false, 'error' => 'challenge']];
+            if (!$this->store->hit('newconv:' . $iph, (int) ($L['newConvPerIpHour'] ?: 1000000), 3600)) return $this->fallback($lang, 'limit', null, 429, 'limit');
             $token = bin2hex(random_bytes(24)); $conv = hash('sha256', $token);
             $this->store->createConversation($conv, $lang, $iph, mb_substr(preg_replace('/[?#].*$/', '', (string) ($b['page'] ?? '')), 0, 300));
         }
