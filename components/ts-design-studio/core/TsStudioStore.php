@@ -131,4 +131,8 @@ final class TsStudioStore
         $in = implode(', ', array_fill(0, count($from), '?'));
         return $this->q("UPDATE studio_deliveries SET status = ?, updated_at = ? WHERE id = ? AND status IN ($in)", array_merge([$to, self::now(), $id], $from))->rowCount() === 1;
     }
+    public function anonymizeDeliveries(string $before): int
+    {
+        return $this->q("UPDATE studio_deliveries SET to_email = '', to_name = '', body = '', subject = '', error = '', updated_at = ? WHERE created_at < ? AND to_email <> ''", [self::now(), $before])->rowCount();
+    }
 }

@@ -122,3 +122,9 @@ $md = $SM->prepareDelivery($mp, 1, 1); $SM->draftDelivery($md['id'], 1, ['to_ema
 $r = $SM->sendDelivery($md['id'], 1, 'klient@example.cz', 'idem-real-mailer');
 $log = (string) @file_get_contents("$dir/posta.log");
 t_ok($r['status'] === 'sent' && strpos($log, 'To: <test@tasstudio.example>') !== false && strpos($log, 'X-TS-Original-To: <klient@example.cz>') !== false, 'TsMailer z konfigurace: testovací režim pošle e-mail jen na testovací adresu');
+
+/* --- uchování: po 24 měsících se příjemce anonymizuje --- */
+$S->store()->setDelivery($d['id'], ['created_at' => date('Y-m-d H:i:s', strtotime('-25 months'))]);
+$n = $S->purgeOldDeliveries(true); $old = $S->store()->delivery($d['id']);
+t_ok($n >= 1 && $old['to_email'] === '' && $old['body'] === '' && $old['status'] === 'revoked', 'starší než 24 měsíců: příjemce a text smazány, záznam zůstal', $n);
+t_ok($S->store()->delivery($d3['id'])['to_email'] === 'spatna@salon.example', 'novější doručení beze změny');

@@ -13,7 +13,8 @@ final class TsStudioApi
     {
         $this->s = $studio;
         /* 'role' a 'sender' (['name', 'email'] přihlášeného – podpis a Reply-To e-mailu klientovi) dodává vstupní bod */
-        $this->c = $c + ['uid' => 0, 'role' => '', 'sender' => [], 'jobsDir' => '', 'allowedOrigins' => [], 'processAfterResponse' => true, 'jobSeconds' => 300, 'maxBody' => 1500000];
+        /* 'csrf' => fn (string $token): bool – kontrola tokenu relace (hlavička X-CSRF) u každého POST; 'enabled' => false = vypínač (503) */
+        $this->c = $c + ['uid' => 0, 'role' => '', 'sender' => [], 'jobsDir' => '', 'allowedOrigins' => [], 'processAfterResponse' => true, 'jobSeconds' => 300, 'maxBody' => 1500000, 'csrf' => null, 'enabled' => true];
     }
 
     public function serve(): void
@@ -43,8 +44,10 @@ final class TsStudioApi
         $uid = (int) $this->c['uid']; $S = $this->s;
         $pid = (int) ($get['pid'] ?? 0); $num = (int) ($get['num'] ?? 0);
         try {
+            if (!$this->c['enabled']) return [503, ['ok' => false, 'error' => 'disabled']];
             if ($method === 'POST') {
                 if (!$this->originOk($headers)) return [403, ['ok' => false, 'error' => 'origin']];
+                if (is_callable($this->c['csrf']) && !($this->c['csrf'])((string) ($headers['x-csrf'] ?? ''))) return [403, ['ok' => false, 'error' => 'csrf']];
                 if (stripos($headers['content-type'] ?? '', 'application/json') !== 0) return [415, ['ok' => false, 'error' => 'type']];
                 if (strlen($raw) > (int) $this->c['maxBody']) return [413, ['ok' => false, 'error' => 'size']];
                 $b = json_decode($raw, true); if (!is_array($b)) return [400, ['ok' => false, 'error' => 'json']];
@@ -55,10 +58,15 @@ final class TsStudioApi
                         return [201, ['ok' => true] + $r];
                     case 'ai-create':
                         $src = in_array($b['source'] ?? '', TsDesignStudio::SOURCES, true) ? $b['source'] : 'new';
-                        $brief = $src === 'crm' ? TsStudioAi::briefFromLead((array) ($b['lead'] ?? []), (array) ($b['leadNotes'] ?? [])) + (array) ($b['brief'] ?? [])
+                        $leadRef = mb_substr(trim((string) ($b['lead_ref'] ?? '')), 0, 64);
+                        $fromCrm = $src === 'crm' && $leadRef !== '' ? $S->leadBriefFor($leadRef) : null;      /* lead přímo z CRM (jen čtení) */
+                        if ($src === 'crm' && $leadRef !== '' && $fromCrm === null) return [400, ['ok' => false, 'error' => 'input', 'detail' => 'lead v CRM nenalezen']];
+                        if ($fromCrm) $b['lead'] = $fromCrm['lead'] + (array) ($b['lead'] ?? []);
+                        if ($fromCrm) $b['leadNotes'] = array_merge((array) ($fromCrm['notes'] ?? []), (array) ($b['leadNotes'] ?? []));
+                        $brief = $src === 'crm' ? array_filter((array) ($b['brief'] ?? []), fn ($v) => $v !== '' && $v !== null) + TsStudioAi::briefFromLead((array) ($b['lead'] ?? []), (array) ($b['leadNotes'] ?? []))
                                : ($src === 'redesign' && isset($b['audit']) ? TsStudioAi::briefFromAudit((array) $b['audit'], (string) ($b['texts'] ?? ''), (array) ($b['brief'] ?? [])) : (array) ($b['brief'] ?? []));
                         $S->checkAi($uid);
-                        return $this->job(fn () => $S->aiCreate($brief, $uid, ['source' => $src, 'lead_ref' => (string) ($b['lead_ref'] ?? ''), 'audit_ref' => (string) ($b['audit_ref'] ?? '')]));
+                        return $this->job(fn () => $S->aiCreate($brief, $uid, ['source' => $src, 'lead_ref' => $leadRef, 'audit_ref' => (string) ($b['audit_ref'] ?? '')]));
                     case 'ai-edit':
                         $S->get($pid, $uid); $S->checkAi($uid);
                         $text = (string) ($b['text'] ?? ''); if (trim($text) === '') return [400, ['ok' => false, 'error' => 'input', 'detail' => 'prázdný pokyn']];
@@ -97,6 +105,7 @@ final class TsStudioApi
                     $d = $S->deliveryDetail((int) ($get['id'] ?? 0), $uid, (string) (((array) $this->c['sender'])['name'] ?? ''));
                     return [200, ['ok' => true, 'delivery' => $d]];
                 case 'list':
+                    $S->purgeOldDeliveries();
                     return [200, ['ok' => true, 'projects' => $S->projects($uid), 'usage' => $S->usage()]];
                 case 'project':
                     $g = $S->get($pid, $uid);

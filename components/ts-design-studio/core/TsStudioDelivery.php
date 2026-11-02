@@ -37,6 +37,23 @@ trait TsStudioDeliveryOps
             'to_email' => $d['to_email'], 'to_name' => $d['to_name'], 'subject' => $d['subject'], 'body' => $d['body'], 'sent_at' => $d['sent_at'], 'error' => $d['error'],
             'revoked_at' => $d['revoked_at'], 'views' => (int) $d['views'], 'first_view_at' => $d['first_view_at'], 'last_view_at' => $d['last_view_at'], 'created_at' => $d['created_at']];
     }
+    /* lead z CRM pro zadání AI: 'leadBrief' => fn(string $ref): ?array ['lead' => řádek leadu, 'notes' => [poznámky]] (jen čtení CRM) */
+    public function leadBriefFor(string $ref): ?array
+    {
+        if (!is_callable($this->c['leadBrief'] ?? null)) return null;
+        $r = ($this->c['leadBrief'])($ref);
+        return is_array($r) && isset($r['lead']) && is_array($r['lead']) ? ['lead' => $r['lead'], 'notes' => array_map('strval', (array) ($r['notes'] ?? []))] : null;
+    }
+    /* uchování: doručení starší než 'retentionMonths' (výchozí 24) – příjemce a text e-mailu se anonymizují (záznam o doručení zůstane); nejvýš jednou denně */
+    public function purgeOldDeliveries(bool $force = false): int
+    {
+        $months = (int) ($this->c['retentionMonths'] ?? 24); if ($months <= 0) return 0;
+        static $done = [];
+        $key = spl_object_id($this->store) . '|' . date('Y-m-d');
+        if (!$force && isset($done[$key])) return 0;
+        $done[$key] = true;
+        return $this->store->anonymizeDeliveries(date('Y-m-d H:i:s', strtotime("-$months months")));
+    }
     public function hasDelivery(): bool { return strlen((string) ($this->c['deliverySecret'] ?? '')) >= 32 && (string) ($this->c['previewBase'] ?? '') !== ''; }
     /* detail pro rozhraní: náhled e-mailu s odkazem (odkaz samotný jen u aktivního doručení – kopírování je samostatná zaznamenaná akce) */
     public function deliveryDetail(int $id, int $uid, string $sender = ''): array

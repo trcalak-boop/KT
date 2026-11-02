@@ -82,3 +82,7 @@ Role: `'can' => fn ($uid, $akce) => TsStudioRoles::allows($role, $akce)`; API do
 | `delivery-link {id}` | aktivuje a vrátí odkaz (ruční cesta) | | |
 | `delivery-revoke {id}` | odvolat | | |
 Brána: složka subdomény s `.htaccess` (`RewriteRule ^ index.php [L]`) a `index.php`: `(new TsStudioPreviewGate(ts_design_studio($cfg), ['failDir' => …, 'contact' => '…']))->serve();`
+
+## Produkce (0.5.0)
+`new TsStudioApi($studio, ['uid', 'role', 'sender', 'jobsDir', 'allowedOrigins', 'csrf' => fn ($t) => hash_equals($_SESSION['csrf'], $t), 'enabled' => $cfg['enabled']])`; stránka: `TS_STUDIO_CONFIG = { api, csrf: '<token relace>' }`.
+Studio: `'leadBrief' => fn ($ref) => ['lead' => […], 'notes' => […]]`, `'leadLookup' => fn ($ref) => ['email', 'name']`, `'retentionMonths' => 24`.

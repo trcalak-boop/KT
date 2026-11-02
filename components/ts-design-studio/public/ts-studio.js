@@ -19,7 +19,7 @@
 
   function api(r, body, q) {
     var o = { credentials: 'same-origin', headers: {} };
-    if (body) { o.method = 'POST'; o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(body); }
+    if (body) { o.method = 'POST'; o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(body); if (C.csrf) o.headers['X-CSRF'] = C.csrf; }
     return fetch(API + '?r=' + r + (q || ''), o).then(function (res) { return res.json().catch(function () { return { ok: false, error: 'http' }; }).then(function (j) { j._code = res.status; return j; }); });
   }
   function errText(j) {
@@ -27,6 +27,8 @@
     if (j.error === 'checks') return 'verze má chyby kontrol: ' + j.errors.map(function (e) { return e.msg; }).join('; ');
     if (j.error === 'ai') return { limit: 'denní limit AI je vyčerpaný', disabled: 'AI není nastavená', auth: 'chybí oprávnění k modelu', timeout: 'model neodpověděl včas', format: 'model nevrátil platnou odpověď' }[j.kind] || ('AI: ' + (j.detail || j.kind));
     if (j.error === 'denied') return 'nemáte oprávnění';
+    if (j.error === 'csrf') return 'platnost stránky vypršela – načtěte ji znovu';
+    if (j.error === 'disabled') return 'Studio je vypnuté';
     return j.detail || j.error || 'chyba';
   }
   var toastT;
@@ -81,7 +83,7 @@
       '<p><button class="tss-btn" type="submit">Založit projekt</button></p></form>' +
       '<form class="tss-form" data-form="ai"' + (S.ai ? '' : ' hidden') + '><fieldset class="tss-srcset"><legend>Zdroj zadání</legend><label><input type="radio" name="source" value="new" checked> nový projekt</label><label><input type="radio" name="source" value="redesign"> redesign stávajícího webu</label><label><input type="radio" name="source" value="crm"> lead z CRM</label></fieldset>' +
       '<div class="tss-grid2">' + field('name', 'Název podniku', { max: 160, req: true }) + field('obor', 'Obor', { max: 80, hint: 'Podle oboru se vybere šablona (jinak ji vybere AI).' }) + '</div>' +
-      '<div data-only="crm" hidden class="tss-grid2">' + field('lead_phone', 'Telefon z leadu', { max: 30 }) + field('lead_email', 'E-mail z leadu', { max: 120 }) + field('lead_web', 'Současný web', { max: 200 }) + field('lead_reason', 'Důvod poptávky', { max: 400 }) + '</div>' +
+      '<div data-only="crm" hidden class="tss-grid2">' + field('lead_ref', 'Číslo leadu v CRM', { max: 20, hint: 'Údaje leadu (kontakty, poznámky) se načtou z CRM. Bez čísla vyplňte údaje níže.' }) + field('lead_phone', 'Telefon z leadu', { max: 30 }) + field('lead_email', 'E-mail z leadu', { max: 120 }) + field('lead_web', 'Současný web', { max: 200 }) + field('lead_reason', 'Důvod poptávky', { max: 400 }) + '</div>' +
       field('audience', 'Cílová skupina', { max: 300 }) + field('style', 'Požadovaný styl', { max: 300, hint: 'Barvy, nálada, co nechtějí.' }) + field('services', 'Služby a nabídka', { area: true, max: 1200 }) +
       field('facts', 'Fakta', { area: true, rows: 4, max: 2000, hint: 'Kontakty, adresa, otevírací doba, ceny, jména lidí. Co tu nebude, AI označí [doplnit] – nic si nevymýšlí.' }) +
       '<div data-only="redesign" hidden>' + field('texts', 'Texty ze současného webu', { area: true, rows: 5, max: 6000, hint: 'Vložte ručně. Převzatý obsah se označí k ověření práv.' }) + field('findings', 'Zjištění z auditu', { area: true, max: 1200 }) + '</div>' +
@@ -98,7 +100,7 @@
     }
     var brief = { name: d.name, obor: d.obor, audience: d.audience, style: d.style, services: d.services, facts: d.facts, notes: d.notes }, body = { source: d.source, brief: brief };
     if (d.source === 'redesign') { brief.texts = d.texts; brief.rights = !!d.texts; if (d.findings) brief.notes = ('Zjištění z auditu:\n' + d.findings + '\n' + (d.notes || '')).trim(); }
-    if (d.source === 'crm') body.lead = { name: d.name, phone: d.lead_phone, email: d.lead_email, website: d.lead_web, outreach_reason: d.lead_reason };
+    if (d.source === 'crm') { body.lead = { name: d.name, phone: d.lead_phone, email: d.lead_email, website: d.lead_web, outreach_reason: d.lead_reason }; if (d.lead_ref) body.lead_ref = d.lead_ref; }
     api('ai-create', body).then(function (j) {
       if (!j.ok) { btn.disabled = false; return toast(errText(j), true); }
       return waitJob(j.job, 'AI navrhuje web').then(function (r) {
@@ -381,5 +383,5 @@
     if (m) loadProject(+m[1]); else viewList();
   }
   window.addEventListener('hashchange', route);
-  api('templates').then(function (j) { S.templates = j.templates || []; S.ai = !!j.ai && (j.actions || []).indexOf('edit') >= 0; S.actions = j.actions || []; S.delivery = !!j.delivery; route(); });
+  api('templates').then(function (j) { if (j.error === 'disabled') { $('.tss-main').innerHTML = '<p class="tss-muted">AI Design Studio je dočasně vypnuté.</p>'; return; } S.templates = j.templates || []; S.ai = !!j.ai && (j.actions || []).indexOf('edit') >= 0; S.actions = j.actions || []; S.delivery = !!j.delivery; route(); });
 })();

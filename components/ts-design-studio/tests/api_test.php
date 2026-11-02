@@ -123,3 +123,22 @@ $x = $sal->handle('GET', 'export', '', ['pid' => $dp, 'num' => 1, 'delivery' => 
 t_ok($x[0] === 200 && in_array('delivery.download', array_column($SD->get($dp, 1)['log'], 'action'), true), 'stažení balíčku k doručení zaznamenané');
 t_eq($P($des, 'delivery-revoke', ['id' => $did])[0], 403, 'designer nemůže odvolat → 403');
 [$c, $o] = $P($sal, 'delivery-revoke', ['id' => $did]); t_ok($c === 200 && $o['delivery']['status'] === 'revoked', 'sales odvolá odkaz');
+
+/* --- 0.5.0: CSRF, vypínač, lead z CRM --- */
+$apiC = new TsStudioApi($S, ['uid' => 1, 'jobsDir' => "$dir/ulohy", 'allowedOrigins' => [$O], 'csrf' => fn ($t) => hash_equals('tok-123', $t)]);
+t_eq($apiC->handle('POST', 'create', json_encode(['name' => 'C', 'template' => 'salon']), [], $H)[1]['error'] ?? '', 'csrf', 'POST bez tokenu CSRF → 403 csrf');
+t_eq($apiC->handle('POST', 'create', json_encode(['name' => 'C', 'template' => 'salon']), [], $H + ['x-csrf' => 'spatny'])[0], 403, 'POST se špatným tokenem → 403');
+t_eq($apiC->handle('POST', 'create', json_encode(['name' => 'C', 'template' => 'salon']), [], $H + ['x-csrf' => 'tok-123'])[0], 201, 'POST se správným tokenem projde');
+t_eq($apiC->handle('GET', 'list', '', [], [])[0], 200, 'GET token nepotřebuje');
+$off = new TsStudioApi($S, ['uid' => 1, 'jobsDir' => "$dir/ulohy", 'allowedOrigins' => [$O], 'enabled' => false]);
+t_ok($off->handle('GET', 'list', '', [], [])[0] === 503 && $off->handle('POST', 'create', '{}', [], $H)[1]['error'] === 'disabled', 'vypínač: všechny trasy 503 disabled');
+$leadModel = new TsStudioFakeModel(['script' => [fn ($m) => json_encode(['content' => ['brand' => 'Pekárna'], 'tokens' => []])]]);
+$SL = ts_design_studio(['db' => ['dsn' => "sqlite:$dir/lead.sqlite"], 'ai' => ['model' => $leadModel],
+    'leadBrief' => fn ($ref) => $ref === '42' ? ['lead' => ['name' => 'Pekárna Kvásek', 'phone' => '+420 606 222 999', 'email' => 'info@kvasek.example', 'outreach_reason' => 'Chtějí web s objednávkou dortů'], 'notes' => ['Dvě provozovny v Olomouci']] : null]);
+$apiL2 = new TsStudioApi($SL, ['uid' => 1, 'jobsDir' => "$dir/ulohy", 'allowedOrigins' => [$O]]);
+t_eq($apiL2->handle('POST', 'ai-create', json_encode(['source' => 'crm', 'lead_ref' => '999', 'brief' => ['obor' => 'pekárna']]), [], $H)[0], 400, 'neexistující lead → 400 bez dotazu na model');
+$x = $apiL2->handle('POST', 'ai-create', json_encode(['source' => 'crm', 'lead_ref' => '42', 'brief' => ['obor' => 'restaurace', 'name' => '']]), [], $H); ($x[2])();
+$jr = $apiL2->handle('GET', 'job', '', ['id' => $x[1]['job']], [])[1];
+$sent = end($leadModel->calls[0])['content'];
+t_ok($jr['status'] === 'done' && strpos($sent, 'Pekárna Kvásek') !== false && strpos($sent, 'objednávkou dortů') !== false && strpos($sent, 'Dvě provozovny') !== false, 'návrh z leadu CRM: název, důvod poptávky a poznámky v zadání', $jr);
+t_eq($SL->get($jr['result']['id'], 1)['project']['lead_ref'], '42', 'projekt si pamatuje číslo leadu');
