@@ -1,5 +1,8 @@
 # ts-design-studio – změny
 
+## 0.7.0 – 2026-11-02
+- Nová šablona **ordinace** (z ukázky Ordinace): upozornění nahoře, tabule s kontaktem, výhody, tabulka ordinačních hodin, rychlé cesty, tým, registrace nových pacientů, adresa a tísňové volání. Písma Atkinson Hyperlegible Next a JetBrains Mono (OFL), tlačítko A+, režim podle zařízení; pozadí a akcent tmavého režimu v tokenech.
+
 ## 0.6.0 – 2026-11-02
 - Chyby Cloudflare se rozlišují podle kódu a textu odpovědi: vyčerpaná denní kvóta (4006 / „daily free allocation“) = `limit`, přetížení modelu nebo omezení rychlosti (3040, ostatní 429, 5xx) = `busy`. Dříve každá odpověď 429 hlásila „denní limit AI je vyčerpaný“ (na produkci i při 0 spotřebovaných neuronech).
 - Při přetížení jedno opakování po krátké pauze, volitelně záložní modely (`fallbackModels` s vlastním ceníkem neuronů); kvóta se neopakuje. Text chyby od Cloudflare se ukládá a rozhraní ho ukáže („model AI je teď přetížený – zkuste to za chvíli (…)“).
