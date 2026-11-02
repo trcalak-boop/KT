@@ -50,3 +50,22 @@ Konfigurace: `'ai' => ['provider' => 'cloudflare', 'apiKeyFile', 'accountIdFile'
 Zadání (`TsStudioAi::cleanBrief`): `name, obor, audience, style, services, facts, texts, notes, lang, template?, audit?, rights?`; z CRM `TsStudioAi::briefFromLead($lead, $poznamky)`, z auditu `briefFromAudit($report, $texty, $dalsi)`.
 Chyby modelu `TsStudioModelError->kind`: `disabled, auth, limit, timeout, connection, request, format`. Projekt při chybě nevznikne.
 Vrstva úprav CSS: blok `/*@ai*/…/*@ai-end*/` na konci `assets/styles.css` (TsStudioAi::aiCss / withAiCss).
+
+## HTTP API a rozhraní (0.3.0)
+```php
+$studio = ts_design_studio(require $private . '/studio.php');           // klíče se načtou před zúžením open_basedir
+(new TsStudioApi($studio, ['uid' => $prihlasenyUzivatel, 'jobsDir' => $private . '/data/ulohy', 'allowedOrigins' => ['https://admin.example']]))->serve();
+```
+| GET `?r=` | | POST `?r=` (JSON) | |
+|---|---|---|---|
+| `templates` | šablony, `ai` | `create {name, template, source}` | ruční projekt |
+| `list` | projekty, spotřeba | `ai-create {source, brief, lead?, audit?, texts?}` | 202 + `job` |
+| `project&pid` | projekt, verze, záznam, konverzace | `ai-edit {pid, text}` | 202 + `job` |
+| `version&pid&num` | soubory, obsah, tokeny, kontroly, todo, schéma | `render {pid, base, content, tokens, message}` | nová verze |
+| `file&pid&num&path` | zdroj textového souboru | `patch {pid, base, files, message}` | nová verze |
+| `diff&pid&a&b` | rozdíl | `accept / reject / revert {pid, num}` | |
+| `preview&pid&num` | HTML pro iframe | `status {pid, status}` | |
+| `export&pid&num` | ZIP | | |
+| `job&id` | stav úlohy (jen stejný uživatel) | | |
+Chyby: 400 vstup, 403 původ/oprávnění, 413 velikost, 415 typ, 422 `checks` (seznam chyb), 429 limit AI, 503 AI vypnutá.
+Rozhraní: `<div id="ts-studio"></div>`, `window.TS_STUDIO_CONFIG = { api }`, `public/ts-studio.css` + `ts-studio.js`. CSP stránky musí povolit inline skripty a `data:` písma (náhled v `srcdoc` dědí CSP stránky).

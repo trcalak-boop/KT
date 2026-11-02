@@ -12,6 +12,7 @@ require_once __DIR__ . '/TsStudioStore.php';
 require_once __DIR__ . '/TsStudioModels.php';
 require_once __DIR__ . '/TsStudioAi.php';
 require_once __DIR__ . '/TsDesignStudio.php';
+require_once __DIR__ . '/TsStudioApi.php';
 
 function ts_design_studio(array $s): TsDesignStudio
 {

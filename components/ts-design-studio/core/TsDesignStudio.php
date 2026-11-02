@@ -201,6 +201,15 @@ final class TsDesignStudio
         $this->store->addMessage($pid, $num, 0, 'assistant', $reply);
         return ['num' => $num, 'reply' => $reply, 'checks' => $checks, 'changed' => $changed, 'errors' => array_merge($e1, $e2), 'todo' => TsStudioAi::todo($c)];
     }
+    public function hasAi(): bool { return ($this->c['ai']['model'] ?? null) instanceof TsStudioModel; }
+    /* předběžná kontrola před spuštěním úlohy (oprávnění, nastavená AI, denní strop) – chyba se vrátí hned, ne až v úloze */
+    public function checkAi(int $uid): void
+    {
+        $this->can($uid, 'edit');
+        if (!$this->hasAi()) throw new TsStudioModelError('disabled', 'AI není nastavená');
+        $limit = (int) ($this->c['ai']['neuronsPerDay'] ?? 0);
+        if ($limit > 0 && $this->store->usageDay()['neurons'] >= $limit) throw new TsStudioModelError('limit', 'denní strop AI Studia vyčerpán');
+    }
     public function messages(int $pid, int $uid): array { $this->project($pid, $uid, 'view'); return $this->store->messages($pid); }
     public function usage(): array { $u = $this->store->usageDay(); return $u + ['limit' => (int) ($this->c['ai']['neuronsPerDay'] ?? 0), 'model' => $this->modelName()]; }
     private function modelName(): string { return isset($this->c['ai']['model']) ? $this->c['ai']['model']->model() : ''; }

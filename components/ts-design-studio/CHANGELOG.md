@@ -1,5 +1,10 @@
 # ts-design-studio – změny
 
+## 0.3.0 – 2026-11-02
+- Administrace (etapa 6.3): `TsStudioApi` – JSON API pro rozhraní (šablony, projekty, verze, soubory, rozdíl, náhled, export ZIP, ruční úprava obsahu a kódu, přijetí/zamítnutí/návrat, stav, návrh a úprava AI jako úlohy na pozadí). POST jen s JSON a povoleným původem; přihlášení a číslo uživatele dodává vstupní bod.
+- Rozhraní `public/ts-studio.js` + `ts-studio.css` (bez knihoven): seznam projektů, nový projekt ze šablony nebo s AI (nový / redesign / lead), editor – verze, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev ze schématu šablony (zvýraznění „[doplnit]“), editor kódu se stromem souborů, barevný rozdíl, kontroly a seznam k doplnění, konverzace s AI, ukazatel spotřeby; světlý i tmavý režim, mobil.
+- `TsDesignStudio::checkAi()` a `hasAi()` – strop a vypnutá AI se ohlásí hned, ne až v úloze.
+
 ## 0.2.1 – 2026-11-02
 - Po testu s Gemma 4 na stagingu (3 zadání): model vymýšlel recenze a citáty majitelky → sloty šablon označené `grounded` (citáty, recenze, jména, autoři) smí obsahovat jen text ze zadání (≥ 80 % slov), jinak „[doplnit]“; zahozené texty Studio vypíše (`dropped`).
 - Dnešní datum a roční období v pokynech (model psal „Jaro 2024“ ze vzoru).
