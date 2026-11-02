@@ -1,0 +1,68 @@
+{
+  "name": "ts-analytics",
+  "version": "1.0.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Vlastní měření návštěvnosti bez služeb třetích stran: sběr zobrazení a událostí po souhlasu (cookies prvního řádu ts_v/ts_s), bez IP adresy, ochrana proti robotům a zneužití, retence, přehled pro administraci (návštěvníci, návštěvy, zdroje, kampaně, stránky, zařízení, akce) s grafem.",
+  "runtime": [
+    "php",
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "04df49c",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "(nový kód; požadavek zadavatele 2. 11. 2026 – měření návštěvnosti s cookies po souhlasu)",
+        "to": "core/TsAnalytics.php",
+        "mode": "new",
+        "sha256": "8f84fb7ff3feffab38e5cb3d685b6c649b6d26270606f17f93c5f3529fdec49b"
+      }
+    ]
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "php": "core/bootstrap.php",
+    "api": "ts_analytics(settings)->serve()",
+    "classes": "TsAnalytics, TsAnalyticsStore, TsAnalyticsReport",
+    "ui": "public/ts-analytics.js (TsAnalytics.start/event/stop – jen po souhlasu) + public/ts-analytics-report.css (TsAnalyticsReport::html)"
+  },
+  "lockedFiles": [
+    "core/*.php",
+    "core/.htaccess",
+    "migrations/*.sql",
+    "migrations/.htaccess",
+    "config/*.php",
+    "config/.htaccess",
+    "public/*.js",
+    "public/*.css",
+    "public/.htaccess"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "serverová konfigurace projektu: kopie config/analytics.example.php MIMO webroot (původy, vlastní domény, limity, retence)",
+    "vstupní bod sběru (jen cesty)",
+    "kdy se volá TsAnalytics.start (jen po souhlasu) a jaké události projekt posílá",
+    "názvy událostí v přehledu (TsAnalyticsReport::html, volba events)"
+  ],
+  "aiProtected": [
+    "core/TsAnalytics.php – co se ukládá (bez IP, jen cesta, doména odkazu), ochrana a limity",
+    "public/ts-analytics.js – cookies jen po start(), stop() je maže",
+    "migrations/* – změna = nová migrace + rollback"
+  ],
+  "works": [
+    "36 testů sběru a přehledu bez sítě: validace, ukládá jen cestu bez parametrů a doménu odkazu, bez IP, roboti, Origin, velikost, limity, vypínač, retence 14 měsíců, souhrny (návštěvníci, návštěvy, odchody, délka, srovnání období, kanály, kampaně, zařízení, události), escapované HTML.",
+    "9 kontrol v Chromu: bez start() žádné cookies ani data, start() → cookies a zobrazení s UTM, událost, druhá stránka = stejná návštěva, stop() maže cookies, přehled bez posuvníku na počítači i telefonu."
+  ],
+  "missingForProduction": [
+    "Ověřit na hostingu: zápis SQLite mimo webroot, sendBeacon přes HTTPS, výkon přehledu při větším objemu dat (desítky tisíc zobrazení)."
+  ],
+  "tests": [
+    "tests/analytics_test.php",
+    "tests/browser_test.py"
+  ],
+  "api": "api/ts-analytics.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

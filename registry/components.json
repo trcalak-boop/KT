@@ -42,6 +42,29 @@
       "path": "components/ts-ai-consultant"
     },
     {
+      "name": "ts-analytics",
+      "version": "1.0.0",
+      "kind": "php-library",
+      "status": "demo",
+      "maturity": "tested",
+      "summary": "Vlastní měření návštěvnosti bez služeb třetích stran: sběr zobrazení a událostí po souhlasu (cookies prvního řádu ts_v/ts_s), bez IP adresy, ochrana proti robotům a zneužití, retence, přehled pro administraci (návštěvníci, návštěvy, zdroje, kampaně, stránky, zařízení, akce) s grafem.",
+      "runtime": [
+        "php",
+        "browser"
+      ],
+      "dependencies": {},
+      "skill": null,
+      "api": "api/ts-analytics.md",
+      "works": [
+        "36 testů sběru a přehledu bez sítě: validace, ukládá jen cestu bez parametrů a doménu odkazu, bez IP, roboti, Origin, velikost, limity, vypínač, retence 14 měsíců, souhrny (návštěvníci, návštěvy, odchody, délka, srovnání období, kanály, kampaně, zařízení, události), escapované HTML.",
+        "9 kontrol v Chromu: bez start() žádné cookies ani data, start() → cookies a zobrazení s UTM, událost, druhá stránka = stejná návštěva, stop() maže cookies, přehled bez posuvníku na počítači i telefonu."
+      ],
+      "missingForProduction": [
+        "Ověřit na hostingu: zápis SQLite mimo webroot, sendBeacon přes HTTPS, výkon přehledu při větším objemu dat (desítky tisíc zobrazení)."
+      ],
+      "path": "components/ts-analytics"
+    },
+    {
       "name": "ts-auth-php",
       "version": "1.0.0",
       "kind": "php-library",
@@ -466,5 +489,5 @@
       "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-02T15:11:59"
+  "generated": "2026-11-02T15:17:41"
 }
