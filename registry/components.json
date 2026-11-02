@@ -212,7 +212,7 @@
     },
     {
       "name": "ts-design-studio",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
@@ -233,7 +233,7 @@
         "61 testů doručení a brány (včetně anonymizace po 24 měsících) (včetně skutečného TsMailer v testovacím režimu): příprava jen po interním schválení a pro přijatou verzi, neaktivní odkaz do odeslání, e-mail jen s opsanou adresou a klíčem idempotence (dvojí klik = jeden e-mail), vložené hlavičky odstraněny, ruční cesta a stažení zaznamenané, selhání SMTP, expirace, odvolání, role, brána (CSP, noindex, robots, průchod adresáři, binární soubory, blokace hádání tokenu bez IP v datech, jiný tajný klíč).",
         "63 testů HTTP API (doručení, role, CSRF, vypínač, lead z CRM): ochrana POST (původ, JSON, velikost), šablony, ruční projekt, verze a soubory, úprava obsahu a kódu, kontroly blokují přijetí, rozdíl, návrat, stav, náhled, export ZIP, úlohy AI jen pro stejného uživatele, strop a vypnutá AI hned, role jen pro prohlížení.",
         "42 kroků rozhraní v Chromu (včetně doručení: schválení, příprava, e-mail, potvrzovací okno, odkaz přes bránu, odvolání, role designer): seznam, projekt ze šablony, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev, přijetí, kód, rozdíl, kontroly, cizí skript zablokuje přijetí, zamítnutí, návrat, export, stav, návrh s AI z formuláře (lead), úprava v konverzaci, mobil.",
-        "Šablony restaurace (Kořen), salon (Lokna) a autosalon (Motoria) a ordinace (Ordinace): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku."
+        "Šablony restaurace (Kořen), salon (Lokna) a autosalon (Motoria) a ordinace (Ordinace) a kosmetika (Šalvěj): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku."
       ],
       "missingForProduction": [
         "Produkce (6.5b): nasazení do administrace tasstudio.eu (přihlášení a role z CRM, CSRF), data /private/studio, brána nahledy.tasstudio.eu na produkčních datech, SMTP bez redirectTo.",
@@ -464,5 +464,5 @@
       "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-02T14:31:34"
+  "generated": "2026-11-02T14:39:16"
 }

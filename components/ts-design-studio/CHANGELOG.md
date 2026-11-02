@@ -1,5 +1,8 @@
 # ts-design-studio – změny
 
+## 0.8.0 – 2026-11-02
+- Nová šablona **kosmetika** (z ukázky Šalvěj): hero s ilustrací lahviček (štítky z obsahu), týdenní přehled otevírací doby s odkazy na rezervaci, ceník procedur, přípravky, kontakt a adresa. Písma Marcellus, Albert Sans a Azeret Mono (OFL), na výběr Bodoni Moda a Figtree; tmavý režim s vlastním akcentem v tokenech.
+
 ## 0.7.0 – 2026-11-02
 - Nová šablona **ordinace** (z ukázky Ordinace): upozornění nahoře, tabule s kontaktem, výhody, tabulka ordinačních hodin, rychlé cesty, tým, registrace nových pacientů, adresa a tísňové volání. Písma Atkinson Hyperlegible Next a JetBrains Mono (OFL), tlačítko A+, režim podle zařízení; pozadí a akcent tmavého režimu v tokenech.
 
