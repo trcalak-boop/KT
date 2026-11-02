@@ -1,5 +1,11 @@
 # ts-design-studio – změny
 
+## 0.6.0 – 2026-11-02
+- Chyby Cloudflare se rozlišují podle kódu a textu odpovědi: vyčerpaná denní kvóta (4006 / „daily free allocation“) = `limit`, přetížení modelu nebo omezení rychlosti (3040, ostatní 429, 5xx) = `busy`. Dříve každá odpověď 429 hlásila „denní limit AI je vyčerpaný“ (na produkci i při 0 spotřebovaných neuronech).
+- Při přetížení jedno opakování po krátké pauze, volitelně záložní modely (`fallbackModels` s vlastním ceníkem neuronů); kvóta se neopakuje. Text chyby od Cloudflare se ukládá a rozhraní ho ukáže („model AI je teď přetížený – zkuste to za chvíli (…)“).
+- Brána náhledů: projekt se šablonou, kterou kopie knihovny v bráně nemá, vrátí neutrální 404 místo chyby serveru.
+- Nová šablona **autosalon** (z ukázky Motoria): hero s vozem týdne, přednosti, vozy skladem s parametry, kategorie, financování, služby, recenze, testovací jízda; výchozí tmavý režim, barvy i pro tmavý režim v tokenech; písma Saira a Red Hat Mono (OFL).
+
 ## 0.5.1 – 2026-11-02
 - `public/.htaccess` povolí jen JS a CSS rozhraní, když je nadřazená složka `vendor/` na hostingu zakázaná (na produkci tasstudio.eu vracely 403; staging tuto zábranu nemá).
 

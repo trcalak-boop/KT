@@ -128,3 +128,7 @@ $S->store()->setDelivery($d['id'], ['created_at' => date('Y-m-d H:i:s', strtotim
 $n = $S->purgeOldDeliveries(true); $old = $S->store()->delivery($d['id']);
 t_ok($n >= 1 && $old['to_email'] === '' && $old['body'] === '' && $old['status'] === 'revoked', 'starší než 24 měsíců: příjemce a text smazány, záznam zůstal', $n);
 t_ok($S->store()->delivery($d3['id'])['to_email'] === 'spatna@salon.example', 'novější doručení beze změny');
+
+/* brána: projekt s šablonou, kterou kopie knihovny nemá → neutrální 404 (ne chyba serveru) */
+$S->store()->pdo()->exec("UPDATE studio_projects SET template = 'neexistuje' WHERE id = " . (int) $pid);
+t_eq($S->deliveryForToken($tok($L['url'])), null, 'neznámá šablona v bráně → žádný náhled (404), bez výjimky');

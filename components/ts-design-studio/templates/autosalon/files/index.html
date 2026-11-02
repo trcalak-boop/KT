@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="{{lang}}" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta name="color-scheme" content="dark light">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="p-index">
+<svg class="svg-defs" aria-hidden="true" focusable="false"><defs><linearGradient id="car-sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></linearGradient></defs></svg>
+<a class="skip" href="#main">Přeskočit na obsah</a>
+<div class="util">
+  <div class="wrap">
+    <span><i class="live"></i><span>{{open_text}}</span></span>
+    <span>{{address}} · <a href="{{phone_href}}"><b>{{phone}}</b></a></span>
+  </div>
+</div>
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="{{brand}} – úvod">{{logo_pre}}<svg class="lg-o" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="9"/><path d="M14.3 49.7A25 25 0 1 1 52.5 17.7" fill="none" stroke="var(--orange)" stroke-width="9"/><path d="M32 32 46 22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="32" r="4.5" fill="currentColor"/></svg>{{logo_post}} <small>{{logo_tag1}}<br>{{logo_tag2}}</small></a>
+    <nav class="menu" id="menu" aria-label="Hlavní menu"><a href="#vozy">Nabídka vozů</a><a href="#financovani">Financování</a><a href="#sluzby">Výkup a servis</a><a href="#kontakt">Kontakt</a><a href="{{cta_url}}" class="menu-cta">{{cta_label}}</a></nav>
+    <a href="{{cta_url}}" class="btn nav-cta">{{cta_label}}</a>
+    <button class="mode-btn" type="button" data-mode-btn aria-label="Přepnout režim"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="tag">{{hero_tag}}</span>
+        <h1>{{hero_title}} <span class="o">{{hero_em}}<span class="dot">.</span></span></h1>
+        <p class="hero-lead">{{hero_lead}}</p>
+        <div class="hero-cta">
+          <a href="#vozy" class="btn">{{hero_btn1}} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a href="#financovani" class="btn btn--line">{{hero_btn2}}</a>
+        </div>
+        <div class="gauges">{{#gauges}}<div><b>{{value}}</b><span>{{label}}</span></div>{{/gauges}}</div>
+      </div>
+      <a class="stage" href="#vozy" aria-label="{{hero_car_label}}">
+        <div class="streaks" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="glow" aria-hidden="true"></div>
+        <div class="floor" aria-hidden="true"></div>
+        <div class="hero-car"><svg viewBox="0 0 410 150" role="img" aria-label="{{hero_car_label}}"><ellipse cx="206" cy="138" rx="186" ry="7" fill="rgba(10,22,40,.28)"/><path d="M18 116V92q2-14 26-18l68-8q34-28 84-32h66q30 2 60 28l44 8q24 4 26 22v24h-46a34 34 0 0 0-68 0H140a34 34 0 0 0-68 0Z" fill="{{hero_car_color}}"/><path d="M18 116V92q2-14 26-18l68-8q34-28 84-32h66q30 2 60 28l44 8q24 4 26 22v24h-46a34 34 0 0 0-68 0H140a34 34 0 0 0-68 0Z" fill="url(#car-sh)"/><path d="M128 66q24-20 66-24h30v24Zm108-24h24q24 2 46 22l-70 2Z" fill="#1d2a3c" opacity=".92"/><path d="M40 88H380" stroke="rgba(255,255,255,.35)" stroke-width="2"/><rect x="376" y="84" width="16" height="7" rx="3" fill="#FFE2B8"/><rect x="18" y="86" width="12" height="6" rx="2" fill="#E0301E"/><circle cx="106" cy="116" r="27" fill="#15181d"/><circle cx="106" cy="116" r="14.85" fill="#B8C2CE"/><circle cx="106" cy="116" r="5.4" fill="#6B7684"/><line x1="111.9" y1="116" x2="120" y2="116" stroke="#6B7684" stroke-width="3"/><line x1="107.8" y1="121.6" x2="110.3" y2="129.4" stroke="#6B7684" stroke-width="3"/><line x1="101.2" y1="119.5" x2="94.6" y2="124.3" stroke="#6B7684" stroke-width="3"/><line x1="101.2" y1="112.5" x2="94.6" y2="107.7" stroke="#6B7684" stroke-width="3"/><line x1="107.8" y1="110.4" x2="110.3" y2="102.6" stroke="#6B7684" stroke-width="3"/><circle cx="312" cy="116" r="27" fill="#15181d"/><circle cx="312" cy="116" r="14.85" fill="#B8C2CE"/><circle cx="312" cy="116" r="5.4" fill="#6B7684"/><line x1="317.9" y1="116" x2="326" y2="116" stroke="#6B7684" stroke-width="3"/><line x1="313.8" y1="121.6" x2="316.3" y2="129.4" stroke="#6B7684" stroke-width="3"/><line x1="307.2" y1="119.5" x2="300.6" y2="124.3" stroke="#6B7684" stroke-width="3"/><line x1="307.2" y1="112.5" x2="300.6" y2="107.7" stroke="#6B7684" stroke-width="3"/><line x1="313.8" y1="110.4" x2="316.3" y2="102.6" stroke="#6B7684" stroke-width="3"/></svg></div>
+        <div class="price-tag"><small>{{hero_car_label}}</small><b>{{hero_car_price}}</b><span>{{hero_car_note}}</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+<div class="after-search"></div>
+
+<div class="wrap">
+  <div class="usp">{{#usp}}<div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg><p><b>{{title}}</b><span>{{text}}</span></p></div>{{/usp}}</div>
+</div>
+
+<section class="sec" id="vozy" style="padding-top:clamp(1rem,3vw,2rem)">
+  <div class="wrap">
+    <div class="head">
+      <div><span class="tag">{{cars_tag}}</span><h2>{{cars_title}}</h2></div>
+      <p>{{cars_text}}</p>
+    </div>
+    <div class="cars">{{#cars}}<article class="car-card"><div class="car-pic"><div class="plate">{{#badge}}<span class="badge o">{{badge}}</span>{{/badge}}</div><svg viewBox="0 0 410 150" aria-hidden="true"><ellipse cx="206" cy="138" rx="186" ry="7" fill="rgba(10,22,40,.28)"/><path d="M18 116V92q2-14 26-18l68-8q34-28 84-32h66q30 2 60 28l44 8q24 4 26 22v24h-46a34 34 0 0 0-68 0H140a34 34 0 0 0-68 0Z" fill="{{color}}"/><path d="M18 116V92q2-14 26-18l68-8q34-28 84-32h66q30 2 60 28l44 8q24 4 26 22v24h-46a34 34 0 0 0-68 0H140a34 34 0 0 0-68 0Z" fill="url(#car-sh)"/><path d="M128 66q24-20 66-24h30v24Zm108-24h24q24 2 46 22l-70 2Z" fill="#1d2a3c" opacity=".92"/><path d="M40 88H380" stroke="rgba(255,255,255,.35)" stroke-width="2"/><rect x="376" y="84" width="16" height="7" rx="3" fill="#FFE2B8"/><rect x="18" y="86" width="12" height="6" rx="2" fill="#E0301E"/><circle cx="106" cy="116" r="27" fill="#15181d"/><circle cx="106" cy="116" r="14.85" fill="#B8C2CE"/><circle cx="106" cy="116" r="5.4" fill="#6B7684"/><line x1="111.9" y1="116" x2="120" y2="116" stroke="#6B7684" stroke-width="3"/><line x1="107.8" y1="121.6" x2="110.3" y2="129.4" stroke="#6B7684" stroke-width="3"/><line x1="101.2" y1="119.5" x2="94.6" y2="124.3" stroke="#6B7684" stroke-width="3"/><line x1="101.2" y1="112.5" x2="94.6" y2="107.7" stroke="#6B7684" stroke-width="3"/><line x1="107.8" y1="110.4" x2="110.3" y2="102.6" stroke="#6B7684" stroke-width="3"/><circle cx="312" cy="116" r="27" fill="#15181d"/><circle cx="312" cy="116" r="14.85" fill="#B8C2CE"/><circle cx="312" cy="116" r="5.4" fill="#6B7684"/><line x1="317.9" y1="116" x2="326" y2="116" stroke="#6B7684" stroke-width="3"/><line x1="313.8" y1="121.6" x2="316.3" y2="129.4" stroke="#6B7684" stroke-width="3"/><line x1="307.2" y1="119.5" x2="300.6" y2="124.3" stroke="#6B7684" stroke-width="3"/><line x1="307.2" y1="112.5" x2="300.6" y2="107.7" stroke="#6B7684" stroke-width="3"/><line x1="313.8" y1="110.4" x2="316.3" y2="102.6" stroke="#6B7684" stroke-width="3"/></svg></div><div class="car-body"><h3><span class="car-link">{{name}}</span><small>{{sub}}</small></h3><dl class="specs"><div><dt>Rok</dt><dd>{{year}}</dd></div><div><dt>Najeto</dt><dd>{{km}}</dd></div><div><dt>Výkon</dt><dd>{{power}}</dd></div><div><dt>Palivo</dt><dd>{{fuel}}</dd></div></dl><div class="price-row"><p class="price">{{price}}<small>{{note}}</small></p><a class="btn btn--dark" href="{{cta_url}}">Detail</a></div></div></article>{{/cars}}</div>
+    <div class="more-row"><a class="btn btn--dark" href="{{phone_href}}">{{cars_more}}</a></div>
+  </div>
+</section>
+
+<section class="sec cats-sec">
+  <div class="wrap">
+    <div class="head">
+      <div><span class="tag">{{cats_tag}}</span><h2>{{cats_title}}</h2></div>
+      <p>{{cats_text}}</p>
+    </div>
+    <div class="cats">{{#cats}}<a class="cat" href="#vozy"><span class="cat-pic"><svg viewBox="0 0 410 150" aria-hidden="true"><ellipse cx="206" cy="138" rx="186" ry="7" fill="rgba(10,22,40,.28)"/><path d="M18 116V92q2-14 26-18l68-8q34-28 84-32h66q30 2 60 28l44 8q24 4 26 22v24h-46a34 34 0 0 0-68 0H140a34 34 0 0 0-68 0Z" fill="#9aa0a8"/><path d="M18 116V92q2-14 26-18l68-8q34-28 84-32h66q30 2 60 28l44 8q24 4 26 22v24h-46a34 34 0 0 0-68 0H140a34 34 0 0 0-68 0Z" fill="url(#car-sh)"/><path d="M128 66q24-20 66-24h30v24Zm108-24h24q24 2 46 22l-70 2Z" fill="#1d2a3c" opacity=".92"/><path d="M40 88H380" stroke="rgba(255,255,255,.35)" stroke-width="2"/><rect x="376" y="84" width="16" height="7" rx="3" fill="#FFE2B8"/><rect x="18" y="86" width="12" height="6" rx="2" fill="#E0301E"/><circle cx="106" cy="116" r="27" fill="#15181d"/><circle cx="106" cy="116" r="14.85" fill="#B8C2CE"/><circle cx="106" cy="116" r="5.4" fill="#6B7684"/><line x1="111.9" y1="116" x2="120" y2="116" stroke="#6B7684" stroke-width="3"/><line x1="107.8" y1="121.6" x2="110.3" y2="129.4" stroke="#6B7684" stroke-width="3"/><line x1="101.2" y1="119.5" x2="94.6" y2="124.3" stroke="#6B7684" stroke-width="3"/><line x1="101.2" y1="112.5" x2="94.6" y2="107.7" stroke="#6B7684" stroke-width="3"/><line x1="107.8" y1="110.4" x2="110.3" y2="102.6" stroke="#6B7684" stroke-width="3"/><circle cx="312" cy="116" r="27" fill="#15181d"/><circle cx="312" cy="116" r="14.85" fill="#B8C2CE"/><circle cx="312" cy="116" r="5.4" fill="#6B7684"/><line x1="317.9" y1="116" x2="326" y2="116" stroke="#6B7684" stroke-width="3"/><line x1="313.8" y1="121.6" x2="316.3" y2="129.4" stroke="#6B7684" stroke-width="3"/><line x1="307.2" y1="119.5" x2="300.6" y2="124.3" stroke="#6B7684" stroke-width="3"/><line x1="307.2" y1="112.5" x2="300.6" y2="107.7" stroke="#6B7684" stroke-width="3"/><line x1="313.8" y1="110.4" x2="316.3" y2="102.6" stroke="#6B7684" stroke-width="3"/></svg></span><b>{{label}}</b><span>{{count}}</span></a>{{/cats}}</div>
+  </div>
+</section>
+
+<section class="sec finance fin-teaser" id="financovani">
+  <div class="wrap">
+    <div class="fin-t">
+      <div>
+        <span class="tag">{{fin_tag}}</span>
+        <h2 class="big-h">{{fin_title}} <span>{{fin_em}}</span> {{fin_title_end}}</h2>
+        <p class="fin-t-lead">{{fin_text}}</p>
+        <div class="hero-cta"><a class="btn" href="{{phone_href}}">{{fin_btn1}}</a><a class="btn btn--line" href="#sluzby">{{fin_btn2}}</a></div>
+      </div>
+      <ol class="fin-steps">{{#fin_steps}}<li><b>{{title}}</b><span>{{text}}</span></li>{{/fin_steps}}</ol>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="sluzby">
+  <div class="wrap">
+    <div class="head">
+      <div><span class="tag">{{svc_tag}}</span><h2>{{svc_title}}</h2></div>
+      <p>{{svc_text}}</p>
+    </div>
+    <div class="svc">{{#services}}<article><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div><h3>{{title}}</h3><p>{{text}}</p><a class="big" href="#kontakt">{{link}}</a></article>{{/services}}</div>
+  </div>
+</section>
+
+<section class="sec reviews">
+  <div class="wrap">
+    <div class="rev-top">
+      <span class="score">{{rating}}</span>
+      <div><div class="stars" aria-label="5 hvězdiček z 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg></div><p>{{rating_note}}</p></div>
+    </div>
+    <div class="rev-grid">{{#reviews}}<article class="rev"><div class="stars" aria-label="5 hvězdiček z 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8Z" fill="currentColor"/></svg></div><p>{{text}}</p><footer><i>{{initials}}</i><div><b>{{name}}</b><span>{{car}}</span></div></footer></article>{{/reviews}}</div>
+  </div>
+</section>
+
+<section class="sec drive drive-band" id="jizda">
+  <div class="wrap">
+    <div class="band">
+      <div><span class="tag">{{drive_tag}}</span><h2 class="big-h">{{drive_title}}</h2><p>{{drive_text}}</p></div>
+      <div class="band-cta"><a class="btn" href="{{phone_href}}">{{cta_label}}</a>{{#drive_note}}<span class="band-note">{{drive_note}}</span>{{/drive_note}}</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site" id="kontakt">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="logo" href="#top">{{logo_pre}}<svg class="lg-o" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="9"/><path d="M14.3 49.7A25 25 0 1 1 52.5 17.7" fill="none" stroke="var(--orange)" stroke-width="9"/><path d="M32 32 46 22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="32" r="4.5" fill="currentColor"/></svg>{{logo_post}}</a>
+        <p>{{foot_text}}</p>
+        {{#rating}}<p class="foot-rate"><b>{{rating}}</b> z 5</p>{{/rating}}
+      </div>
+      <nav class="foot-col" aria-label="Patička – stránka"><b>Na stránce</b><a href="#vozy">Nabídka vozů</a><a href="#financovani">Financování</a><a href="#sluzby">Výkup a servis</a><a href="#kontakt">Kontakt</a></nav>
+      <div class="foot-col"><b>Showroom</b><span>{{address}}</span><a href="{{phone_href}}">{{phone}}</a><a href="mailto:{{email}}">{{email}}</a><span class="foot-hours">{{hours_line}}</span></div>
+    </div>
+    <div class="foot-bottom"><span>{{company}}</span></div>
+  </div>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

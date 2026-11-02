@@ -137,3 +137,14 @@ t_ok(TsStudioAi::aiCss($S->version($pid, $t['num'], 1)['files']['assets/styles.c
 t_ok(in_array('version.ai', array_column($S->get($pid, 1)['log'], 'action'), true), 'záznam akce version.ai');
 
 
+
+/* --- 0.5.2: chyby Cloudflare – kvóta ≠ přetížení (dříve každá 429 = „limit vyčerpán“) --- */
+$C = fn ($code, $body) => TsStudioCloudflareModel::classify($code, json_encode($body));
+t_eq($C(429, ['success' => false, 'errors' => [['code' => 4006, 'message' => 'you have used up your daily free allocation of 10,000 neurons, please upgrade']]])[0], 'limit', '4006 / daily free allocation → limit (kvóta)');
+[$k, $d] = $C(429, ['success' => false, 'errors' => [['code' => 3040, 'message' => 'Capacity temporarily exceeded, please try again.']]]);
+t_ok($k === 'busy' && strpos($d, '3040') !== false && strpos($d, 'Capacity temporarily exceeded') !== false, '3040 / Capacity temporarily exceeded → busy s textem od Cloudflare', $d);
+t_eq($C(429, ['errors' => [['code' => 0, 'message' => 'Too many requests']]])[0], 'busy', 'jiná 429 (omezení rychlosti) → busy, ne kvóta');
+t_eq(TsStudioCloudflareModel::classify(429, '')[0], 'busy', '429 bez těla → busy');
+t_eq($C(403, ['errors' => [['code' => 10000, 'message' => 'Authentication error']]])[0], 'auth', '403 → auth');
+t_eq($C(503, ['errors' => [['code' => 0, 'message' => 'upstream']]])[0], 'busy', '5xx → busy (dočasné)');
+t_eq($C(400, ['errors' => [['code' => 5006, 'message' => 'Invalid input']]])[0], 'request', '400 → request');

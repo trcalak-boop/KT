@@ -25,7 +25,10 @@
   function errText(j) {
     if (!j) return 'chyba spojení';
     if (j.error === 'checks') return 'verze má chyby kontrol: ' + j.errors.map(function (e) { return e.msg; }).join('; ');
-    if (j.error === 'ai') return { limit: 'denní limit AI je vyčerpaný', disabled: 'AI není nastavená', auth: 'chybí oprávnění k modelu', timeout: 'model neodpověděl včas', format: 'model nevrátil platnou odpověď' }[j.kind] || ('AI: ' + (j.detail || j.kind));
+    if (j.error === 'ai') {
+      var t = { limit: 'denní kvóta AI je vyčerpaná', busy: 'model AI je teď přetížený – zkuste to za chvíli', disabled: 'AI není nastavená', auth: 'chybí oprávnění k modelu', timeout: 'model neodpověděl včas', connection: 'nepodařilo se spojit s modelem', format: 'model nevrátil platnou odpověď' }[j.kind] || 'AI: chyba';
+      return t + (j.detail && j.kind !== 'disabled' ? ' (' + j.detail + ')' : '');
+    }
     if (j.error === 'denied') return 'nemáte oprávnění';
     if (j.error === 'csrf') return 'platnost stránky vypršela – načtěte ji znovu';
     if (j.error === 'disabled') return 'Studio je vypnuté';

@@ -180,7 +180,8 @@ trait TsStudioDeliveryOps
         if (!$d || !$this->deliveryActive($d) || !hash_equals($this->tokenOf($d), $token)) return null;
         $p = $this->store->project((int) $d['project_id']); $v = $this->store->version((int) $d['project_id'], (int) $d['num']);
         if (!$p || !$v) return null;
-        return ['delivery' => $d, 'project' => $p, 'version' => $v, 'template' => $this->template($p['template'])];
+        try { $t = $this->template($p['template']); } catch (InvalidArgumentException $e) { return null; }   /* šablona chybí (např. starší kopie knihovny v bráně) → neutrální 404 */
+        return ['delivery' => $d, 'project' => $p, 'version' => $v, 'template' => $t];
     }
     public function touchDelivery(array $d): void
     {

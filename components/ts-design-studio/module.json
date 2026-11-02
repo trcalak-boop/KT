@@ -1,6 +1,6 @@
 {
   "name": "ts-design-studio",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
@@ -18,7 +18,7 @@
         "from": "(nový kód; plán docs/ai/08-design-studio-plan.md)",
         "to": "core/TsDesignStudio.php",
         "mode": "new",
-        "sha256": "2c772d45b9868e3de376772c74cffe84e6e3daa6e1f481478f0110d70bdc1000"
+        "sha256": "29cb95d63e09c73b62d0e5bc1cfcc173c4f7b76874153efd64c6cbb2af51674a"
       },
       {
         "from": "web/ukazky/koren.html + koren/style.css (převod tools/sablona_restaurace.py)",
@@ -31,6 +31,12 @@
         "to": "templates/salon/template.json",
         "mode": "new",
         "sha256": "98a773d5bdced51ea6d1f37b186ea33c0455691d4568ed02b3dc2289522265f6"
+      },
+      {
+        "from": "web/ukazky/motoria.html + motoria/style.css (převod tools/sablona_autosalon.py)",
+        "to": "templates/autosalon/template.json",
+        "mode": "new",
+        "sha256": "42f0221461a07e5d5ca646418cf6970ad188b0364d2d5f4297266a74ed04887b"
       }
     ]
   },
@@ -75,20 +81,22 @@
   "works": [
     "74 testů bez sítě: šablonovací jazyk (vše escapované), čištění obsahu a tokenů (délky, adresy, e-mail, telefon, barvy), diff, kontroly HTML/CSS/JS a kontrastu, ZIP, verze (kandidát/přijatá/zamítnutá, návrat, úprava souborů), náhled s CSP, oprávnění, záznam akcí.",
     "54 testů AI vrstvy s falešným modelem: čtení JSON (i s textem okolo, useknutý), tokeny a písma, osnova stránky, zdroje zadání (lead, audit s označením práv), návrh bez faktů ze vzoru a s escapováním, ztmavení barev s nízkým kontrastem, ukotvení citátů/recenzí/jmen v zadání, dnešní datum a pravidla CSS v pokynech, výběr šablony modelem, opakování, chyby a denní strop, oprávnění, úpravy obsahu/tokenů/CSS v jedné verzi, cizí zdroj v CSS zablokuje přijetí, konverzace a spotřeba.",
+    "4 testy adaptéru Cloudflare proti napodobenině API: přetížení → opakování, záložní model s vlastním ceníkem, vyčerpaná kvóta bez opakování; 7 testů rozlišení chyb (4006 kvóta, 3040 přetížení, 429, 403, 5xx, 400).",
     "61 testů doručení a brány (včetně anonymizace po 24 měsících) (včetně skutečného TsMailer v testovacím režimu): příprava jen po interním schválení a pro přijatou verzi, neaktivní odkaz do odeslání, e-mail jen s opsanou adresou a klíčem idempotence (dvojí klik = jeden e-mail), vložené hlavičky odstraněny, ruční cesta a stažení zaznamenané, selhání SMTP, expirace, odvolání, role, brána (CSP, noindex, robots, průchod adresáři, binární soubory, blokace hádání tokenu bez IP v datech, jiný tajný klíč).",
     "63 testů HTTP API (doručení, role, CSRF, vypínač, lead z CRM): ochrana POST (původ, JSON, velikost), šablony, ruční projekt, verze a soubory, úprava obsahu a kódu, kontroly blokují přijetí, rozdíl, návrat, stav, náhled, export ZIP, úlohy AI jen pro stejného uživatele, strop a vypnutá AI hned, role jen pro prohlížení.",
     "42 kroků rozhraní v Chromu (včetně doručení: schválení, příprava, e-mail, potvrzovací okno, odkaz přes bránu, odvolání, role designer): seznam, projekt ze šablony, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev, přijetí, kód, rozdíl, kontroly, cizí skript zablokuje přijetí, zamítnutí, návrat, export, stav, návrh s AI z formuláře (lead), úprava v konverzaci, mobil.",
-    "Šablony restaurace (Kořen) a salon (Lokna): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku."
+    "Šablony restaurace (Kořen), salon (Lokna) a autosalon (Motoria): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku."
   ],
   "missingForProduction": [
     "Produkce (6.5b): nasazení do administrace tasstudio.eu (přihlášení a role z CRM, CSRF), data /private/studio, brána nahledy.tasstudio.eu na produkčních datech, SMTP bez redirectTo.",
     "Další šablony (6.6)."
   ],
   "tests": [
-    "tests/studio_test.php",
     "tests/ai_test.php",
     "tests/api_test.php",
+    "tests/cloudflare_test.py",
     "tests/delivery_test.php",
+    "tests/studio_test.php",
     "tests/ui_test.py"
   ],
   "api": "api/ts-design-studio.md",
