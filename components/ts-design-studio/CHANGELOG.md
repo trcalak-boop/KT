@@ -1,5 +1,10 @@
 # ts-design-studio – změny
 
+## 0.9.0 – 2026-11-06
+- Stavebnice sekcí pro návrhy na míru (etapa 6.7a, `kit/`, `TsStudioKit`): 21 typů sekcí ve 46 variantách včetně dílů pro školu (aktuality, jídelníček, dokumenty) a e-shop (katalog, vzorník), 4 tóny sekcí, jednotné tokeny (světlá i tmavá paleta, 15 rodin písem s licencí OFL, zaoblení, vzdušnost, velikost a styl nadpisů, tlačítka, dekor), 8 abstraktních ilustrací.
+- Z návrhového plánu vznikne statický web: neznámé typy, varianty a klíče se zahodí, obsah prochází schématem slotů (nově i typ `enum` a vnořené seznamy), kontrast se opraví automaticky, do projektu jdou jen použité sekce a písma, nadpisy se nedělí uprostřed slova.
+- Šablony beze změny. Napojení na model a administraci přijde v 6.7b a 6.7c.
+
 ## 0.8.0 – 2026-11-02
 - Nová šablona **kosmetika** (z ukázky Šalvěj): hero s ilustrací lahviček (štítky z obsahu), týdenní přehled otevírací doby s odkazy na rezervaci, ceník procedur, přípravky, kontakt a adresa. Písma Marcellus, Albert Sans a Azeret Mono (OFL), na výběr Bodoni Moda a Figtree; tmavý režim s vlastním akcentem v tokenech.
 

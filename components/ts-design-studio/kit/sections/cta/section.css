@@ -1,0 +1,4 @@
+.cx .head{margin-bottom:0}
+.s-cta--split .cx{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px clamp(24px,5vw,64px);align-items:center}
+.s-cta--split .actions{margin-top:0;justify-content:flex-end}
+@media (max-width:760px){.s-cta--split .actions{justify-content:flex-start}}

@@ -1,0 +1,3 @@
+{"type":"features","label":"Přednosti","use":"proč si vybrat právě vás, co dostanete, doprava a platba","default":"grid","head":true,"variants":{"grid":"karty ve třech sloupcích","numbered":"velká čísla pod sebou","checks":"krátké body s odškrtnutím"},
+"slots":{"items":{"type":"list","items":9,"fields":{"title":{"type":"text","max":60},"text":{"type":"text","max":200}}}},
+"sample":{"kicker":"Proč k nám","title":"Poctivě a bez zkratek","lead":"Tři věci, na kterých si dáváme záležet.","items":[{"title":"Kvas starý devět let","text":"Vedeme ho od otevření pekárny, žádné průmyslové droždí."},{"title":"Mouka z Moravy","text":"Dva rodinné mlýny do sta kilometrů od Brna."},{"title":"Pečeme na objednávku","text":"Co si objednáte do 18:00, máte ráno čerstvé."}]}}

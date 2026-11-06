@@ -1,0 +1,3 @@
+{"type":"notice","label":"Upozornění","use":"krátké aktuální sdělení nahoře (dovolená, zápis, akce)","default":"bar","variants":{"bar":"nenápadný pruh","alert":"výrazné upozornění (důležité, tísňové)"},
+"slots":{"label":{"type":"text","max":24},"text":{"type":"text","max":180},"link_label":{"type":"text","max":28},"link_url":{"type":"url"}},
+"sample":{"label":"Aktuálně","text":"Od 20. 12. do 2. 1. pečeme jen na objednávku. Vánočky objednávejte do 15. 12.","link_label":"Objednat","link_url":"#kontakt"}}

@@ -1,0 +1,3 @@
+{"type":"swatches","label":"Vzorník","use":"barvy, odstíny, materiály, povrchy","default":"strip","head":true,"variants":{"strip":"svislé pruhy vedle sebe","grid":"čtverce s popisem"},
+"slots":{"items":{"type":"list","items":10,"fields":{"color":{"type":"color"},"name":{"type":"text","max":30},"note":{"type":"text","max":50}}}},
+"sample":{"kicker":"Vzorník","title":"Odstíny kůrky","items":[{"color":"#e8c48a","name":"Světlá","note":"pšeničný"},{"color":"#c98f4e","name":"Zlatá","note":"bochník"},{"color":"#8f5a2b","name":"Tmavá","note":"žitný"},{"color":"#4c2d16","name":"Pražená","note":"kmínový"}]}}

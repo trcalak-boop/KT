@@ -1,0 +1,9 @@
+.rv{display:grid;gap:var(--gap)}
+.rv blockquote{margin:0}
+.rv figcaption{margin-top:12px;font-size:15px}
+.s-reviews--cards .rv{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.s-reviews--cards .rv-i{margin:0;background:var(--c-card);color:var(--c-card-ink);--c-muted:var(--c-card-muted);border-radius:var(--r);padding:clamp(18px,2vw,26px)}
+.tone-band.s-reviews--cards .rv-i,.tone-accent.s-reviews--cards .rv-i{border:1px solid var(--c-line)}
+.s-reviews--single .rv-i{margin:0}
+.s-reviews--single .rv-i+.rv-i{display:none}
+.s-reviews--single blockquote{font:var(--h-weight) calc(var(--h-scale) * clamp(24px,3.4vw,44px))/1.18 var(--f-display);letter-spacing:var(--h-track)}

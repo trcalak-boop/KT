@@ -48,16 +48,18 @@ final class TsStudioTemplate
 
     /* ---------- obsah a tokeny: kontrola proti schématu ---------- */
     /* → [vyčištěný obsah, chyby[]]; neznámé klíče se zahodí, chybějící doplní výchozí hodnota */
-    public function cleanContent(array $c): array
+    public function cleanContent(array $c): array { return self::cleanSlots($this->t['slots'], $this->t['content'], $c); }
+    /* stejné schéma používá i stavebnice sekcí (TsStudioKit) */
+    public static function cleanSlots(array $slots, array $defaults, array $c): array
     {
         $err = []; $out = [];
-        foreach ($this->t['slots'] as $k => $s) {
-            $v = array_key_exists($k, $c) ? $c[$k] : ($this->t['content'][$k] ?? ($s['type'] === 'list' ? [] : ''));
-            $out[$k] = $this->cleanValue($k, $s, $v, $err);
+        foreach ($slots as $k => $s) {
+            $v = array_key_exists($k, $c) ? $c[$k] : ($defaults[$k] ?? (($s['type'] ?? 'text') === 'list' ? [] : ''));
+            $out[$k] = self::cleanValue($k, $s, $v, $err);
         }
         return [$out, $err];
     }
-    private function cleanValue(string $k, array $s, $v, array &$err)
+    private static function cleanValue(string $k, array $s, $v, array &$err)
     {
         $type = $s['type'] ?? 'text';
         if ($type === 'list') {
@@ -66,7 +68,7 @@ final class TsStudioTemplate
             $rows = [];
             foreach (array_values($v) as $i => $row) {
                 if (!is_array($row)) { $err[] = "{$k}[{$i}]: má být objekt"; continue; }
-                $r = []; foreach ((array) ($s['fields'] ?? []) as $fk => $fs) $r[$fk] = $this->cleanValue("{$k}[{$i}].{$fk}", is_array($fs) ? $fs : ['type' => $fs], $row[$fk] ?? '', $err);
+                $r = []; foreach ((array) ($s['fields'] ?? []) as $fk => $fs) { $fs = is_array($fs) ? $fs : ['type' => $fs]; $r[$fk] = self::cleanValue("{$k}[{$i}].{$fk}", $fs, $row[$fk] ?? (($fs['type'] ?? 'text') === 'list' ? [] : ''), $err); }
                 $rows[] = $r;
             }
             return $rows;
@@ -81,6 +83,7 @@ final class TsStudioTemplate
         if ($type === 'email' && !filter_var($v, FILTER_VALIDATE_EMAIL)) { $err[] = "$k: neplatný e-mail"; return ''; }
         if ($type === 'phone' && !preg_match('/^\+?[\d ()-]{6,20}$/', $v)) { $err[] = "$k: neplatný telefon"; return ''; }
         if ($type === 'color' && !preg_match('/^#[0-9a-f]{6}$/i', $v)) { $err[] = "$k: barva má být ve tvaru #rrggbb"; return ''; }
+        if ($type === 'enum' && !in_array($v, (array) ($s['options'] ?? []), true)) { $err[] = "$k: hodnota mimo nabídku"; return ''; }
         return $v;
     }
     public function cleanTokens(array $tk): array

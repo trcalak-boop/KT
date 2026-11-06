@@ -1,0 +1,3 @@
+{"type":"rows","label":"Řádky údajů","use":"dodavatelé, parametry, přehled kroužků nebo tříd: tři údaje na řádek","default":"table","head":true,"variants":{"table":"tabulkové řádky s výrazným prvním údajem","cards":"malé karty"},
+"slots":{"items":{"type":"list","items":12,"fields":{"key":{"type":"text","max":16,"grounded":true},"name":{"type":"text","max":50},"text":{"type":"text","max":120}}}},
+"sample":{"kicker":"Odkud to máme","title":"Kdo nám dodává","items":[{"key":"38 km","name":"Mlýn Kroměříž","text":"žitná a pšeničná mouka"},{"key":"62 km","name":"Mlýn Hustopeče","text":"špaldová mouka"},{"key":"12 km","name":"Farma Lelekovice","text":"máslo a vejce"}]}}

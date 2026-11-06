@@ -1,0 +1,3 @@
+{"type":"news","label":"Aktuality","use":"novinky školy, obce, spolku, firmy","default":"list","head":true,"variants":{"list":"řádky s datem","cards":"karty s datem"},
+"slots":{"items":{"type":"list","items":8,"fields":{"date":{"type":"text","max":24,"grounded":true},"title":{"type":"text","max":80},"text":{"type":"text","max":200},"url":{"type":"url"}}},"more_label":{"type":"text","max":28},"more_url":{"type":"url"}},
+"sample":{"kicker":"Aktuálně","title":"Co je u nás nového","items":[{"date":"14. 10.","title":"Nový žitný s dýní","text":"Jen do konce listopadu, po pátcích.","url":""},{"date":"2. 10.","title":"Kurz pečení na podzim","text":"Vypsali jsme dva nové termíny.","url":"#kontakt"}]}}

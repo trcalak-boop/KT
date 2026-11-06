@@ -5,6 +5,7 @@
        'ai' => ['provider' => 'cloudflare', 'apiKeyFile' => '/…/private/cloudflare-token.txt', 'accountIdFile' => '/…/private/cloudflare-ucet.txt', 'neuronsPerDay' => 3000]]);
    ========================================================================== */
 require_once __DIR__ . '/TsStudioTemplate.php';
+require_once __DIR__ . '/TsStudioKit.php';
 require_once __DIR__ . '/TsStudioDiff.php';
 require_once __DIR__ . '/TsStudioChecks.php';
 require_once __DIR__ . '/TsStudioZip.php';

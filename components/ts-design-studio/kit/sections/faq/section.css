@@ -1,0 +1,6 @@
+.fq{max-width:860px}
+.fq-i{border-top:1px solid var(--c-line)}
+.fq-i summary{cursor:pointer;font-weight:700;padding-block:16px;font-size:18px;min-height:44px}
+.fq-i p{padding-bottom:16px}
+.fq-c{display:grid;gap:clamp(20px,3vw,34px) clamp(24px,4vw,56px);grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.fq-c dt{font-weight:700;font-size:18px;margin-bottom:6px}

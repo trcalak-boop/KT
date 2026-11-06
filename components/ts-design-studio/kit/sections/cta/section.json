@@ -1,0 +1,3 @@
+{"type":"cta","label":"Výzva k akci","use":"závěrečná nebo průběžná výzva: objednat, rezervovat, zapsat se","default":"band","head":true,"variants":{"band":"nadpis a tlačítko pod sebou","split":"nadpis vlevo, tlačítka vpravo"},
+"slots":{"cta_label":{"type":"text","max":28},"cta_url":{"type":"url"},"cta2_label":{"type":"text","max":28},"cta2_url":{"type":"url"}},
+"sample":{"kicker":"Zítra ráno","title":"Objednejte si chléb","title_em":"ještě dnes.","lead":"Do 18:00 stačí zavolat nebo napsat.","cta_label":"Objednat","cta_url":"#kontakt","cta2_label":"Zavolat","cta2_url":"tel:+420600000000"}}

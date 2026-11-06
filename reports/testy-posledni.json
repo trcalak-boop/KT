@@ -1,17 +1,53 @@
 {
-  "at": "2026-11-02T15:17:24",
-  "pass": 45,
+  "at": "2026-11-06T23:35:49",
+  "pass": 1020,
   "fail": 0,
   "files": [
     {
-      "file": "components/ts-analytics/tests/analytics_test.php",
-      "pass": 36,
+      "file": "components/ts-design-studio/tests/ai_test.php",
+      "pass": 61,
       "fail": 0,
       "log": []
     },
     {
-      "file": "components/ts-analytics/tests/browser_test.py",
-      "pass": 9,
+      "file": "components/ts-design-studio/tests/api_test.php",
+      "pass": 63,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/delivery_test.php",
+      "pass": 62,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/kit_test.php",
+      "pass": 319,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/studio_test.php",
+      "pass": 92,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/cloudflare_test.py",
+      "pass": 4,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/kit_browser_test.py",
+      "pass": 376,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/ui_test.py",
+      "pass": 43,
       "fail": 0,
       "log": []
     }

@@ -1,0 +1,3 @@
+{"type":"team","label":"Tým","use":"lidé za firmou; jen skuteční lidé z podkladů","default":"cards","head":true,"variants":{"cards":"karty s monogramem","list":"řádky jméno a role"},
+"slots":{"items":{"type":"list","items":9,"fields":{"initials":{"type":"text","max":3,"grounded":true},"name":{"type":"text","max":50,"grounded":true},"role":{"type":"text","max":60,"grounded":true},"text":{"type":"text","max":200}}}},
+"sample":{"kicker":"Kdo peče","title":"Malá dílna, dvě směny","items":[{"initials":"JN","name":"Jana Nováková","role":"pekařka a majitelka","text":"Kvas vede od prvního dne."},{"initials":"TB","name":"Tomáš Beran","role":"noční směna","text":"Hlídá pece, když všichni spí."}]}}

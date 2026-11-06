@@ -1,0 +1,335 @@
+{
+ "albert-sans": {
+  "family": "Albert Sans",
+  "kind": "sans",
+  "stack": "\"Albert Sans\",system-ui,-apple-system,\"Segoe UI\",sans-serif",
+  "note": "neutrální čisté",
+  "license": "Albert_Sans-OFL.txt",
+  "faces": [
+   {
+    "file": "albert-sans-acf30438.woff2",
+    "style": "normal",
+    "weight": "400 600",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "albert-sans-2260ced3.woff2",
+    "style": "normal",
+    "weight": "400 600",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "alegreya": {
+  "family": "Alegreya",
+  "kind": "serif",
+  "stack": "\"Alegreya\",Georgia,\"Times New Roman\",serif",
+  "note": "teplá knižní patka",
+  "license": "Alegreya-OFL.txt",
+  "faces": [
+   {
+    "file": "alegreya-2b6d4333.woff2",
+    "style": "italic",
+    "weight": "500",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "alegreya-214f3509.woff2",
+    "style": "italic",
+    "weight": "500",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   },
+   {
+    "file": "alegreya-34d902fd.woff2",
+    "style": "normal",
+    "weight": "500 800",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "alegreya-aab1eaa1.woff2",
+    "style": "normal",
+    "weight": "500 800",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "alegreya-sans": {
+  "family": "Alegreya Sans",
+  "kind": "sans",
+  "stack": "\"Alegreya Sans\",\"Gill Sans\",\"Trebuchet MS\",system-ui,sans-serif",
+  "note": "humanistické bezpatkové",
+  "license": "Alegreya_Sans-OFL.txt",
+  "faces": [
+   {
+    "file": "alegreya-sans-624ea7e8.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "alegreya-sans-d8bf25eb.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   },
+   {
+    "file": "alegreya-sans-1a2f3006.woff2",
+    "style": "normal",
+    "weight": "700",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "alegreya-sans-5c1cb227.woff2",
+    "style": "normal",
+    "weight": "700",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "atkinson-hyperlegible-next": {
+  "family": "Atkinson Hyperlegible Next",
+  "kind": "sans",
+  "stack": "\"Atkinson Hyperlegible Next\",system-ui,-apple-system,\"Segoe UI\",sans-serif",
+  "note": "nejlepší čitelnost, přístupnost",
+  "license": "Atkinson_Hyperlegible_Next-OFL.txt",
+  "faces": [
+   {
+    "file": "atkinson-hyperlegible-next-55246a59.woff2",
+    "style": "italic",
+    "weight": "400",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "atkinson-hyperlegible-next-e5c05bcb.woff2",
+    "style": "italic",
+    "weight": "400",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   },
+   {
+    "file": "atkinson-hyperlegible-next-1e4cea71.woff2",
+    "style": "normal",
+    "weight": "400 800",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "atkinson-hyperlegible-next-ca1969af.woff2",
+    "style": "normal",
+    "weight": "400 800",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "azeret-mono": {
+  "family": "Azeret Mono",
+  "kind": "mono",
+  "stack": "\"Azeret Mono\",ui-monospace,Menlo,Consolas,monospace",
+  "note": "neproporcionální široké",
+  "license": "Azeret_Mono-OFL.txt",
+  "faces": [
+   {
+    "file": "azeret-mono-7b540320.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "azeret-mono-28338086.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "bodoni-moda": {
+  "family": "Bodoni Moda",
+  "kind": "serif",
+  "stack": "\"Bodoni Moda\",Didot,Georgia,serif",
+  "note": "elegantní módní patka",
+  "license": "Bodoni_Moda-OFL.txt",
+  "faces": [
+   {
+    "file": "bodoni-moda-551fa3f0.woff2",
+    "style": "italic",
+    "weight": "400 600",
+    "unicodeRange": ""
+   },
+   {
+    "file": "bodoni-moda-cbe461e6.woff2",
+    "style": "normal",
+    "weight": "400 700",
+    "unicodeRange": ""
+   }
+  ]
+ },
+ "dm-serif-display": {
+  "family": "DM Serif Display",
+  "kind": "serif",
+  "stack": "\"DM Serif Display\",Georgia,\"Times New Roman\",serif",
+  "note": "kontrastní výrazná patka na nadpisy",
+  "license": "DM_Serif_Display-OFL.txt",
+  "faces": [
+   {
+    "file": "dm-serif-display-815fc75e.woff2",
+    "style": "italic",
+    "weight": "400",
+    "unicodeRange": ""
+   },
+   {
+    "file": "dm-serif-display-635c2257.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": ""
+   }
+  ]
+ },
+ "figtree": {
+  "family": "Figtree",
+  "kind": "sans",
+  "stack": "\"Figtree\",system-ui,-apple-system,\"Segoe UI\",sans-serif",
+  "note": "přívětivé, dobře čitelné",
+  "license": "Figtree-OFL.txt",
+  "faces": [
+   {
+    "file": "figtree-b07b8786.woff2",
+    "style": "normal",
+    "weight": "400 700",
+    "unicodeRange": ""
+   }
+  ]
+ },
+ "jetbrains-mono": {
+  "family": "JetBrains Mono",
+  "kind": "mono",
+  "stack": "\"JetBrains Mono\",ui-monospace,Menlo,Consolas,monospace",
+  "note": "neproporcionální čitelné",
+  "license": "JetBrains_Mono-OFL.txt",
+  "faces": [
+   {
+    "file": "jetbrains-mono-8eb936d6.woff2",
+    "style": "normal",
+    "weight": "400 500",
+    "unicodeRange": ""
+   }
+  ]
+ },
+ "marcellus": {
+  "family": "Marcellus",
+  "kind": "serif",
+  "stack": "\"Marcellus\",Georgia,\"Times New Roman\",serif",
+  "note": "klidná antikvová patka na nadpisy",
+  "license": "Marcellus-OFL.txt",
+  "faces": [
+   {
+    "file": "marcellus-be9d4883.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "marcellus-75505cec.woff2",
+    "style": "normal",
+    "weight": "400",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "outfit": {
+  "family": "Outfit",
+  "kind": "sans",
+  "stack": "\"Outfit\",system-ui,-apple-system,\"Segoe UI\",sans-serif",
+  "note": "přátelské geometrické",
+  "license": "Outfit-OFL.txt",
+  "faces": [
+   {
+    "file": "outfit-ec7f47b5.woff2",
+    "style": "normal",
+    "weight": "300 700",
+    "unicodeRange": ""
+   }
+  ]
+ },
+ "red-hat-mono": {
+  "family": "Red Hat Mono",
+  "kind": "mono",
+  "stack": "\"Red Hat Mono\",ui-monospace,Menlo,Consolas,monospace",
+  "note": "neproporcionální technické",
+  "license": "Red_Hat_Mono-OFL.txt",
+  "faces": [
+   {
+    "file": "red-hat-mono-9914ffa6.woff2",
+    "style": "normal",
+    "weight": "400 700",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "red-hat-mono-9ee1765f.woff2",
+    "style": "normal",
+    "weight": "400 700",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "saira": {
+  "family": "Saira",
+  "kind": "sans",
+  "stack": "\"Saira\",\"Arial Narrow\",system-ui,sans-serif",
+  "note": "technické, sportovní, úzké",
+  "license": "Saira-OFL.txt",
+  "faces": [
+   {
+    "file": "saira-e59235a4.woff2",
+    "style": "normal",
+    "weight": "400 800",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "saira-fc4013f9.woff2",
+    "style": "normal",
+    "weight": "400 800",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "sora": {
+  "family": "Sora",
+  "kind": "sans",
+  "stack": "\"Sora\",system-ui,-apple-system,\"Segoe UI\",sans-serif",
+  "note": "široké geometrické, moderní",
+  "license": "Sora-OFL.txt",
+  "faces": [
+   {
+    "file": "sora-d2909123.woff2",
+    "style": "normal",
+    "weight": "300 700",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "sora-df4fca18.woff2",
+    "style": "normal",
+    "weight": "300 700",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ },
+ "syne": {
+  "family": "Syne",
+  "kind": "display",
+  "stack": "\"Syne\",system-ui,-apple-system,\"Segoe UI\",sans-serif",
+  "note": "výrazné experimentální na nadpisy",
+  "license": "Syne-OFL.txt",
+  "faces": [
+   {
+    "file": "syne-c8b272fb.woff2",
+    "style": "normal",
+    "weight": "500 800",
+    "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+   },
+   {
+    "file": "syne-df1f8bf3.woff2",
+    "style": "normal",
+    "weight": "500 800",
+    "unicodeRange": "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"
+   }
+  ]
+ }
+}

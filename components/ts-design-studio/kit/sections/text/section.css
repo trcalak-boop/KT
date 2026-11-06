@@ -1,0 +1,5 @@
+.tx-b{display:grid;gap:14px;max-width:68ch;min-width:0}
+.tx .head{margin-bottom:0}
+.s-text--columns .tx{display:grid;gap:clamp(18px,4vw,64px);grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start}
+.s-text--lead .tx{display:grid;gap:clamp(18px,3vw,32px)}
+.s-text--lead .tx-b p:first-child{font-size:clamp(20px,2.2vw,28px);line-height:1.38}
