@@ -86,3 +86,9 @@ Brána: složka subdomény s `.htaccess` (`RewriteRule ^ index.php [L]`) a `inde
 ## Produkce (0.5.0)
 `new TsStudioApi($studio, ['uid', 'role', 'sender', 'jobsDir', 'allowedOrigins', 'csrf' => fn ($t) => hash_equals($_SESSION['csrf'], $t), 'enabled' => $cfg['enabled']])`; stránka: `TS_STUDIO_CONFIG = { api, csrf: '<token relace>' }`.
 Studio: `'leadBrief' => fn ($ref) => ['lead' => […], 'notes' => […]]`, `'leadLookup' => fn ($ref) => ['email', 'name']`, `'retentionMonths' => 24`.
+
+## Návrh na míru (stavebnice, od 0.10.0)
+PHP, zatím bez rozhraní v administraci (etapa 6.7c):
+- `$studio->kitCreate($zadani, $uid, ['source', 'lead_ref', 'audit_ref'], 1–3)` → `{ id, version, versions: [{ num, direction, checks, errors, todo, dropped, suspect, repaired, similarity, varied, notes }], failed }`. Projekt má `template = '_kit'`, `content` verze = plán `{ site, sections, css }`, `tokens` = tokeny stavebnice.
+- `$studio->aiEdit($pid, $uid, $pokyn)`: u projektu ze stavebnice operace nad plánem, vrací novou verzi ke schválení.
+- `new TsStudioKit()`: `clean($plan)`, `render($plan)`, `cleanCss($css, $sekce)`, `catalog()`.

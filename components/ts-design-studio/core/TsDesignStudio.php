@@ -11,7 +11,8 @@ final class TsDesignStudio
     use TsStudioDeliveryOps;   /* doručení klientovi – core/TsStudioDelivery.php */
     const SOURCES = ['new', 'redesign', 'crm'];
     const STATUS = ['draft', 'in_review', 'approved_internal', 'archived'];
-    private array $c; private TsStudioStore $store; private array $tpl = [];
+    const KIT = '_kit';     /* projekt ze stavebnice (návrh na míru): content = plán, tokens = tokeny stavebnice */
+    private array $c; private TsStudioStore $store; private array $tpl = []; private ?TsStudioKit $kit = null;
 
     public function __construct(array $c)
     {
@@ -28,8 +29,10 @@ final class TsDesignStudio
         if (!$this->tpl) $this->tpl = TsStudioTemplate::all($this->c['templatesDir']);
         return $this->tpl;
     }
+    public function kit(): TsStudioKit { return $this->kit ??= new TsStudioKit(); }
     public function template(string $id): TsStudioTemplate
     {
+        if ($id === self::KIT) { $k = $this->kit(); return TsStudioTemplate::virtual(['id' => self::KIT, 'name' => 'Návrh na míru'], $k->allFontPaths(), fn (string $p) => $k->fontBytes($p)); }
         $t = $this->templates()[$id] ?? null; if (!$t) throw new InvalidArgumentException('neznámá šablona ' . $id);
         return $t;
     }
@@ -47,6 +50,7 @@ final class TsDesignStudio
         $name = trim(mb_substr(preg_replace('/\s+/u', ' ', (string) ($p['name'] ?? '')), 0, 160));
         if ($name === '') throw new InvalidArgumentException('chybí název projektu');
         if (!in_array($p['source'] ?? '', self::SOURCES, true)) throw new InvalidArgumentException('zdroj projektu');
+        if (($p['template'] ?? '') === self::KIT) throw new InvalidArgumentException('návrh na míru vzniká jen ze zadání');
         $t = $this->template((string) ($p['template'] ?? ''));
         $pid = $this->store->createProject(['name' => $name, 'source' => $p['source'], 'template' => $t->id(), 'lead_ref' => mb_substr((string) ($p['lead_ref'] ?? ''), 0, 64),
             'audit_ref' => mb_substr((string) ($p['audit_ref'] ?? ''), 0, 64), 'owner_uid' => $uid, 'brief' => (array) ($p['brief'] ?? [])]);
@@ -72,7 +76,9 @@ final class TsDesignStudio
     /* nová verze vykreslená ze šablony (obsah + tokeny); vrací [num, checks, errors(obsahu/tokenů)] */
     public function renderVersion(int $pid, int $uid, array $content, array $tokens, string $message, string $authorKind = 'human'): array
     {
-        $p = $this->project($pid, $uid, 'edit'); $t = $this->template($p['template']);
+        $p = $this->project($pid, $uid, 'edit');
+        if ($p['template'] === self::KIT) return $this->renderKit($p, $uid, $content, $tokens, $message, $authorKind);
+        $t = $this->template($p['template']);
         [$c, $e1] = $t->cleanContent($content); [$tk, $e2] = $t->cleanTokens($tokens);
         $files = $t->render($c, $tk);
         /* vrstva úprav CSS (/*@ai*\/…) z aktuální verze přežije nové vykreslení; ostatní ruční úpravy souborů ne */
@@ -171,7 +177,9 @@ final class TsDesignStudio
     /* konverzační úprava aktuální verze: změny obsahu, tokenů a vrstvy CSS → jedna nová verze-kandidát (autor ai) */
     public function aiEdit(int $pid, int $uid, string $instruction): array
     {
-        $p = $this->project($pid, $uid, 'edit'); $t = $this->template($p['template']);
+        $p = $this->project($pid, $uid, 'edit');
+        if ($p['template'] === self::KIT) return $this->kitEdit($p, $uid, $instruction);
+        $t = $this->template($p['template']);
         $instruction = trim(mb_substr($instruction, 0, 1500)); if ($instruction === '') throw new InvalidArgumentException('prázdný pokyn');
         $base = $this->store->version($pid, (int) $p['current_num']); if (!$base) throw new InvalidArgumentException('projekt nemá přijatou verzi');
         $hist = $this->store->messages($pid, 6);
@@ -202,6 +210,108 @@ final class TsDesignStudio
         $this->store->addMessage($pid, $num, 0, 'assistant', $reply);
         return ['num' => $num, 'reply' => $reply, 'checks' => $checks, 'changed' => $changed, 'errors' => array_merge($e1, $e2), 'todo' => TsStudioAi::todo($c)];
     }
+    /* ---------- návrh na míru ze stavebnice ---------- */
+    private function renderKit(array $p, int $uid, array $plan, array $tokens, string $message, string $authorKind, string $kind = 'render'): array
+    {
+        $r = $this->kit()->render($plan + ['tokens' => $tokens]);
+        $checks = TsStudioChecks::run($r['files'], $this->template(self::KIT), []);
+        $clean = array_diff_key($r['plan'], ['tokens' => 1]);
+        $num = $this->store->addVersion((int) $p['id'], ['parent' => (int) $p['current_num'], 'kind' => $kind, 'uid' => $uid, 'author_kind' => $authorKind, 'message' => $message,
+            'files' => $r['files'], 'content' => $clean, 'tokens' => $r['plan']['tokens'], 'checks' => $checks]);
+        $this->store->log((int) $p['id'], $num, $uid, 'version.' . $kind, $message);
+        return ['num' => $num, 'checks' => $checks, 'errors' => $r['errors'], 'fixed' => $r['fixed']];
+    }
+    /* podpisy nedávných návrhů na míru (pro odlišnost) */
+    private function recentSignatures(int $limit = 8): array
+    {
+        $out = [];
+        foreach ($this->store->projects() as $x) {
+            if ($x['template'] !== self::KIT || !$x['current_num'] || count($out) >= $limit) continue;
+            $v = $this->store->version((int) $x['id'], (int) $x['current_num']);
+            if ($v && !empty($v['content']['sections'])) $out[] = TsStudioPlanner::signature($v['content'], $v['tokens']);
+        }
+        return $out;
+    }
+    private static function describe(array $s): string { return "písma {$s['display']} a {$s['body']}, akcent {$s['accent']}, sekce " . implode(', ', array_slice($s['layout'], 0, 6)); }
+    /* jeden plán od modelu → vyčištěný, ukotvený a opravený */
+    private function kitPlan(array $b, int $uid, string $direction, array $others): array
+    {
+        $kit = $this->kit();
+        $j = $this->ask(TsStudioPlanner::createPrompt($kit, $b, $direction, array_map([self::class, 'describe'], $others)), 'kit', 0, $uid, ['maxTokens' => 4000, 'temperature' => 0.7]);
+        $n = TsStudioPlanner::normalize($kit, $j);
+        $n['site'] += ['lang' => $b['lang']];
+        [$p, $errors] = $kit->clean($n);
+        [$p, $dropped, $suspect] = TsStudioPlanner::ground($kit, $p, TsStudioAi::briefSource($b));
+        [$p, $repaired] = TsStudioPlanner::repair($kit, $p, $b);
+        [$p, $tokens, $sim, $varied] = TsStudioPlanner::diversify($kit, $p, $p['tokens'], $others);
+        unset($p['tokens']);
+        return ['plan' => $p, 'tokens' => $tokens, 'errors' => $errors, 'dropped' => $dropped, 'suspect' => $suspect, 'repaired' => $repaired, 'similarity' => $sim, 'varied' => $varied, 'notes' => trim(mb_substr((string) ($j['notes'] ?? ''), 0, 600))];
+    }
+    /* zadání → projekt s 1 až 3 směry: první je přijatý, ostatní čekají jako návrhy verzí. Když model cestou selže, zůstanou hotové směry. */
+    public function kitCreate(array $brief, int $uid, array $p = [], int $directions = 1): array
+    {
+        $this->checkAi($uid); $b = TsStudioAi::cleanBrief($brief);
+        if ($b['name'] === '') throw new InvalidArgumentException('chybí název podniku');
+        $directions = max(1, min(3, $directions)); $others = $this->recentSignatures(); $pid = 0; $out = []; $failed = null;
+        for ($i = 0; $i < $directions; $i++) {
+            $dir = $directions > 1 ? TsStudioPlanner::DIRECTIONS[$i] : '';
+            try { $x = $this->kitPlan($b, $uid, $dir, $others); }
+            catch (TsStudioModelError $e) { if (!$pid) throw $e; $failed = $e->kind; break; }
+            if (!$pid) {
+                $pid = $this->store->createProject(['name' => $b['name'], 'source' => $p['source'] ?? ($b['audit'] ? 'redesign' : 'new'), 'template' => self::KIT, 'lead_ref' => mb_substr((string) ($p['lead_ref'] ?? ''), 0, 64), 'audit_ref' => mb_substr((string) ($p['audit_ref'] ?? ''), 0, 64), 'owner_uid' => $uid, 'brief' => $b]);
+                $this->store->log($pid, 0, $uid, 'project.create', ($p['source'] ?? 'new') . ' · návrh na míru');
+                $this->store->addMessage($pid, 0, $uid, 'user', "Zadání:\n" . TsStudioAi::briefText($b));
+            }
+            $proj = $this->store->project($pid);
+            $v = $this->renderKit($proj, $uid, $x['plan'], $x['tokens'], 'Návrh AI' . ($dir !== '' ? ' – směr ' . ($i + 1) . ': ' . explode(':', $dir)[0] : '') . ' (' . $this->modelName() . ')', 'ai', 'ai');
+            if ($i === 0 && !TsStudioChecks::errors($v['checks'])) $this->accept($pid, $v['num'], $uid);
+            $full = $this->store->version($pid, $v['num']); $todo = TsStudioAi::todo($full['content']);
+            $this->store->addMessage($pid, $v['num'], 0, 'assistant', self::kitNote($x, $v, $todo));
+            $others[] = TsStudioPlanner::signature($full['content'], $full['tokens']);
+            $out[] = ['num' => $v['num'], 'direction' => $dir, 'checks' => $v['checks'], 'errors' => array_merge($x['errors'], $v['errors']), 'todo' => $todo, 'dropped' => $x['dropped'], 'suspect' => $x['suspect'], 'repaired' => $x['repaired'], 'similarity' => $x['similarity'], 'varied' => $x['varied'], 'notes' => $x['notes']];
+        }
+        return ['id' => $pid, 'template' => self::KIT, 'version' => $out[0]['num'], 'versions' => $out, 'checks' => $out[0]['checks'], 'todo' => $out[0]['todo'], 'notes' => $out[0]['notes'], 'errors' => $out[0]['errors'], 'dropped' => $out[0]['dropped'], 'failed' => $failed, 'rights' => $b['rights']];
+    }
+    private static function kitNote(array $x, array $v, array $todo): string
+    {
+        return trim($x['notes']
+            . ($v['fixed'] ? "\nKvůli čitelnosti jsem upravila barvy: " . implode(', ', $v['fixed']) . '.' : '')
+            . ($x['dropped'] ? "\nÚdaje bez podkladu v zadání jsem nepoužila: " . implode(', ', array_slice($x['dropped'], 0, 12)) . '.' : '')
+            . ($x['suspect'] ? "\nOvěřte čísla ve volném textu: " . implode(', ', array_slice($x['suspect'], 0, 8)) . '.' : '')
+            . ($x['repaired'] ? "\nOpravy kostry: " . implode('; ', $x['repaired']) . '.' : '')
+            . ($x['varied'] ? "\nNávrh byl moc podobný dřívějšímu, změnila jsem rozvržení a tvary." : '')
+            . ($todo ? "\nK doplnění: " . implode(', ', array_slice($todo, 0, 12)) . '.' : ''));
+    }
+    private function kitEdit(array $p, int $uid, string $instruction): array
+    {
+        $pid = (int) $p['id']; $kit = $this->kit();
+        $instruction = trim(mb_substr($instruction, 0, 1500)); if ($instruction === '') throw new InvalidArgumentException('prázdný pokyn');
+        $base = $this->store->version($pid, (int) $p['current_num']); if (!$base) throw new InvalidArgumentException('projekt nemá přijatou verzi');
+        $hist = $this->store->messages($pid, 4);
+        $this->store->addMessage($pid, (int) $base['num'], $uid, 'user', $instruction);
+        $j = $this->ask(TsStudioPlanner::editPrompt($kit, $base['content'], $base['tokens'], $instruction, $hist), 'kit-edit', $pid, $uid, ['maxTokens' => 3000]);
+        $reply = trim(mb_substr((string) ($j['reply'] ?? ''), 0, 800));
+        [$plan, $changed] = TsStudioPlanner::applyEdit($kit, $base['content'], $j);
+        $dt = TsStudioPlanner::normalize($kit, ['tokens' => $j['tokens'] ?? []])['tokens'];
+        foreach ($dt as $k => $x) if (!isset($kit->kit['tokens'][$k]) || strtolower($x) === strtolower((string) ($base['tokens'][$k] ?? ''))) unset($dt[$k]);
+        if ($dt) $changed[] = 'tokeny: ' . implode(', ', array_keys($dt));
+        if (!$changed) { $this->store->addMessage($pid, (int) $base['num'], 0, 'assistant', $reply ?: 'Beze změny.'); return ['num' => null, 'reply' => $reply ?: 'Beze změny.', 'checks' => [], 'changed' => []]; }
+        $brief = TsStudioAi::cleanBrief((array) $p['brief']);
+        $source = TsStudioAi::briefSource($brief) . "\n" . $instruction . "\n" . json_encode($base['content'], JSON_UNESCAPED_UNICODE);
+        [$clean, $errors] = $kit->clean($plan + ['tokens' => $dt + $base['tokens']]);
+        [$clean, $dropped, $suspect] = TsStudioPlanner::ground($kit, $clean, $source);
+        [$clean, $repaired] = TsStudioPlanner::repair($kit, $clean, $brief);
+        $tokens = $clean['tokens']; unset($clean['tokens']);
+        $v = $this->renderKit($p, $uid, $clean, $tokens, 'AI: ' . mb_substr($instruction, 0, 200), 'ai', 'ai');
+        $full = $this->store->version($pid, $v['num']);
+        if ($full['files'] === $base['files']) { /* verze bez rozdílu se nenabízí */ $this->store->setVersionStatus($pid, $v['num'], 'rejected'); $this->store->addMessage($pid, (int) $base['num'], 0, 'assistant', $reply ?: 'Beze změny.'); return ['num' => null, 'reply' => $reply ?: 'Beze změny.', 'checks' => [], 'changed' => []]; }
+        $todo = TsStudioAi::todo($full['content']);
+        if ($dropped) $reply = trim($reply . ' Údaje bez podkladu jsem nepoužila: ' . implode(', ', array_slice($dropped, 0, 8)) . '.');
+        if ($repaired) $reply = trim($reply . ' ' . implode('; ', $repaired) . '.');
+        $this->store->addMessage($pid, $v['num'], 0, 'assistant', $reply);
+        return ['num' => $v['num'], 'reply' => $reply, 'checks' => $v['checks'], 'changed' => $changed, 'errors' => array_merge($errors, $v['errors']), 'todo' => $todo, 'dropped' => $dropped, 'suspect' => $suspect];
+    }
+
     public function hasAi(): bool { return ($this->c['ai']['model'] ?? null) instanceof TsStudioModel; }
     /* předběžná kontrola před spuštěním úlohy (oprávnění, nastavená AI, denní strop) – chyba se vrátí hned, ne až v úloze */
     public function checkAi(int $uid): void
@@ -256,6 +366,10 @@ final class TsDesignStudio
         $p = $this->project($pid, $uid, $act); $t = $this->template($p['template']); $v = $this->store->version($pid, $num);
         if (!$v) throw new InvalidArgumentException('verze neexistuje');
         $out = $v['files'];
+        if ($p['template'] === self::KIT) {
+            foreach ($this->kit()->binaryFor($v['tokens']) as $f => $src) if (!isset($out[$f])) $out[$f] = (string) file_get_contents($src);
+            ksort($out); return $out;
+        }
         foreach ($t->files() as $f) if (!$t->isText($f) && !isset($out[$f])) $out[$f] = $t->raw($f);
         ksort($out); return $out;
     }

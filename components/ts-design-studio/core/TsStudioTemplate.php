@@ -14,7 +14,7 @@
    ========================================================================== */
 final class TsStudioTemplate
 {
-    public array $t; public string $dir;
+    public array $t; public string $dir; private ?array $vfiles = null; private $vraw = null;
 
     public function __construct(string $dir)
     {
@@ -22,6 +22,13 @@ final class TsStudioTemplate
         $j = json_decode((string) @file_get_contents($this->dir . '/template.json'), true);
         if (!is_array($j) || empty($j['id']) || !is_dir($this->dir . '/files')) throw new InvalidArgumentException('šablona nejde načíst: ' . basename($dir));
         $this->t = $j + ['render' => [], 'tokens' => [], 'slots' => [], 'contrast' => [], 'content' => [], 'obor' => []];
+    }
+    /* šablona bez složky: návrh ze stavebnice (TsDesignStudio::KIT) – binární soubory dodává zdroj $raw */
+    public static function virtual(array $t, array $files, callable $raw): self
+    {
+        $o = (new ReflectionClass(self::class))->newInstanceWithoutConstructor();
+        $o->dir = ''; $o->t = $t + ['render' => [], 'tokens' => [], 'slots' => [], 'contrast' => [], 'content' => [], 'obor' => []]; $o->vfiles = $files; $o->vraw = $raw;
+        return $o;
     }
     public static function all(string $root): array
     {
@@ -34,6 +41,7 @@ final class TsStudioTemplate
     /* všechny soubory šablony (relativní cesty) */
     public function files(): array
     {
+        if ($this->vfiles !== null) return $this->vfiles;
         $base = $this->dir . '/files/'; $out = [];
         $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS));
         foreach ($it as $f) if ($f->isFile()) $out[] = substr($f->getPathname(), strlen($base));
@@ -43,6 +51,7 @@ final class TsStudioTemplate
     public function raw(string $path): string
     {
         if (strpos($path, '..') !== false) throw new InvalidArgumentException('cesta');
+        if ($this->vraw !== null) return (string) ($this->vraw)($path);
         return (string) file_get_contents($this->dir . '/files/' . $path);
     }
 

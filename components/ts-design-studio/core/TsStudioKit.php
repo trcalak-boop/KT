@@ -101,7 +101,55 @@ final class TsStudioKit
             $out[] = ['type' => $type, 'variant' => $variant, 'tone' => $tone, 'id' => $id, 'nav' => mb_substr(trim((string) ($s['nav'] ?? '')), 0, 24), 'content' => $c];
         }
         if (!$out) $err[] = 'sections: plán nemá žádnou sekci';
-        return [['site' => $site, 'tokens' => $tokens, 'sections' => $out], $err, $fixed];
+        foreach ($this->kit['siteDefaults'] as $k => $v) if (($site[$k] ?? '') === '') $site[$k] = $v;
+        [$css, $e] = $this->cleanCss((string) ($plan['css'] ?? ''), $out); foreach ($e as $x) $err[] = "css: $x";
+        return [['site' => $site, 'tokens' => $tokens, 'sections' => $out, 'css' => $css], $err, $fixed];
+    }
+
+    /* ---------- vlastní vrstva CSS ---------- */
+    const CSS_PROPS = ['font-size', 'font-weight', 'font-style', 'letter-spacing', 'line-height', 'text-align', 'text-transform', 'text-wrap', 'margin', 'margin-top', 'margin-bottom', 'margin-inline', 'padding', 'padding-block', 'padding-inline', 'padding-top', 'padding-bottom',
+        'gap', 'row-gap', 'column-gap', 'max-width', 'min-height', 'border-radius', 'border-width', 'border-top-width', 'border-bottom-width', 'grid-template-columns', 'align-items', 'justify-content', 'justify-items', 'order', 'aspect-ratio'];
+    /* jen vybrané vlastnosti a hodnoty (žádné barvy, url, skripty, pozice), selektor vždy uvnitř existující sekce; → [css, chyby] */
+    public function cleanCss(string $css, array $sections): array
+    {
+        if (trim($css) === '') return ['', []];
+        $err = []; $css = mb_substr((string) preg_replace('~/\*.*?\*/~s', '', $css), 0, 4000);
+        if (preg_match('/[<\\\\]/', $css)) { return ['', ['nepovolené znaky, vrstva zahozena']]; }
+        $ids = array_flip(array_column($sections, 'id')); $types = array_flip(array_column($sections, 'type'));
+        $selOk = function (string $sel) use ($ids, $types): bool {
+            if (!preg_match('/^(\.s-([a-z]+)(--[a-z]+)?|#([a-z0-9-]+))((\s+|\s*>\s*)[a-z0-9]*(\.[a-z0-9_-]+)*(:first-child|:last-child|:hover)?)*$/i', $sel, $m)) return false;
+            return ($m[2] ?? '') !== '' ? isset($types[$m[2]]) : isset($ids[$m[4] ?? '']);
+        };
+        $valOk = function (string $prop, string $v): bool {
+            if (preg_match('~url|expression|javascript|var\(|@|!important|["\']|#[0-9a-f]{3}|rgb|hsl~i', $v)) return false;
+            if (!preg_match('/^[a-z0-9 .,%()+*\/-]{1,120}$/i', $v)) return false;
+            if ($prop === 'font-size' || $prop === 'min-height') { preg_match_all('/([\d.]+)(px|rem|vw)/', $v, $m); foreach ($m[1] as $i => $n) { $px = $m[2][$i] === 'rem' ? $n * 16 : ($m[2][$i] === 'vw' ? $n * 13 : (float) $n); if ($px > ($prop === 'font-size' ? 200 : 800)) return false; } }
+            return true;
+        };
+        $rules = function (string $body) use ($selOk, $valOk, &$err): array {
+            $out = []; preg_match_all('/([^{}]+)\{([^{}]*)\}/', $body, $mm, PREG_SET_ORDER);
+            foreach ($mm as $m) {
+                $sels = array_values(array_filter(array_map('trim', explode(',', $m[1])), $selOk));
+                if (!$sels) { $err[] = 'selektor mimo sekci: ' . mb_substr(trim($m[1]), 0, 60); continue; }
+                $decl = [];
+                foreach (explode(';', $m[2]) as $d) {
+                    if (trim($d) === '') continue;
+                    [$k, $v] = array_pad(explode(':', $d, 2), 2, ''); $k = strtolower(trim($k)); $v = trim($v);
+                    if (in_array($k, self::CSS_PROPS, true) && $valOk($k, $v)) $decl[] = "$k:$v"; else $err[] = 'vlastnost: ' . mb_substr(trim($d), 0, 60);
+                }
+                if ($decl) $out[] = implode(',', $sels) . '{' . implode(';', $decl) . '}';
+            }
+            return $out;
+        };
+        $out = [];
+        $rest = preg_replace_callback('/@media\s*\(\s*(max|min)-width\s*:\s*(\d{3,4})px\s*\)\s*\{((?:[^{}]*\{[^{}]*\})*)\s*\}/i', function ($m) use ($rules, &$out) {
+            if ($r = $rules($m[3])) $out[] = '@media (' . strtolower($m[1]) . '-width:' . $m[2] . 'px){' . implode('', $r) . '}';
+            return '';
+        }, $css);
+        if (strpos((string) $rest, '@') !== false) { $err[] = 'zahozené at-pravidlo'; $rest = preg_replace('/@[^{;]*(\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}|;)/', '', (string) $rest); }
+        $out = array_merge($rules((string) $rest), $out);
+        if (count($out) > 40) { $out = array_slice($out, 0, 40); $err[] = 'nejvýš 40 pravidel'; }
+        return [implode("\n", $out), $err];
     }
 
     /* ---------- vykreslení ---------- */
@@ -120,12 +168,22 @@ final class TsStudioKit
         $footer = TsStudioTemplate::mustache((string) file_get_contents($this->dir . '/footer.html'), $site);
         $head = TsStudioTemplate::mustache('<!doctype html>
 <html lang="{{lang}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{title}}</title><meta name="description" content="{{description}}"><meta name="robots" content="noindex,nofollow">
+<title>{{title}}</title><meta name="description" content="{{description}}">
 <link rel="stylesheet" href="assets/site.css"><script src="assets/app.js" defer></script></head>
 ', $site);
         $html = $head . '<body class="' . implode(' ', $cls) . '"><a class="skip" href="#obsah">' . htmlspecialchars((string) ($this->kit['skip'][$site['lang']] ?? 'Skip'), ENT_QUOTES) . "</a>\n" . $header . "\n<main id=\"obsah\">\n" . $body . "</main>\n" . $footer . "\n</body></html>\n";
         [$css, $bin] = $this->css($t, $types);
+        if ($p['css'] !== '') $css = TsStudioAi::withAiCss($css, $p['css']);
         return ['files' => ['index.html' => $html, 'assets/site.css' => $css, 'assets/app.js' => (string) file_get_contents($this->dir . '/app.js')], 'binary' => $bin, 'plan' => $p, 'errors' => $errors, 'fixed' => $fixed];
+    }
+    /* binární soubory návrhu podle tokenů (písma a licence) */
+    public function binaryFor(array $tokens): array { [$t] = $this->cleanTokens($tokens); return $this->css($t, [])[1]; }
+    /* všechna písma stavebnice jako soubory projektu – pro bránu náhledů */
+    public function allFontPaths(): array { return array_map(fn ($f) => 'assets/fonts/' . basename($f), array_values(array_filter(glob($this->dir . '/fonts/*') ?: [], fn ($f) => !str_ends_with($f, '.json')))); }
+    public function fontBytes(string $path): string
+    {
+        $f = $this->dir . '/fonts/' . basename($path);
+        return str_starts_with($path, 'assets/fonts/') && is_file($f) ? (string) file_get_contents($f) : '';
     }
     private function section(array $s): string
     {

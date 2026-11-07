@@ -4,7 +4,7 @@
  "skip": {"cs": "Přeskočit na obsah", "en": "Skip to content", "de": "Zum Inhalt", "sk": "Preskočiť na obsah", "pl": "Przejdź do treści"},
  "siteDefaults": {"lang": "cs", "header": "bar", "footer": "columns"},
  "siteSlots": {
-  "lang": {"type": "enum", "options": ["cs", "en", "de", "sk", "pl"], "label": "Jazyk webu"},
+  "lang": {"type": "enum", "options": ["cs", "sk", "en", "de", "pl", "es", "fr", "it", "nl", "pt", "uk", "ru"], "label": "Jazyk webu"},
   "brand": {"type": "text", "max": 40, "label": "Název firmy"},
   "tagline": {"type": "text", "max": 80, "label": "Krátký popis pod názvem"},
   "title": {"type": "text", "max": 70, "label": "Titulek stránky"},

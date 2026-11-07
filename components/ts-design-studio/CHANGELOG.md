@@ -1,5 +1,14 @@
 # ts-design-studio – změny
 
+## 0.10.0 – 2026-11-07
+- Návrh na míru (etapa 6.7b, `TsStudioPlanner`, `TsDesignStudio::kitCreate`): model ze zadání navrhne strukturu, varianty, paletu, písma a texty jako JSON plán; nikdy HTML. Jeden až tři směry: první je přijatý, ostatní k výběru; když model cestou selže, hotové směry zůstanou.
+- Fakta jen ze zadání včetně čísel: vymyšlené kontakty, ceny, časy a jména se zahodí, recenze, citáty a čísla bez podkladu zmizí se sekcí; čísla ve volném textu se hlásí k ověření.
+- Kostra webu: vždy úvod a kontakt, kotvy jen na existující sekce, prázdné sekce pryč, menu se doplní.
+- Vlastní vrstva CSS jen vyčištěná: selektor uvnitř sekce návrhu, povolené vlastnosti, žádné barvy, url(), proměnné ani at-pravidla kromě @media.
+- Odlišnost: podobnost s dřívějšími návrhy a ostatními směry; příliš podobný návrh dostane jiné rozvržení a tvary bez dalšího dotazu na model.
+- Připomínky (`aiEdit`): operace nad plánem (změnit, přidat, odebrat, přesunout sekci, tokeny, údaje webu), vždy nová verze ke schválení.
+- Zadání má nově cíle webu, co se klientovi líbí a nelíbí. Export ze stavebnice už nemá noindex (náhledy chrání brána). Šablony fungují beze změny.
+
 ## 0.9.0 – 2026-11-06
 - Stavebnice sekcí pro návrhy na míru (etapa 6.7a, `kit/`, `TsStudioKit`): 21 typů sekcí ve 46 variantách včetně dílů pro školu (aktuality, jídelníček, dokumenty) a e-shop (katalog, vzorník), 4 tóny sekcí, jednotné tokeny (světlá i tmavá paleta, 15 rodin písem s licencí OFL, zaoblení, vzdušnost, velikost a styl nadpisů, tlačítka, dekor), 8 abstraktních ilustrací.
 - Z návrhového plánu vznikne statický web: neznámé typy, varianty a klíče se zahodí, obsah prochází schématem slotů (nově i typ `enum` a vnořené seznamy), kontrast se opraví automaticky, do projektu jdou jen použité sekce a písma, nadpisy se nedělí uprostřed slova.

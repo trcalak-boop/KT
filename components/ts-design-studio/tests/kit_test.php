@@ -34,7 +34,7 @@ foreach ($S as $t => $d) {
     ['type' => 'hero', 'id' => 'hero', 'content' => []], 'text']]);
 t_ok(count($p['sections']) === 2 && $p['sections'][0]['variant'] === 'split' && $p['sections'][0]['tone'] === 'base' && $p['sections'][0]['content']['art'] === '' && $p['sections'][0]['content']['cta_url'] === '' && !isset($p['sections'][0]['content']['neznamy']), 'neznámý typ, varianta, tón, ilustrace, adresa a klíč se zahodí', $p['sections']);
 t_ok($p['sections'][0]['id'] === 'hero' && $p['sections'][1]['id'] === 'hero-2', 'ID sekcí jsou jedinečná');
-t_ok($p['site']['lang'] === '' && $p['site']['email'] === '' && $p['site']['cta_url'] === '' && count($e) >= 6, 'chyby pro AI a uživatele', $e);
+t_ok($p['site']['lang'] === 'cs' && $p['site']['email'] === '' && $p['site']['cta_url'] === '' && count($e) >= 6, 'chyby pro AI a uživatele', $e);
 [, $e] = $k->clean(['sections' => []]); t_ok(in_array('sections: plán nemá žádnou sekci', $e, true), 'prázdný plán se nahlásí');
 [$p, $e] = $k->clean(['sections' => array_fill(0, 30, ['type' => 'text'])]); t_ok(count($p['sections']) === 16, 'nejvýš 16 sekcí');
 
@@ -64,7 +64,7 @@ t_ok(!array_filter($r['binary'], fn ($src) => !is_file($src)), 'soubory písem e
 preg_match_all('~url\("fonts/([^"]+)"\)~', $css, $m);
 t_ok($m[1] && !array_diff(array_map(fn ($f) => 'assets/fonts/' . $f, $m[1]), array_keys($r['binary'])), 'každé @font-face má svůj soubor');
 foreach ($k->fonts as $id => $f) t_ok(is_file($k->dir . '/fonts/' . $f['license']) && $f['faces'] && !array_filter($f['faces'], fn ($x) => !is_file($k->dir . '/fonts/' . $x['file'])), "písmo $id: soubory a licence");
-t_ok(strpos($r['files']['index.html'], 'lang="cs"') !== false && strpos($r['files']['index.html'], 'noindex') !== false, 'jazyk a noindex návrhu');
+t_ok(strpos($r['files']['index.html'], 'lang="cs"') !== false && strpos($r['files']['index.html'], 'noindex') === false, 'jazyk; export bez noindex (náhledy chrání brána)');
 t_ok(!preg_match('~\b(localStorage|sessionStorage|fetch|XMLHttpRequest|document\.cookie)\b~', $r['files']['assets/app.js']), 'skript webu bez úložiště a sítě');
 t_eq(array_values(array_map(fn ($x) => $x['code'], TsStudioChecks::run($r['files']))), [], 'celý web bez nálezu kontrol');
 

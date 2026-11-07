@@ -8,7 +8,7 @@
 final class TsStudioAi
 {
     const TODO = '[doplnit]';
-    const BRIEF = ['name' => 160, 'obor' => 80, 'audience' => 300, 'style' => 300, 'services' => 1200, 'facts' => 2000, 'texts' => 6000, 'notes' => 1000, 'lang' => 5, 'template' => 40];
+    const BRIEF = ['name' => 160, 'obor' => 80, 'goals' => 400, 'audience' => 300, 'likes' => 400, 'dislikes' => 400, 'style' => 300, 'services' => 1200, 'facts' => 2000, 'texts' => 6000, 'notes' => 1000, 'lang' => 5, 'template' => 40];
 
     /* ---------- zadání ---------- */
     public static function cleanBrief(array $b): array
@@ -37,7 +37,7 @@ final class TsStudioAi
     }
     public static function briefText(array $b): string
     {
-        $L = ['name' => 'Název podniku', 'obor' => 'Obor', 'audience' => 'Cílová skupina', 'style' => 'Požadovaný styl', 'services' => 'Služby a nabídka', 'facts' => 'Fakta (kontakty, adresa, otevírací doba, ceny, lidé)',
+        $L = ['name' => 'Název podniku', 'obor' => 'Obor', 'goals' => 'Cíle webu (co má návštěvník udělat)', 'audience' => 'Cílová skupina', 'style' => 'Požadovaný styl', 'likes' => 'Co se klientovi líbí', 'dislikes' => 'Co se klientovi nelíbí', 'services' => 'Služby a nabídka', 'facts' => 'Fakta (kontakty, adresa, otevírací doba, ceny, lidé)',
               'texts' => 'Texty od klienta / ze současného webu (smíš je použít a zkrátit)', 'notes' => 'Poznámky obchodníka'];
         $out = [];
         foreach ($L as $k => $l) if (($b[$k] ?? '') !== '') $out[] = "## $l\n" . $b[$k];
