@@ -1,5 +1,8 @@
 # ts-design-studio – změny
 
+## 0.13.0 – 2026-11-07
+- Pro CRM (etapa 7.2): interní náhled verze přes bránu (`internalPreviewUrl`, podepsaná adresa s platností 2 hodiny, `adminOrigins` smí vložit do rámu), upozornění i na člověka přiřazeného k leadu (`notify` v `uploadDesign`), `projectsByLead`.
+
 ## 0.12.0 – 2026-11-07
 - Nahraný návrh (etapa 7.1, plán `docs/ai/12-navrhy-v-crm-plan.md`): `uploadDesign` přijme ZIP nebo jeden HTML soubor jako projekt `_upload` s verzemi. Vlastní čtečka ZIP bez ZipArchive: žádné „..“, absolutní cesty, odkazy, šifrování ani nepovolené přípony; strop 40 MB a 800 souborů. Kód se na serveru nikdy nespouští, soubory jsou mimo webroot (`uploadDir`).
 - Přehled bez AI (`TsStudioInspect`): barvy (i tmavý režim a proměnné), písma (přiložená, Google, systémová, chybějící), stránky a sekce, statistiky, kontroly chybějících souborů a cizích zdrojů. Chyby brání odeslání.

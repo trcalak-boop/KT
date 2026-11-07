@@ -24,7 +24,7 @@ final class TsStudioClientPage
         if ($method === 'POST') return $this->post($token, $hit, $base, $post, $h);
         if ($file === '/' ) return $this->shell($token, $hit, $base, $query);
         if ($file === '/navrh' ) return [301, $base + ['Location' => '/' . $token . '/navrh/'], ''];
-        if (str_starts_with($file, '/navrh/')) return $this->design(substr($file, 7), $hit, $base);
+        if (str_starts_with($file, '/navrh/')) return $this->designFile(substr($file, 7), $hit['version'], $base);
         return [404, $base + ['Content-Type' => 'text/html; charset=utf-8'], TsStudioPreviewGate::page('Soubor nenalezen', '')];
     }
     private function post(string $token, array $hit, array $base, array $post, array $h): array
@@ -37,16 +37,19 @@ final class TsStudioClientPage
         if (($r['error'] ?? '') === 'robot') $stav = 'ok';                      /* robot nepozná, že ho past chytila */
         return [303, $base + ['Location' => '/' . $token . '/?stav=' . $stav . '#pripominky'], ''];
     }
-    private function design(string $path, array $hit, array $base): array
+    /* $ancestors: cizí původy smí návrh vložit do rámu (interní náhled v administraci), jinak jen stránka klienta */
+    public function designFile(string $path, array $version, array $base, array $ancestors = []): array
     {
         if ($path === '' || str_ends_with($path, '/')) $path .= 'index.html';
         if (preg_match('~(^|/)\.\.(/|$)|[\x00-\x1F\x7F]~', $path)) return [404, $base + ['Content-Type' => 'text/plain; charset=utf-8'], ''];
-        $src = $this->s->uploadFile($hit['version'], $path);
+        $src = $this->s->uploadFile($version, $path);
         if ($src === null) return [404, $base + ['Content-Type' => 'text/html; charset=utf-8'], TsStudioPreviewGate::page('Soubor nenalezen', '')];
         $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
         $type = (TsStudioPreviewGate::MIME + ['htm' => 'text/html; charset=utf-8', 'mjs' => 'text/javascript; charset=utf-8', 'map' => 'application/json', 'xml' => 'application/xml', 'avif' => 'image/avif', 'ttf' => 'font/ttf', 'otf' => 'font/otf', 'mp4' => 'video/mp4', 'webm' => 'video/webm', 'pdf' => 'application/pdf'])[$ext] ?? 'application/octet-stream';
         /* sandbox = neprůhledný původ: písma a moduly se načítají přes CORS, proto ACAO a CORP pro cizí původ. Soubory chrání tajný token v adrese. */
-        $hd = ['X-Frame-Options' => 'SAMEORIGIN', 'Content-Security-Policy' => self::CSP_DESIGN, 'Access-Control-Allow-Origin' => '*', 'Cross-Origin-Resource-Policy' => 'cross-origin', 'Cache-Control' => 'private, max-age=300'] + $base;
+        $csp = $ancestors ? str_replace("frame-ancestors 'self'", 'frame-ancestors ' . implode(' ', $ancestors), self::CSP_DESIGN) : self::CSP_DESIGN;
+        if ($ancestors) unset($base['X-Frame-Options']);
+        $hd = ($ancestors ? [] : ['X-Frame-Options' => 'SAMEORIGIN']) + ['Content-Security-Policy' => $csp, 'Access-Control-Allow-Origin' => '*', 'Cross-Origin-Resource-Policy' => 'cross-origin', 'Cache-Control' => 'private, max-age=300'] + $base;
         return [200, $hd + ['Content-Type' => $type, 'Content-Length' => (string) strlen($src)], $src];
     }
     private function shell(string $token, array $hit, array $base, string $query): array

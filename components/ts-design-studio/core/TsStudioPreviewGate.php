@@ -37,6 +37,12 @@ final class TsStudioPreviewGate
         $isPost = $method === 'POST' && preg_match('~^/[A-Za-z0-9_-]{32}/pripominka$~', $path);
         if ($method !== 'GET' && $method !== 'HEAD' && !$isPost) return [405, $base + ['Allow' => 'GET, HEAD', 'Content-Type' => 'text/plain; charset=utf-8'], 'Metoda není povolena.'];
         if ($this->blocked($ip)) return [429, $base + ['Content-Type' => 'text/html; charset=utf-8', 'Retry-After' => '3600'], self::page('Příliš mnoho pokusů', 'Zkuste to prosím později.')];
+        if (preg_match('~^/_nahled/(\d+)-(\d+)-(\d+)-([A-Za-z0-9_-]{32})(/.*)?$~', $path, $n)) {
+            $v = $this->s->internalPreview((int) $n[1], (int) $n[2], (int) $n[3], $n[4]);
+            if (!$v) return $this->notFound($base, $ip);
+            if (!isset($n[5]) || $n[5] === '') return [301, $base + ['Location' => $path . '/'], ''];
+            return (new TsStudioClientPage($this->s, $this->c))->designFile(ltrim(rawurldecode($n[5]), '/'), $v, $base, (array) ($this->c['adminOrigins'] ?? []));
+        }
         if (!preg_match('~^/([A-Za-z0-9_-]{32})(/.*)?$~', $path, $m)) return $this->notFound($base, $ip);
         $hit = $this->s->deliveryForToken($m[1]);
         if (!$hit) return $this->notFound($base, $ip);

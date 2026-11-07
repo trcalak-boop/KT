@@ -53,10 +53,15 @@ final class TsStudioStore
         return $this->q('SELECT p.id, p.name, p.source, p.lead_ref, p.audit_ref, p.template, p.status, p.owner_uid, p.current_num, p.created_at, p.updated_at,
             (SELECT MAX(num) FROM studio_versions v WHERE v.project_id = p.id) AS last_num FROM studio_projects p ORDER BY p.updated_at DESC, p.id DESC LIMIT ' . max(1, $limit))->fetchAll();
     }
+    public function projectsByLead(string $ref, string $template): array
+    {
+        return array_map(function ($r) { $r['brief'] = json_decode((string) $r['brief'], true) ?: []; return $r; }, $this->q('SELECT * FROM studio_projects WHERE lead_ref = ? AND template = ? ORDER BY id DESC', [$ref, $template])->fetchAll());
+    }
     public function setProject(int $id, array $f): void
     {
         $set = []; $p = [];
         foreach (['name', 'status', 'current_num', 'owner_uid', 'lead_ref', 'audit_ref'] as $k) if (array_key_exists($k, $f)) { $set[] = "$k = ?"; $p[] = $f[$k]; }
+        if (array_key_exists('brief', $f)) { $set[] = 'brief = ?'; $p[] = json_encode($f['brief'], JSON_UNESCAPED_UNICODE); }
         if (!$set) return; $set[] = 'updated_at = ?'; $p[] = self::now(); $p[] = $id;
         $this->q('UPDATE studio_projects SET ' . implode(', ', $set) . ' WHERE id = ?', $p);
     }

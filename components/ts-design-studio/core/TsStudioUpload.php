@@ -123,10 +123,11 @@ trait TsStudioUploadOps
         $checks = array_merge(array_values($base), $an['checks']); unset($an['checks']);
         $lang = (string) ($p['lang'] ?? ''); if (!preg_match('/^[a-z]{2}$/', $lang)) $lang = 'cs';
         if (!$proj) {
-            $pid = $this->store->createProject(['name' => $name, 'source' => 'crm', 'template' => self::UPLOAD, 'lead_ref' => mb_substr((string) ($p['lead_ref'] ?? ''), 0, 64), 'owner_uid' => $uid, 'brief' => ['lang' => $lang]]);
+            $pid = $this->store->createProject(['name' => $name, 'source' => 'crm', 'template' => self::UPLOAD, 'lead_ref' => mb_substr((string) ($p['lead_ref'] ?? ''), 0, 64), 'owner_uid' => $uid, 'brief' => ['lang' => $lang, 'notify' => array_values((array) ($p['notify'] ?? []))]]);
             $this->store->log($pid, 0, $uid, 'project.create', 'nahraný návrh');
             $proj = $this->store->project($pid);
         }
+        elseif (isset($p['notify'])) $this->store->setProject($pid, ['brief' => ['notify' => array_values((array) $p['notify'])] + $proj['brief']]);
         $msg = trim(mb_substr(preg_replace('/\s+/u', ' ', (string) ($p['message'] ?? '')), 0, 300)) ?: 'Nahraný návrh: ' . mb_substr($fileName, 0, 120);
         $num = $this->store->addVersion($pid, ['parent' => (int) $proj['current_num'], 'kind' => 'upload', 'uid' => $uid, 'author_kind' => 'human', 'message' => $msg, 'files' => $inline,
             'content' => ['analysis' => $an, 'manifest' => $manifest, 'upload' => ['name' => mb_substr($fileName, 0, 160), 'size' => strlen($bytes)]], 'tokens' => [], 'checks' => $checks]);
@@ -143,6 +144,20 @@ trait TsStudioUploadOps
         if (isset($version['files'][$path])) return $version['files'][$path];
         $m = $version['content']['manifest'][$path] ?? null;
         return $m ? TsStudioUpload::get((string) ($this->c['uploadDir'] ?? ''), (string) $m['sha']) : null;
+    }
+    /* interní náhled pro přihlášené v CRM: podepsaná adresa na bráně s krátkou platností, nic nového neotevírá klientům */
+    public function internalPreviewUrl(int $pid, int $num, int $ttl = 7200): string
+    {
+        $exp = time() + $ttl;
+        return rtrim((string) ($this->c['previewBase'] ?? ''), '/') . '/_nahled/' . $exp . '-' . $pid . '-' . $num . '-' . $this->internalSig($exp, $pid, $num) . '/';
+    }
+    private function internalSig(int $exp, int $pid, int $num): string { return substr(rtrim(strtr(base64_encode(hash_hmac('sha256', "nahled|$exp|$pid|$num", $this->secret(), true)), '+/', '-_'), '='), 0, 32); }
+    /* → verze nahraného návrhu pro platný podpis, jinak null */
+    public function internalPreview(int $exp, int $pid, int $num, string $sig): ?array
+    {
+        if ($exp < time() || !$this->hasDelivery() || !hash_equals($this->internalSig($exp, $pid, $num), $sig)) return null;
+        $p = $this->store->project($pid); if (!$p || !self::isUpload($p)) return null;
+        return $this->store->version($pid, $num);
     }
     public function uploadPaths(array $version): array { return array_merge(array_keys($version['files']), array_keys((array) ($version['content']['manifest'] ?? []))); }
 
@@ -179,7 +194,8 @@ trait TsStudioUploadOps
         $p = $this->store->project((int) $f['project_id']); $d = $this->store->delivery((int) $f['delivery_id']);
         $to = $this->c['feedbackTo'] ?? [];
         if (is_callable($to)) $to = $to($p);
-        $to = array_values(array_unique(array_filter(array_map('trim', (array) $to), fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL))));
+        $to = array_merge((array) $to, (array) ($p['brief']['notify'] ?? []));   /* člověk přiřazený k leadu */
+        $to = array_values(array_unique(array_filter(array_map('trim', $to), fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL))));
         $m = $this->c['mailer'] ?? null;
         if (!$to || !is_object($m) || !method_exists($m, 'send')) return false;
         $approve = $f['kind'] === 'approve';

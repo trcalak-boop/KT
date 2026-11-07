@@ -148,3 +148,23 @@ $af0 = $s->store()->feedback((int) $un[0]['id']); t_ok($af0['body'] === '' && $a
 /* starší šablonové projekty a doručení beze změny */
 $st = $s->createProject(['name' => 'Starý', 'source' => 'new', 'template' => 'salon'], 1); $s->setStatus($st['id'], 'approved_internal', 1); $ds = $s->prepareDelivery($st['id'], $st['version'], 1); $ts = basename(rtrim($s->copyLink($ds['id'], 1)['url'], '/'));
 [$cs, $hs, $bs] = $G("/$ts/"); t_ok($cs === 200 && strpos($bs, 'Návrh webu od') !== false && strpos($bs, 'name="text"') === false && $G("/$ts/navrh/")[0] === 404, 'návrh ze šablony se v bráně chová jako dřív');
+
+/* --- interní náhled a upozornění přiřazenému --- */
+$s2 = $mk(); $r9 = $s2->uploadDesign($zipOf($FILES), 'n.zip', 1, ['name' => 'Náhled', 'lead_ref' => '9', 'notify' => ['prirazeny@tasstudio.test']]);
+$g2 = new TsStudioPreviewGate($s2, ['adminOrigins' => ['https://www.tasstudio.test']]);
+$iu = $s2->internalPreviewUrl($r9['id'], 1); $ip = parse_url($iu, PHP_URL_PATH);
+[$ci, $hi, $bi] = $g2->handle('GET', $ip, '10.0.0.2');
+t_ok($ci === 200 && strpos($bi, 'Pekárna') !== false && strpos($hi['Content-Security-Policy'], 'frame-ancestors https://www.tasstudio.test') !== false && strpos($hi['Content-Security-Policy'], 'sandbox allow-scripts') !== false && !isset($hi['X-Frame-Options']), 'interní náhled: jen administrace, sandbox', $hi);
+t_eq($g2->handle('GET', $ip . 'css/styl.css', '10.0.0.2')[0], 200, 'interní náhled: podsoubory');
+t_eq($g2->handle('GET', rtrim($ip, '/'), '10.0.0.2')[0], 301, 'interní náhled: lomítko');
+t_eq($g2->handle('GET', preg_replace('/-[A-Za-z0-9_-]{32}\//', '-' . str_repeat('A', 32) . '/', $ip), '10.0.0.2')[0], 404, 'podvržený podpis');
+t_eq($g2->handle('GET', str_replace('-1-', '-2-', $ip), '10.0.0.2')[0], 404, 'podpis platí jen pro svou verzi');
+t_eq($g2->handle('GET', parse_url($s2->internalPreviewUrl($r9['id'], 1, -10), PHP_URL_PATH), '10.0.0.2')[0], 404, 'prošlý podpis');
+t_eq($g2->handle('POST', $ip, '10.0.0.2')[0], 405, 'do interního náhledu nejde posílat');
+$tp = $s2->createProject(['name' => 'Š', 'source' => 'new', 'template' => 'salon'], 1); t_eq($g2->handle('GET', parse_url($s2->internalPreviewUrl($tp['id'], 1), PHP_URL_PATH), '10.0.0.2')[0], 404, 'jen nahrané návrhy');
+t_eq(array_column($s2->store()->projectsByLead('9', '_upload'), 'id'), [$r9['id']], 'návrhy podle leadu');
+$mail->sent = []; $d9 = $s2->prepareDelivery($r9['id'], 1, 1); $t9 = basename(rtrim($s2->copyLink($d9['id'], 1)['url'], '/'));
+$g2->handle('POST', "/$t9/pripominka", '10.0.0.2', ['text' => 'Ahoj'], $H);
+t_eq(array_column($mail->sent, 'to'), ['nam@tasstudio.test', 'prirazeny@tasstudio.test'], 'upozornění nám i přiřazenému');
+$s2->uploadDesign($zipOf($FILES), 'n.zip', 1, ['project' => $r9['id'], 'notify' => ['novy@tasstudio.test']]); t_eq($s2->store()->project($r9['id'])['brief']['notify'], ['novy@tasstudio.test'], 'přiřazený se aktualizuje s novou verzí');
+
