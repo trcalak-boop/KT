@@ -22,6 +22,15 @@ shutil.copytree(COMP, os.path.join(W, 'vendor', 'ts', 'ts-design-studio'), ignor
 open(os.path.join(PR, 'studio.php'), 'w').write(r'''<?php
 /* falešný model: odpověď podle druhu pokynu (návrh / úprava) */
 $fake = function (array $m) {
+    if (strpos($m[0]['content'], 'upravuješ návrh webu ze stavebnice') !== false) return json_encode(['reply' => 'Přidala jsem dotazy.', 'ops' => [['op' => 'add', 'after' => 'nabidka', 'section' => ['type' => 'faq', 'id' => 'dotazy', 'content' => ['title' => 'Dotazy AI', 'items' => [['q' => 'Kdy?', 'a' => 'Ráno']]]]]]], JSON_UNESCAPED_UNICODE);
+    if (strpos($m[0]['content'], 'NA MÍRU') !== false) {
+        $u = $m[1]['content']; $n = strpos($u, 'klidný a čistý') !== false ? 0 : (strpos($u, 'výrazný a sebevědomý') !== false ? 1 : 2);
+        return json_encode(['site' => ['brand' => 'Pekárna', 'title' => 'Pekárna Veveří', 'phone' => '+420 600 111 222', 'email' => 'pekarna@example.cz', 'cta_label' => 'Objednat', 'cta_url' => '#kontakt', 'header' => ['bar', 'center', 'bar'][$n]],
+            'tokens' => ['accent' => ['#0d6e74', '#d9480f', '#7a3e9d'][$n], 'f_display' => ['marcellus', 'syne', 'outfit'][$n], 'radius' => ['0', '4', '20'][$n]],
+            'sections' => [['type' => 'hero', 'id' => 'hero', 'variant' => ['center', 'cover', 'split'][$n], 'content' => ['title' => 'Chléb směr ' . ($n + 1), 'lead' => 'Pečeme z kvasu.', 'cta_label' => 'Objednat', 'cta_url' => '#kontakt', 'art' => 'sun']],
+                ['type' => 'pricelist', 'id' => 'nabidka', 'nav' => 'Nabídka', 'variant' => ['ledger', 'cards', 'table'][$n], 'content' => ['title' => 'Nabídka', 'items' => [['name' => 'Žitný chléb', 'price' => '98 Kč'], ['name' => 'Rohlík', 'price' => '9 Kč']]]],
+                ['type' => 'contact', 'id' => 'kontakt', 'nav' => 'Kontakt', 'content' => ['title' => 'Kontakt', 'phone' => '+420 600 111 222', 'email' => 'pekarna@example.cz', 'address' => 'Veveří 12, Brno']]], 'notes' => 'Směr ' . ($n + 1)], JSON_UNESCAPED_UNICODE);
+    }
     if (strpos($m[0]['content'], 'upravuješ web') !== false) return json_encode(['reply' => 'Zvětšila jsem logotyp.', 'css' => '.logotype{font-size:min(18vw,280px)}']);
     return json_encode(['content' => ['brand' => 'Salon Vlna', 'title' => 'Salon Vlna', 'phone' => '+420 731 555 210', 'phone_href' => 'tel:+420731555210'], 'tokens' => ['accent' => '#3d6b57'], 'notes' => 'Doplnit ceny.'], JSON_UNESCAPED_UNICODE);
 };
@@ -109,7 +118,7 @@ try:
     # návrh s AI z formuláře
     b.go(BASE + '/index.html#/', 1.5); until("document.querySelector('[data-act=new]')")
     J("document.querySelector('[data-act=new]').click()", .5)
-    J("var f=document.querySelector('[data-form=ai]'); f.querySelector('[value=crm]').click(); f.name.value='Salon Vlna'; f.obor.value='kadeřnictví'; f.lead_phone.value='+420 731 555 210'; f.facts.value='Telefon: +420 731 555 210'", .5)
+    J("var f=document.querySelector('[data-form=ai]'); f.querySelector('[name=mode][value=tpl]').click(); f.querySelector('[value=crm]').click(); f.name.value='Salon Vlna'; f.obor.value='kadeřnictví'; f.lead_phone.value='+420 731 555 210'; f.facts.value='Telefon: +420 731 555 210'", .5)
     ok(J("document.querySelector('[data-only=crm]').hidden===false && document.querySelector('[data-only=redesign]').hidden===true"), 'formulář AI: pole podle zdroje (lead z CRM)')
     J("document.querySelector('[data-form=ai] [type=submit]').click()", 1)
     ok(until("location.hash==='#/p/2' && document.querySelector('.tss-msgs') && document.querySelector('.tss-msgs').textContent.indexOf('Doplnit ceny')>=0", 25), 'návrh s AI → projekt 2, konverzace s poznámkou')
@@ -153,6 +162,47 @@ try:
     J("document.querySelector('[data-tab=deliver]').click()", 1.2)
     ok(until("document.querySelector('.tss-dhead')") and 'Doručovat může role sales nebo admin' in J("document.querySelector('.tss-dhead').textContent") and not J("!!document.querySelector('[data-dact=send],[data-dact=revoke],[data-act=prepare]')"), 'designer: v Doručení jen přehled, bez akcí')
     b.shot(os.path.join(tmp, 'editor.jpg'), quality=70)
+    # návrh na míru: tři směry, výběr, editor plánu, připomínka
+    b.go(BASE + '/index.html#/', 1.5); until("document.querySelector('[data-act=new]')")
+    J("document.querySelector('[data-act=new]').click()", .4)
+    ok(J("document.querySelector('[name=mode][value=kit3]').checked && !!document.querySelector('[data-form=ai] [name=goals]') && !!document.querySelector('[data-form=ai] [name=dislikes]')"), 'na míru: výchozí tři směry, pole cíle a co se nelíbí')
+    J("var f=document.querySelector('[data-form=ai]'); f.name.value='Pekárna Veveří'; f.goals.value='Objednávky'; f.facts.value='Telefon +420 600 111 222, pekarna@example.cz, Veveří 12, Brno, žitný chléb 98 Kč, rohlík 9 Kč'; f.querySelector('[type=submit]').click()", 1)
+    ok(until("document.querySelectorAll('.tss-dir').length===3", 25), 'tři směry vedle sebe', J("location.hash"))
+    ok(until("[...document.querySelectorAll('.tss-dir iframe')].every(f=>f.srcdoc.length>5000)") and J("[...document.querySelectorAll('.tss-dir iframe')].every(f=>f.getAttribute('sandbox')==='allow-scripts')"), 'směry: náhledy v sandboxu')
+    ok(J("document.querySelectorAll('.tss-dir.on').length===1 && document.querySelectorAll('[data-dirpick]').length===2 && document.querySelector('.tss-dir h3').textContent.indexOf('klidný')>=0"), 'první vybraný, ostatní k výběru, názvy směrů')
+    ok(J("document.querySelector('.tss-main .tss-muted').textContent.indexOf('návrh na míru')>=0"), 'projekt je označený jako návrh na míru')
+    J("document.querySelectorAll('[data-dirpick]')[0].click()", 1.2); until("document.querySelector('.tss-dir:nth-child(2).on')")
+    ok(J("document.querySelector('.tss-dir:nth-child(2)').classList.contains('on')"), 'výběr druhého směru')
+    J("document.querySelector('[data-tab=content]').click()", .6)
+    ok(until("document.querySelector('.tss-kform')") and J("document.querySelectorAll('.tss-ksec').length===3 && document.querySelector('[data-tk=accent]').value==='#d9480f' && !!document.querySelector('[data-tk=d_accent]') && !!document.querySelector('[data-tk=f_display]')"), 'editor plánu: sekce a tokeny', J("JSON.stringify([document.querySelectorAll('.tss-ksec').length, document.querySelector('[data-tk=accent]').value, !!document.querySelector('[data-tk=d_accent]'), !!document.querySelector('[data-tk=f_display]')])"))
+    J("document.querySelector('.tss-ksec summary').click(); var t=document.querySelector('[data-p=\"sections.0.content.title\"]'); t.value='Ruční <b>nadpis</b>'; t.dispatchEvent(new Event('input',{bubbles:true})); var c=document.querySelector('[data-tk=accent]'); c.value='#112233'; c.dispatchEvent(new Event('change',{bubbles:true}));", .2)
+    J("var o=document.querySelector('[data-knew]'); o.value='news'; document.querySelector('[data-kaddsec]').click();", .3)
+    ok(J("document.querySelectorAll('.tss-ksec').length===4 && document.querySelector('.tss-ksec[data-ki=\"2\"]').open && document.querySelector('[data-p=\"sections.0.content.title\"]').value.indexOf('Ruční')===0"), 'přidaná sekce před kontaktem, rozepsané texty zůstanou')
+    J("document.querySelector('[data-kadd=\"sections.2.content.items\"]').click();", .2)
+    J("var t=document.querySelector('[data-p=\"sections.2.content.items.0.title\"]'); t.value='Nová akce'; t.dispatchEvent(new Event('input',{bubbles:true})); document.querySelector('[data-kmove=\"-1\"][data-i=\"2\"]').click();", .3)
+    ok(J("document.querySelector('.tss-ksec[data-ki=\"1\"] summary b').textContent==='Aktuality'"), 'přesun sekce')
+    J("var v=document.querySelector('[data-p=\"sections.0.variant\"]'); v.value='board'; v.dispatchEvent(new Event('change',{bubbles:true}));", .3)
+    ok(J("document.querySelector('.tss-kform [type=submit]') && document.querySelector('[data-p=\"sections.0.variant\"]').value==='board'"), 'změna rozvržení překreslí editor')
+    J("document.querySelector('.tss-kform [type=submit]').click()", 1.5)
+    ok(until("document.querySelector('.tss-frame iframe') && document.querySelector('.tss-frame iframe').srcdoc.indexOf('Ruční &lt;b&gt;nadpis')>0"), 'uloženo jako nová verze, escapované')
+    h = J("document.querySelector('.tss-frame iframe').srcdoc")
+    ok('s-hero--board' in h and 's-news--list' in h and '#112233' in h and h.index('s-news') < h.index('s-pricelist'), 'nová verze má změny plánu')
+    J("var f=document.querySelector('.tss-ask'); f.text.value='Přidej dotazy'; f.querySelector('button').click()", 1)
+    ok(until("document.querySelector('.tss-frame iframe') && document.querySelector('.tss-frame iframe').srcdoc.indexOf('Dotazy AI')>0", 20), 'připomínka: nová verze s dotazy')
+    ok(J("document.querySelector('.tss-vhead').textContent.indexOf('návrh')>=0 && !!document.querySelector('[data-act=accept]') && document.querySelector('.tss-msgs').textContent.indexOf('Přidala jsem dotazy')>=0"), 'připomínka čeká na přijetí, odpověď v konverzaci')
+    J("document.querySelector('[data-tab=code]').click()", .8)
+    ok(until("document.querySelector('.tss-tree')") and J("document.querySelector('.tss-tree').textContent.indexOf('assets/site.css')>=0 && document.querySelector('.tss-tree').textContent.indexOf('.woff2')>=0"), 'kód: soubory i písma')
+    J("document.querySelector('[data-tab=preview]').click()", .4)
+    b.size(390, 844, 2, True); b.go(J("location.href"), 1.5); until("document.querySelector('[data-tab=content]')"); J("document.querySelector('[data-tab=content]').click()", .8); until("document.querySelector('.tss-kform')")
+    J("document.querySelector('.tss-ksec summary').click()", .3)
+    ok(J("document.documentElement.scrollWidth<=window.innerWidth+1"), 'mobil: editor plánu bez posuvníku', J("document.documentElement.scrollWidth"))
+    J("document.querySelector('[data-tab=dirs]').click()", .8)
+    ok(J("document.documentElement.scrollWidth<=window.innerWidth+1 && document.querySelectorAll('.tss-dir').length===3"), 'mobil: směry bez posuvníku')
+    b.size(1400, 1000, 1, False)
+    if os.environ.get('TS_UI_SHOTS'):
+        d = os.environ['TS_UI_SHOTS']; os.makedirs(d, exist_ok=True)
+        b.scheme(False); J("document.querySelector('[data-tab=dirs]').click()", 1.5); until("[...document.querySelectorAll('.tss-dir iframe')].every(f=>f.srcdoc.length>5000)"); time.sleep(1); b.shot(os.path.join(d, 'smery.jpg'), quality=70)
+        J("document.querySelector('[data-tab=content]').click()", .8); J("document.querySelector('.tss-ksec summary').click()", .3); b.shot(os.path.join(d, 'plan.jpg'), full=True, quality=60)
     # mobil
     b.size(390, 844, 2, True); b.go(BASE + '/index.html#/p/1', 2); until("document.querySelector('.tss-frame iframe')")
     ok(J("document.documentElement.scrollWidth<=window.innerWidth+1"), 'mobil: bez vodorovného posuvníku', J("document.documentElement.scrollWidth"))

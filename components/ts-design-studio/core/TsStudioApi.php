@@ -66,6 +66,7 @@ final class TsStudioApi
                         $brief = $src === 'crm' ? array_filter((array) ($b['brief'] ?? []), fn ($v) => $v !== '' && $v !== null) + TsStudioAi::briefFromLead((array) ($b['lead'] ?? []), (array) ($b['leadNotes'] ?? []))
                                : ($src === 'redesign' && isset($b['audit']) ? TsStudioAi::briefFromAudit((array) $b['audit'], (string) ($b['texts'] ?? ''), (array) ($b['brief'] ?? [])) : (array) ($b['brief'] ?? []));
                         $S->checkAi($uid);
+                        if (($b['mode'] ?? '') === 'kit') { $dirs = (int) ($b['directions'] ?? 1); return $this->job(fn () => $S->kitCreate($brief, $uid, ['source' => $src, 'lead_ref' => $leadRef, 'audit_ref' => (string) ($b['audit_ref'] ?? '')], $dirs)); }
                         return $this->job(fn () => $S->aiCreate($brief, $uid, ['source' => $src, 'lead_ref' => $leadRef, 'audit_ref' => (string) ($b['audit_ref'] ?? '')]));
                     case 'ai-edit':
                         $S->get($pid, $uid); $S->checkAi($uid);
@@ -111,11 +112,11 @@ final class TsStudioApi
                     $g = $S->get($pid, $uid);
                     return [200, ['ok' => true, 'project' => $g['project'], 'versions' => $g['versions'], 'log' => $g['log'], 'messages' => $S->messages($pid, $uid), 'usage' => $S->usage()]];
                 case 'version':
-                    $v = $S->version($pid, $num, $uid); $t = $S->template($S->get($pid, $uid)['project']['template']);
+                    $v = $S->version($pid, $num, $uid); $tid = $S->get($pid, $uid)['project']['template']; $t = $S->template($tid);
                     $files = []; foreach ($S->allFiles($pid, $num, $uid, 'view') as $p => $src) $files[] = ['path' => $p, 'size' => strlen($src), 'text' => $t->isText($p)];
                     return [200, ['ok' => true, 'num' => $v['num'], 'parent' => $v['parent_num'], 'kind' => $v['kind'], 'status' => $v['status'], 'author' => $v['author_kind'], 'message' => $v['message'], 'created' => $v['created_at'],
                         'files' => $files, 'content' => $v['content'], 'tokens' => $v['tokens'], 'checks' => $v['checks'], 'todo' => TsStudioAi::todo($v['content']),
-                        'schema' => ['slots' => $t->t['slots'], 'tokens' => $t->t['tokens']]]];
+                        'schema' => $tid === TsDesignStudio::KIT ? $S->kitSchema() : ['slots' => $t->t['slots'], 'tokens' => $t->t['tokens']]]];
                 case 'file':
                     $v = $S->version($pid, $num, $uid); $p = (string) ($get['path'] ?? '');
                     if (!isset($v['files'][$p])) return [404, ['ok' => false, 'error' => 'file']];
@@ -169,6 +170,7 @@ final class TsStudioApi
         $id = bin2hex(random_bytes(8)); $f = "$dir/$id.json"; $uid = (int) $this->c['uid'];
         file_put_contents($f, json_encode(['uid' => $uid, 'status' => 'running', 'started' => time()]));
         $after = function () use ($work, $f, $uid) {
+            @set_time_limit(420);   /* tři směry = tři dotazy na model */
             $t0 = microtime(true); $sec = fn () => round(microtime(true) - $t0, 1);
             try { $r = ['status' => 'done', 'result' => $work()]; }
             catch (TsStudioModelError $e) { $r = ['status' => 'error', 'error' => $e->kind, 'detail' => mb_substr($e->getMessage(), 0, 300)]; }

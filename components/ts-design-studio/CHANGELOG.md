@@ -1,5 +1,10 @@
 # ts-design-studio – změny
 
+## 0.11.0 – 2026-11-07
+- Administrace návrhu na míru (etapa 6.7c): ve formuláři volba tři směry / jeden návrh / podle šablony a nová pole cíle webu, co se líbí a nelíbí. Záložka Směry ukáže návrhy vedle sebe a jedním tlačítkem vybere směr.
+- Záložka Obsah a barvy u návrhu na míru: barvy pro oba režimy, písma a tvar, údaje webu, sekce (rozvržení, tón, menu, sloty včetně vnořených seznamů, přidat, přesunout, odebrat), vlastní CSS. Uložení je nová verze.
+- API: `ai-create` s `mode: 'kit'` a `directions`; `version` vrací u návrhu na míru popis stavebnice. Úloha má limit 7 minut, rozhraní čeká nejvýš 8 minut a pak nahlásí chybu.
+
 ## 0.10.0 – 2026-11-07
 - Návrh na míru (etapa 6.7b, `TsStudioPlanner`, `TsDesignStudio::kitCreate`): model ze zadání navrhne strukturu, varianty, paletu, písma a texty jako JSON plán; nikdy HTML. Jeden až tři směry: první je přijatý, ostatní k výběru; když model cestou selže, hotové směry zůstanou.
 - Fakta jen ze zadání včetně čísel: vymyšlené kontakty, ceny, časy a jména se zahodí, recenze, citáty a čísla bez podkladu zmizí se sekcí; čísla ve volném textu se hlásí k ověření.

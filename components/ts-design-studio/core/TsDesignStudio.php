@@ -211,6 +211,14 @@ final class TsDesignStudio
         return ['num' => $num, 'reply' => $reply, 'checks' => $checks, 'changed' => $changed, 'errors' => array_merge($e1, $e2), 'todo' => TsStudioAi::todo($c)];
     }
     /* ---------- návrh na míru ze stavebnice ---------- */
+    /* popis stavebnice pro editor plánu v administraci */
+    public function kitSchema(): array
+    {
+        $k = $this->kit(); $sec = [];
+        foreach ($k->sections() as $t => $d) $sec[$t] = ['label' => $d['label'], 'use' => $d['use'], 'variants' => $d['variants'], 'default' => $d['default'], 'slots' => $d['slots']];
+        $fonts = []; foreach ($k->fonts as $id => $f) $fonts[$id] = ['family' => $f['family'], 'kind' => $f['kind']];
+        return ['kit' => true, 'tokens' => $k->kit['tokens'], 'fonts' => $fonts, 'site' => $k->kit['siteSlots'], 'tones' => $k->kit['tones'], 'sections' => $sec];
+    }
     private function renderKit(array $p, int $uid, array $plan, array $tokens, string $message, string $authorKind, string $kind = 'render'): array
     {
         $r = $this->kit()->render($plan + ['tokens' => $tokens]);

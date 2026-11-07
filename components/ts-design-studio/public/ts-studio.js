@@ -41,6 +41,7 @@
     var t0 = Date.now();
     return new Promise(function (ok) {
       (function tick() {
+        if (Date.now() - t0 > 480000) { busy(''); return ok({ status: 'error', error: 'timeout', detail: 'úloha neskončila do 8 minut' }); }
         api('job', null, '&id=' + id).then(function (j) {
           if (j.status === 'running') { busy(label + ' … ' + Math.round((Date.now() - t0) / 1000) + ' s'); setTimeout(tick, 2500); return; }
           busy(''); ok(j);
@@ -65,7 +66,7 @@
       if (!j.ok) { $('.tss-main').innerHTML = '<p class="tss-err">' + esc(errText(j)) + '</p>'; return; }
       setUsage(j.usage);
       var rows = j.projects.map(function (p) {
-        return '<tr><td><a href="#/p/' + p.id + '">' + esc(p.name) + '</a></td><td>' + esc(p.template) + '</td><td>' + esc(SRC[p.source] || p.source) + '</td><td><span class="tss-st st-' + esc(p.status) + '">' + esc(STATUS[p.status] || p.status) + '</span></td><td>v' + esc(p.current_num) + '</td><td>' + esc(String(p.updated_at).slice(0, 16)) + '</td></tr>';
+        return '<tr><td><a href="#/p/' + p.id + '">' + esc(p.name) + '</a></td><td>' + esc(p.template === '_kit' ? 'na míru' : p.template) + '</td><td>' + esc(SRC[p.source] || p.source) + '</td><td><span class="tss-st st-' + esc(p.status) + '">' + esc(STATUS[p.status] || p.status) + '</span></td><td>v' + esc(p.current_num) + '</td><td>' + esc(String(p.updated_at).slice(0, 16)) + '</td></tr>';
       }).join('');
       $('.tss-main').innerHTML = '<div class="tss-bar"><h1>Projekty</h1>' + (can('edit') ? '<button type="button" class="tss-btn" data-act="new">Nový projekt</button>' : '') + '</div>' +
         (rows ? '<div class="tss-scroll"><table class="tss-table"><thead><tr><th>Název</th><th>Šablona</th><th>Zdroj</th><th>Stav</th><th>Přijatá verze</th><th>Změna</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="tss-muted">Zatím žádný projekt.</p>') +
@@ -85,13 +86,15 @@
       '<label class="tss-f"><span>Šablona</span><select name="template">' + tpl + '</select></label><label class="tss-f"><span>Zdroj</span><select name="source"><option value="new">nový projekt</option><option value="redesign">redesign</option><option value="crm">z CRM</option></select></label>' +
       '<p><button class="tss-btn" type="submit">Založit projekt</button></p></form>' +
       '<form class="tss-form" data-form="ai"' + (S.ai ? '' : ' hidden') + '><fieldset class="tss-srcset"><legend>Zdroj zadání</legend><label><input type="radio" name="source" value="new" checked> nový projekt</label><label><input type="radio" name="source" value="redesign"> redesign stávajícího webu</label><label><input type="radio" name="source" value="crm"> lead z CRM</label></fieldset>' +
-      '<div class="tss-grid2">' + field('name', 'Název podniku', { max: 160, req: true }) + field('obor', 'Obor', { max: 80, hint: 'Podle oboru se vybere šablona (jinak ji vybere AI).' }) + '</div>' +
+      '<fieldset class="tss-srcset"><legend>Způsob návrhu</legend><label><input type="radio" name="mode" value="kit3" checked> na míru, tři směry k výběru</label><label><input type="radio" name="mode" value="kit1"> na míru, jeden návrh</label><label><input type="radio" name="mode" value="tpl"> podle hotové šablony</label></fieldset>' +
+      '<div class="tss-grid2">' + field('name', 'Název podniku', { max: 160, req: true }) + field('obor', 'Obor', { max: 80 }) + '</div>' +
       '<div data-only="crm" hidden class="tss-grid2">' + field('lead_ref', 'Číslo leadu v CRM', { max: 20, hint: 'Údaje leadu (kontakty, poznámky) se načtou z CRM. Bez čísla vyplňte údaje níže.' }) + field('lead_phone', 'Telefon z leadu', { max: 30 }) + field('lead_email', 'E-mail z leadu', { max: 120 }) + field('lead_web', 'Současný web', { max: 200 }) + field('lead_reason', 'Důvod poptávky', { max: 400 }) + '</div>' +
-      field('audience', 'Cílová skupina', { max: 300 }) + field('style', 'Požadovaný styl', { max: 300, hint: 'Barvy, nálada, co nechtějí.' }) + field('services', 'Služby a nabídka', { area: true, max: 1200 }) +
+      field('goals', 'Cíle webu', { max: 400, hint: 'Co má návštěvník udělat: objednat se, zavolat, nakoupit, zapsat dítě…' }) + field('audience', 'Cílová skupina', { max: 300 }) + field('style', 'Požadovaný styl', { max: 300, hint: 'Barvy, nálada.' }) +
+      '<div class="tss-grid2">' + field('likes', 'Co se klientovi líbí', { max: 400, hint: 'Weby, značky, barvy.' }) + field('dislikes', 'Co se klientovi nelíbí', { max: 400 }) + '</div>' + field('services', 'Služby a nabídka', { area: true, max: 1200 }) +
       field('facts', 'Fakta', { area: true, rows: 4, max: 2000, hint: 'Kontakty, adresa, otevírací doba, ceny, jména lidí. Co tu nebude, AI označí [doplnit] – nic si nevymýšlí.' }) +
       '<div data-only="redesign" hidden>' + field('texts', 'Texty ze současného webu', { area: true, rows: 5, max: 6000, hint: 'Vložte ručně. Převzatý obsah se označí k ověření práv.' }) + field('findings', 'Zjištění z auditu', { area: true, max: 1200 }) + '</div>' +
       field('notes', 'Poznámky obchodníka', { area: true, max: 1000 }) +
-      '<p><button class="tss-btn" type="submit">Navrhnout web</button> <span class="tss-muted">Návrh trvá zhruba minutu a stojí asi 100 neuronů z denní kvóty.</span></p></form>';
+      '<p><button class="tss-btn" type="submit">Navrhnout web</button> <span class="tss-muted" data-cost>Tři směry: zhruba tři minuty a asi 200 neuronů z denní kvóty.</span></p></form>';
     box.scrollIntoView({ behavior: 'smooth' });
   }
   function submitNew(form) {
@@ -101,7 +104,8 @@
       api('create', { name: d.name, template: d.template, source: d.source }).then(function (j) { btn.disabled = false; if (!j.ok) return toast(errText(j), true); location.hash = '#/p/' + j.id; });
       return;
     }
-    var brief = { name: d.name, obor: d.obor, audience: d.audience, style: d.style, services: d.services, facts: d.facts, notes: d.notes }, body = { source: d.source, brief: brief };
+    var brief = { name: d.name, obor: d.obor, goals: d.goals, audience: d.audience, likes: d.likes, dislikes: d.dislikes, style: d.style, services: d.services, facts: d.facts, notes: d.notes }, body = { source: d.source, brief: brief };
+    if (d.mode !== 'tpl') { body.mode = 'kit'; body.directions = d.mode === 'kit3' ? 3 : 1; }
     if (d.source === 'redesign') { brief.texts = d.texts; brief.rights = !!d.texts; if (d.findings) brief.notes = ('Zjištění z auditu:\n' + d.findings + '\n' + (d.notes || '')).trim(); }
     if (d.source === 'crm') { body.lead = { name: d.name, phone: d.lead_phone, email: d.lead_email, website: d.lead_web, outreach_reason: d.lead_reason }; if (d.lead_ref) body.lead_ref = d.lead_ref; }
     api('ai-create', body).then(function (j) {
@@ -109,7 +113,9 @@
       return waitJob(j.job, 'AI navrhuje web').then(function (r) {
         btn.disabled = false;
         if (r.status !== 'done') return toast('Návrh se nepovedl: ' + errText({ error: 'ai', kind: r.error, detail: r.detail }), true);
-        toast('Návrh je hotový za ' + r.seconds + ' s.'); location.hash = '#/p/' + r.result.id;
+        var n = (r.result.versions || []).length;
+        toast(r.result.failed ? 'Hotové směry: ' + n + '. Další se nepovedly: ' + errText({ error: 'ai', kind: r.result.failed }) + '.' : 'Návrh je hotový za ' + r.seconds + ' s.', !!r.result.failed);
+        S.tab = n > 1 ? 'dirs' : 'preview'; location.hash = '#/p/' + r.result.id;
       });
     });
   }
@@ -118,7 +124,8 @@
   function loadProject(id, keepSel) {
     return api('project', null, '&pid=' + id).then(function (j) {
       if (!j.ok) { $('.tss-main').innerHTML = '<p class="tss-err">' + esc(errText(j)) + '</p>'; return; }
-      setUsage(j.usage); S.p = j;
+      setUsage(j.usage); S.p = j; S.kd = null;
+      if (S.tab === 'dirs' && dirVersions().length < 2) S.tab = 'preview';
       if (!keepSel || !j.versions.some(function (v) { return v.num === S.sel; })) S.sel = j.versions.length ? j.versions[0].num : 0;
       renderProject(); return selectVersion(S.sel);
     });
@@ -126,11 +133,11 @@
   function renderProject() {
     var p = S.p.project;
     var st = Object.keys(STATUS).map(function (k) { return '<option value="' + k + '"' + (k === p.status ? ' selected' : '') + '>' + STATUS[k] + '</option>'; }).join('');
-    $('.tss-main').innerHTML = '<div class="tss-bar"><div><a href="#/" class="tss-back">← Projekty</a><h1>' + esc(p.name) + '</h1><span class="tss-muted">šablona ' + esc(p.template) + ' · ' + esc(SRC[p.source] || p.source) + ' · přijatá verze ' + esc(p.current_num) + '</span></div>' +
+    $('.tss-main').innerHTML = '<div class="tss-bar"><div><a href="#/" class="tss-back">← Projekty</a><h1>' + esc(p.name) + '</h1><span class="tss-muted">' + (isKit() ? 'návrh na míru' : 'šablona ' + esc(p.template)) + ' · ' + esc(SRC[p.source] || p.source) + ' · přijatá verze ' + esc(p.current_num) + '</span></div>' +
       '<div class="tss-bar-r"><label class="tss-inline">Stav <select data-act="status"' + (can('status') ? '' : ' disabled') + '>' + st + '</select></label>' + (can('export') ? '<a class="tss-btn ghost" data-act="export" href="#">Stáhnout ZIP</a>' : '') + '</div></div>' +
       '<div class="tss-ed"><aside class="tss-vers" aria-label="Verze"><h2>Verze</h2><ol></ol></aside><section class="tss-work"><div class="tss-vhead"></div><div class="tss-tabs" role="tablist">' +
-      [['preview', 'Náhled'], ['content', 'Obsah a barvy'], ['code', 'Kód'], ['diff', 'Rozdíl'], ['checks', 'Kontroly']].concat(S.delivery ? [['deliver', 'Doručení']] : []).map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') +
-      '</div><div class="tss-pane"></div></section>' + (S.ai ? '<aside class="tss-chat" aria-label="Konverzace s AI"><h2>AI úpravy</h2><div class="tss-msgs"></div><form class="tss-ask"><textarea name="text" rows="3" maxlength="1500" placeholder="Např. „Barvy teplejší, menší logotyp, v úvodníku zmínit svatební účesy“" aria-label="Pokyn pro AI"></textarea><button class="tss-btn" type="submit">Poslat</button><small class="tss-muted">Úprava vznikne jako návrh verze – přijímáte ji vy.</small></form></aside>' : '') + '</div>';
+      (dirVersions().length > 1 ? [['dirs', 'Směry']] : []).concat([['preview', 'Náhled'], ['content', 'Obsah a barvy'], ['code', 'Kód'], ['diff', 'Rozdíl'], ['checks', 'Kontroly']]).concat(S.delivery ? [['deliver', 'Doručení']] : []).map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') +
+      '</div><div class="tss-pane"></div></section>' + (S.ai ? '<aside class="tss-chat" aria-label="Konverzace s AI"><h2>AI úpravy</h2><div class="tss-msgs"></div><form class="tss-ask"><textarea name="text" rows="3" maxlength="1500" placeholder="' + (isKit() ? 'Např. „Víc vzduchu, tmavší pozadí, přidej jídelníček pod úvod“' : 'Např. „Barvy teplejší, menší logotyp, v úvodníku zmínit svatební účesy“') + '" aria-label="Pokyn pro AI"></textarea><button class="tss-btn" type="submit">Poslat</button><small class="tss-muted">Úprava vznikne jako návrh verze – přijímáte ji vy.</small></form></aside>' : '') + '</div>';
     renderVersions(); renderMsgs();
   }
   function renderVersions() {
@@ -160,7 +167,7 @@
   }
   function renderTab() {
     $$('.tss-work [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-tab') === S.tab)); });
-    ({ preview: tabPreview, content: tabContent, code: tabCode, diff: tabDiff, checks: tabChecks, deliver: tabDeliver })[S.tab]();
+    ({ dirs: tabDirs, preview: tabPreview, content: isKit() ? tabKit : tabContent, code: tabCode, diff: tabDiff, checks: tabChecks, deliver: tabDeliver })[S.tab]();
   }
   function tabPreview() {
     var W = [[1280, 'Počítač'], [820, 'Tablet'], [390, 'Mobil']];
@@ -234,7 +241,111 @@
     var v = S.ver;
     var rows = v.checks.map(function (c) { return '<li class="' + c.level + '"><b>' + (c.level === 'error' ? 'Chyba' : 'Varování') + '</b> ' + esc(c.msg) + ' <small>' + esc(c.file) + (c.line ? ':' + c.line : '') + '</small></li>'; }).join('');
     $('.tss-pane').innerHTML = '<h3>Kontroly</h3>' + (rows ? '<ul class="tss-checks">' + rows + '</ul>' : '<p class="tss-ok">Bez chyb a varování.</p>') +
-      '<h3>K doplnění</h3>' + (v.todo.length ? '<p>Tyto sloty obsahují „[doplnit]“ – před předáním klientovi je vyplňte v záložce Obsah a barvy:</p><ul class="tss-todo">' + v.todo.map(function (t) { return '<li><code>' + esc(t) + '</code></li>'; }).join('') + '</ul>' : '<p class="tss-ok">Nic.</p>');
+      '<h3>K doplnění</h3>' + (v.todo.length ? '<p>Tyto sloty obsahují „[doplnit]“ – před předáním klientovi je vyplňte v záložce Obsah a barvy:</p><ul class="tss-todo">' + v.todo.map(function (t) { return '<li><code>' + esc(todoName(t)) + '</code></li>'; }).join('') + '</ul>' : '<p class="tss-ok">Nic.</p>');
+  }
+
+  /* ---------- návrh na míru: výběr směru ---------- */
+  function isKit() { return S.p && S.p.project.template === '_kit'; }
+  function dirVersions() { return !isKit() ? [] : S.p.versions.filter(function (v) { return v.status !== 'rejected' && /– směr \d/.test(v.message); }).slice().sort(function (a, b) { return a.num - b.num; }); }
+  function tabDirs() {
+    var D = dirVersions(), cur = S.p.project.current_num;
+    $('.tss-pane').innerHTML = '<p class="tss-muted">Tři různé směry pro stejné zadání. Vybraný se stane přijatou verzí, na něm pak pokračujete připomínkami.</p><div class="tss-dirs">' + D.map(function (v) {
+      var name = (/– směr \d+: ([^(]+)/.exec(v.message) || [])[1] || ('Verze ' + v.num);
+      return '<article class="tss-dir' + (v.num === cur ? ' on' : '') + '"><h3>' + esc(name.trim()) + ' <small class="tss-muted">v' + v.num + '</small></h3><div class="tss-dirf"><iframe sandbox="allow-scripts" title="Směr ' + esc(name.trim()) + '" width="1280" height="2000" tabindex="-1" data-dir="' + v.num + '"></iframe></div>' +
+        '<p class="tss-dira"><button type="button" class="tss-btn ghost sm" data-dirshow="' + v.num + '">Zobrazit</button>' + (v.num === cur ? '<b class="tss-ok">Vybraný směr</b>' : (can('accept') ? '<button type="button" class="tss-btn sm" data-dirpick="' + v.num + '">Vybrat tento směr</button>' : '')) + '</p></article>';
+    }).join('') + '</div>';
+    D.forEach(function (v) {
+      api('preview', null, '&pid=' + S.p.project.id + '&num=' + v.num).then(function (j) { var f = $('iframe[data-dir="' + v.num + '"]'); if (f) { f.srcdoc = j.html || ''; fitDirs(); } });
+    });
+    fitDirs();
+  }
+  function fitDirs() { $$('.tss-dirf').forEach(function (b) { var f = b.querySelector('iframe'), sc = b.clientWidth / 1280; f.style.transform = 'scale(' + sc + ')'; b.style.height = Math.round(Math.min(2000 * sc, 560)) + 'px'; }); }
+
+  /* ---------- návrh na míru: plán v záložce Obsah a barvy ---------- */
+  var KLAB = { kicker: 'Štítek nad nadpisem', title: 'Nadpis', title_em: 'Zvýrazněné pokračování', lead: 'Úvodní věta', cta_label: 'Tlačítko', cta_url: 'Odkaz tlačítka', cta2_label: 'Druhé tlačítko', cta2_url: 'Odkaz druhého tlačítka', art: 'Ilustrace', facts: 'Fakta', label: 'Popisek', value: 'Hodnota', text: 'Text', link_label: 'Odkaz: text', link_url: 'Odkaz: adresa',
+    items: 'Položky', name: 'Název', note: 'Poznámka', price: 'Cena', days: 'Dny', time: 'Čas', when: 'Kdy', initials: 'Iniciály', role: 'Role', author: 'Autor', detail: 'Upřesnění', quote: 'Citát', quote_em: 'Zvýrazněný konec citátu', badge: 'Štítek', desc: 'Popis', price_note: 'Poznámka k ceně', url: 'Odkaz', specs: 'Parametry', more_label: 'Tlačítko „více“', more_url: 'Odkaz „více“',
+    meta: 'Doplněk', date: 'Datum', dishes: 'Jídla', q: 'Otázka', a: 'Odpověď', address: 'Adresa', phone: 'Telefon', email: 'E-mail', map_url: 'Odkaz na mapu', map_label: 'Text odkazu na mapu', hours: 'Otevírací doba', paragraphs: 'Odstavce', key: 'Údaj', color: 'Barva' };
+  var KOPT = { none: 'bez', rules: 'linky', dots: 'tečky', upper: 'VELKÁ', compact: 'hustě', normal: 'běžně', airy: 'vzdušně', tight: 'těsné', wide: 'široké', narrow: 'úzká', s: 'malé', m: 'střední', l: 'velké', xl: 'obří', solid: 'plné', outline: 'obrys', pill: 'oblé', mono: 'neproporcionální', plain: 'obyčejné', bar: 's čárkou', base: 'pozadí', surface: 'plocha', band: 'výrazný pás', accent: 'akcent' };
+  function kOpts(list, val, lab) { return list.map(function (o) { return '<option value="' + esc(o) + '"' + (o === val ? ' selected' : '') + '>' + esc((lab && lab[o]) || KOPT[o] || o) + '</option>'; }).join(''); }
+  function kSlot(k, s, val, path) {
+    var t = s.type || 'text', lab = s.label || KLAB[k] || k, g = s.grounded ? ' <small>(jen ze zadání)</small>' : '';
+    if (t === 'list') {
+      var fields = s.fields || {};
+      return '<div class="tss-list"><span class="tss-ll">' + esc(lab) + ' <small>(nejvýš ' + (s.items || 12) + ')</small></span>' + (val || []).map(function (row, i) {
+        return '<div class="tss-krow">' + Object.keys(fields).map(function (f) { return kSlot(f, fields[f], row[f], path + '.' + i + '.' + f); }).join('') + '<button type="button" class="tss-x" data-kdel="' + esc(path) + '" data-i="' + i + '" aria-label="Odebrat položku">×</button></div>';
+      }).join('') + '<button type="button" class="tss-btn ghost sm" data-kadd="' + esc(path) + '" data-max="' + (s.items || 12) + '">+ položka</button></div>';
+    }
+    if (t === 'enum') {
+      var o = s.options || [], arts = k === 'art';
+      return '<label class="tss-f"><span>' + esc(lab) + '</span><select data-p="' + esc(path) + '">' + (arts ? '<option value="">bez ilustrace</option>' : '') + kOpts(o, val) + '</select></label>';
+    }
+    if (t === 'color') return '<label class="tss-color"><input type="color" data-p="' + esc(path) + '" value="' + esc(val || '#cccccc') + '"><span>' + esc(lab) + '</span></label>';
+    var todo = String(val == null ? '' : val).indexOf('[doplnit]') >= 0, a = ' data-p="' + esc(path) + '"' + (s.max ? ' maxlength="' + s.max + '"' : '');
+    return '<label class="tss-f' + (todo ? ' todo' : '') + '"><span>' + esc(lab) + g + '</span>' + (t === 'multiline' ? '<textarea rows="3"' + a + '>' + esc(val) + '</textarea>' : '<input' + a + ' value="' + esc(val) + '">') + '</label>';
+  }
+  function kTokens(sc) {
+    var tk = sc.tokens, v = S.kd.tokens, keys = Object.keys(tk);
+    var col = function (dark) { return keys.filter(function (k) { return tk[k].type === 'color' && (k.indexOf('d_') === 0) === dark; }).map(function (k) { return '<label class="tss-color"><input type="color" data-tk="' + k + '" value="' + esc(v[k]) + '"><span>' + esc(tk[k].label.replace('Tmavý režim: ', '')) + '</span></label>'; }).join(''); };
+    var fam = {}; Object.keys(sc.fonts).forEach(function (id) { fam[id] = sc.fonts[id].family; });
+    var other = keys.filter(function (k) { return tk[k].type !== 'color'; }).map(function (k) {
+      var d = tk[k], list = d.type === 'font' ? Object.keys(sc.fonts).filter(function (id) { return !d.kinds || d.kinds.indexOf(sc.fonts[id].kind) >= 0; }) : d.options;
+      return '<label class="tss-f"><span>' + esc(d.label) + '</span><select data-tk="' + k + '">' + kOpts(list, v[k], d.type === 'font' ? fam : null) + '</select></label>';
+    }).join('');
+    return '<fieldset><legend>Barvy – světlý režim</legend><div class="tss-tokens">' + col(false) + '</div></fieldset><fieldset><legend>Barvy – tmavý režim</legend><div class="tss-tokens">' + col(true) + '</div></fieldset><fieldset><legend>Písma a tvar</legend><div class="tss-tokens">' + other + '</div></fieldset>';
+  }
+  function tabKit() {
+    var sc = S.ver.schema;
+    if (!S.kd || S.kd.num !== S.sel) { S.kd = JSON.parse(JSON.stringify({ num: S.sel, site: S.ver.content.site, sections: S.ver.content.sections, css: S.ver.content.css || '', tokens: S.ver.tokens })); S.kopen = {}; }
+    var d = S.kd, types = Object.keys(sc.sections), site = Object.keys(sc.site).map(function (k) { return kSlot(k, sc.site[k], d.site[k], 'site.' + k); }).join('');
+    var secs = d.sections.map(function (s, i) {
+      var D = sc.sections[s.type], vars = Object.keys(D.variants), P = 'sections.' + i, todo = JSON.stringify(s.content).indexOf('[doplnit]') >= 0;
+      return '<details class="tss-ksec' + (todo ? ' todo' : '') + '" data-ki="' + i + '"' + (S.kopen[i] ? ' open' : '') + '><summary><b>' + esc(D.label) + '</b> <small class="tss-muted">' + esc(D.variants[s.variant] || s.variant) + '</small>' + (todo ? ' <span class="tss-warn">k doplnění</span>' : '') + '</summary><div class="tss-kbody">' +
+        '<div class="tss-kctl"><label class="tss-f"><span>Rozvržení</span><select data-p="' + P + '.variant" data-rerender>' + kOpts(vars, s.variant, D.variants) + '</select></label><label class="tss-f"><span>Tón</span><select data-p="' + P + '.tone">' + kOpts(sc.tones, s.tone) + '</select></label><label class="tss-f"><span>V menu jako</span><input data-p="' + P + '.nav" maxlength="24" value="' + esc(s.nav) + '"></label>' +
+        '<span class="tss-kbtn"><button type="button" class="tss-btn ghost sm" data-kmove="-1" data-i="' + i + '"' + (i ? '' : ' disabled') + '>Výš</button><button type="button" class="tss-btn ghost sm" data-kmove="1" data-i="' + i + '"' + (i < d.sections.length - 1 ? '' : ' disabled') + '>Níž</button><button type="button" class="tss-btn ghost sm danger" data-kremove="' + i + '">Odebrat</button></span></div>' +
+        Object.keys(D.slots).map(function (k) { return kSlot(k, D.slots[k], s.content[k], P + '.content.' + k); }).join('') + '</div></details>';
+    }).join('');
+    $('.tss-pane').innerHTML = '<form class="tss-kform">' + kTokens(sc) + '<fieldset><legend>Údaje webu</legend><div class="tss-grid2">' + site + '</div></fieldset><fieldset><legend>Sekce</legend>' + secs +
+      '<p class="tss-kbtn"><select data-knew aria-label="Nová sekce">' + types.map(function (t) { return '<option value="' + esc(t) + '">' + esc(sc.sections[t].label) + '</option>'; }).join('') + '</select><button type="button" class="tss-btn ghost sm" data-kaddsec>+ přidat sekci</button></p></fieldset>' +
+      '<fieldset><legend>Vlastní CSS</legend><label class="tss-f"><span>Pravidla jen uvnitř sekcí</span><textarea data-p="css" rows="3" maxlength="4000" spellcheck="false">' + esc(d.css) + '</textarea><small>Selektor začíná .s-typ nebo #id sekce. Barvy, url(), proměnné a pozice se zahodí.</small></label></fieldset>' +
+      (can('edit') ? '<p class="tss-sticky"><input class="tss-msg" maxlength="300" placeholder="Popis změny (nepovinné)" aria-label="Popis změny"><button class="tss-btn" type="submit">Uložit jako novou verzi</button></p>' : '') + '</form>';
+  }
+  function kGet(path) { return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, S.kd); }
+  function kSet(path, val) { var a = path.split('.'), l = a.pop(), o = a.reduce(function (x, k) { return x[k]; }, S.kd); o[l] = val; }
+  function kEmptyRow(path) {
+    var a = path.split('.'), sc = S.ver.schema, node = sc.sections[S.kd.sections[+a[1]].type].slots[a[3]], row = {};
+    for (var i = 5; i < a.length; i += 2) node = node.fields[a[i]];
+    Object.keys(node.fields || {}).forEach(function (f) { row[f] = (node.fields[f].type === 'list') ? [] : ''; });
+    return row;
+  }
+  function kKeepOpen() { $$('.tss-ksec').forEach(function (d) { S.kopen[+d.getAttribute('data-ki')] = d.open; }); }
+  function kRedraw() { var y = window.scrollY; tabKit(); window.scrollTo(0, y); }
+  function kClick(b) {
+    if (!b.hasAttribute('data-kadd') && !b.hasAttribute('data-kdel') && !b.hasAttribute('data-kmove') && !b.hasAttribute('data-kremove') && !b.hasAttribute('data-kaddsec')) return false;
+    kKeepOpen(); var i = +b.getAttribute('data-i'), s = S.kd.sections;
+    if (b.hasAttribute('data-kadd')) { var p = b.getAttribute('data-kadd'), l = kGet(p); if (l.length >= +b.getAttribute('data-max')) { toast('Nejvýš ' + b.getAttribute('data-max') + ' položek.', true); return true; } l.push(kEmptyRow(p)); }
+    else if (b.hasAttribute('data-kdel')) kGet(b.getAttribute('data-kdel')).splice(i, 1);
+    else if (b.hasAttribute('data-kmove')) { var d = +b.getAttribute('data-kmove'), x = s[i]; s.splice(i, 1); s.splice(i + d, 0, x); var o = S.kopen[i]; S.kopen[i] = S.kopen[i + d]; S.kopen[i + d] = o; }
+    else if (b.hasAttribute('data-kremove')) { if (s.length < 2 || !confirm('Odebrat sekci?')) return true; s.splice(+b.getAttribute('data-kremove'), 1); S.kopen = {}; }
+    else {
+      var t = $('[data-knew]').value, D = S.ver.schema.sections[t], c = {};
+      Object.keys(D.slots).forEach(function (k) { c[k] = D.slots[k].type === 'list' ? [] : ''; });
+      var at = s.length && s[s.length - 1].type === 'contact' ? s.length - 1 : s.length;
+      s.splice(at, 0, { type: t, variant: D['default'], tone: 'base', id: t, nav: '', content: c }); S.kopen = {}; S.kopen[at] = true;
+    }
+    kRedraw(); return true;
+  }
+  function saveKit(form) {
+    var d = S.kd;
+    api('render', { pid: S.p.project.id, base: S.sel, content: { site: d.site, sections: d.sections, css: d.css }, tokens: d.tokens, message: form.querySelector('.tss-msg').value }).then(function (j) {
+      if (!j.ok) return toast(errText(j), true);
+      toast('Uloženo jako verze ' + j.num + (j.errors && j.errors.length ? ' – opraveno: ' + j.errors.slice(0, 4).join('; ') : '') + (j.fixed && j.fixed.length ? ' – upravený kontrast: ' + j.fixed.join(', ') : '') + '.');
+      S.tab = 'preview'; S.sel = j.num; S.kd = null; loadProject(S.p.project.id, true);
+    });
+  }
+  /* cesta „sections.3.content.items.1.date“ → „jídelníček › items.1.date“ */
+  function todoName(t) {
+    var m = /^sections\.(\d+)\.content\.(.+)$/.exec(t), s = m && S.ver.content.sections && S.ver.content.sections[+m[1]];
+    return s ? s.id + ' › ' + m[2] : t;
   }
 
   /* ---------- doručení klientovi ---------- */
@@ -338,6 +449,9 @@
   }
   root.addEventListener('click', function (e) {
     var b = e.target.closest('button, a[data-act]'); if (!b || !root.contains(b)) return;
+    if (kClick(b)) return;
+    if (b.hasAttribute('data-dirshow')) { S.tab = 'preview'; selectVersion(+b.getAttribute('data-dirshow')); return; }
+    if (b.hasAttribute('data-dirpick')) { var dn = +b.getAttribute('data-dirpick'); api('accept', { pid: S.p.project.id, num: dn }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('Vybraný směr: verze ' + dn + '.'); S.sel = dn; loadProject(S.p.project.id, true); }); return; }
     if (b.hasAttribute('data-act')) { e.preventDefault(); act(b.getAttribute('data-act'), b); }
     else if (b.hasAttribute('data-dact')) dact(b.getAttribute('data-dact'), +b.getAttribute('data-id'), b);
     else if (b.hasAttribute('data-ver')) selectVersion(+b.getAttribute('data-ver'));
@@ -350,9 +464,12 @@
   });
   root.addEventListener('change', function (e) {
     if (e.target.matches('[data-act="status"]')) api('status', { pid: S.p.project.id, status: e.target.value }).then(function (j) { if (!j.ok) return toast(errText(j), true); toast('Stav: ' + STATUS[e.target.value]); });
+    if (e.target.matches('[data-tk]')) S.kd.tokens[e.target.getAttribute('data-tk')] = e.target.value;
+    if (e.target.matches('[data-p][data-rerender]')) { kKeepOpen(); kSet(e.target.getAttribute('data-p'), e.target.value); kRedraw(); }
+    if (e.target.matches('[data-form="ai"] input[name="mode"]')) $('[data-cost]').textContent = { kit3: 'Tři směry: zhruba tři minuty a asi 200 neuronů z denní kvóty.', kit1: 'Jeden návrh: zhruba minuta a asi 70 neuronů z denní kvóty.', tpl: 'Podle šablony: zhruba minuta a asi 100 neuronů z denní kvóty.' }[e.target.value];
     if (e.target.matches('[data-form="ai"] input[name="source"]')) { var v = e.target.value; $$('[data-only]').forEach(function (x) { x.hidden = x.getAttribute('data-only') !== v; }); }
   });
-  root.addEventListener('input', function (e) { if (e.target.matches('.tss-src textarea')) S.dirty = true; });
+  root.addEventListener('input', function (e) { if (e.target.matches('.tss-src textarea')) S.dirty = true; if (e.target.matches('.tss-kform [data-p]')) kSet(e.target.getAttribute('data-p'), e.target.value); });
   root.addEventListener('keydown', function (e) {
     if (e.key === 'Tab' && e.target.matches('.tss-src textarea') && !e.shiftKey) { e.preventDefault(); var t = e.target, s = t.selectionStart; t.setRangeText('  ', s, t.selectionEnd, 'end'); S.dirty = true; }
   });
@@ -365,6 +482,7 @@
     }
     if (f.matches('[data-form]')) submitNew(f);
     else if (f.matches('.tss-cform')) saveContent(f);
+    else if (f.matches('.tss-kform')) saveKit(f);
     else if (f.matches('.tss-ask')) {
       var t = f.text.value.trim(); if (!t) return; var btn = f.querySelector('button'); btn.disabled = true; var pid = S.p.project.id;
       api('ai-edit', { pid: pid, text: t }).then(function (j) {
@@ -379,7 +497,7 @@
       });
     }
   });
-  window.addEventListener('resize', fitFrame);
+  window.addEventListener('resize', function () { fitFrame(); fitDirs(); });
   window.addEventListener('beforeunload', function (e) { if (S.dirty) { e.preventDefault(); e.returnValue = ''; } });
   function route() {
     var m = /^#\/p\/(\d+)/.exec(location.hash);

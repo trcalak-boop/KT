@@ -1,6 +1,6 @@
 {
   "name": "ts-design-studio",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "kind": "php-library",
   "status": "demo",
   "maturity": "tested",
@@ -114,12 +114,13 @@
     "42 kroků rozhraní v Chromu (včetně doručení: schválení, příprava, e-mail, potvrzovací okno, odkaz přes bránu, odvolání, role designer): seznam, projekt ze šablony, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev, přijetí, kód, rozdíl, kontroly, cizí skript zablokuje přijetí, zamítnutí, návrat, export, stav, návrh s AI z formuláře (lead), úprava v konverzaci, mobil.",
     "Šablony restaurace (Kořen), salon (Lokna) a autosalon (Motoria) a ordinace (Ordinace) a kosmetika (Šalvěj): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku.",
     "Stavebnice sekcí (etapa 6.7a): 21 typů, 46 variant, 15 rodin písem. Testy bez sítě: schéma, kontroly kvality, escapování, tokeny a oprava kontrastu, do projektu jen použité sekce a písma. Chrome: všechny varianty ve všech tónech, 4 vizuální styly, světlý i tmavý režim, počítač i telefon (přetékání, kontrast, rozdělená slova); celé weby škola a e-shop.",
-    "Návrh na míru (etapa 6.7b): 104 testů s falešným modelem: prompt, tolerance k odpovědi, fakta jen ze zadání včetně čísel, kostra webu, sanitizér vrstvy CSS, odlišnost, tři směry, připomínky, export, náhled, brána, strop a chyby modelu."
+    "Návrh na míru (etapa 6.7b): 104 testů s falešným modelem: prompt, tolerance k odpovědi, fakta jen ze zadání včetně čísel, kostra webu, sanitizér vrstvy CSS, odlišnost, tři směry, připomínky, export, náhled, brána, strop a chyby modelu.",
+    "Administrace návrhu na míru (etapa 6.7c): 17 kontrol v Chromu: tři směry vedle sebe v sandboxu, výběr směru, editor plánu (tokeny, údaje, sekce, rozvržení, přidání, přesun, seznamy), připomínka, kód, mobil."
   ],
   "missingForProduction": [
     "Produkce (6.5b): nasazení do administrace tasstudio.eu (přihlášení a role z CRM, CSRF), data /private/studio, brána nahledy.tasstudio.eu na produkčních datech, SMTP bez redirectTo.",
     "Další šablony (6.6).",
-    "Návrh na míru zatím neběžel se skutečným modelem (Gemma): kvalita plánů a spotřeba jsou jen odhad, není rozhraní v administraci (6.7c); fotografie klienta zatím nejsou podporované."
+    "Návrh na míru zatím neběžel se skutečným modelem (Gemma): kvalita plánů, spotřeba a časový limit tří dotazů na hostingu jsou neověřené; fotografie klienta zatím nejsou podporované."
   ],
   "tests": [
     "tests/ai_test.php",

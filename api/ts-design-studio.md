@@ -92,3 +92,5 @@ PHP, zatím bez rozhraní v administraci (etapa 6.7c):
 - `$studio->kitCreate($zadani, $uid, ['source', 'lead_ref', 'audit_ref'], 1–3)` → `{ id, version, versions: [{ num, direction, checks, errors, todo, dropped, suspect, repaired, similarity, varied, notes }], failed }`. Projekt má `template = '_kit'`, `content` verze = plán `{ site, sections, css }`, `tokens` = tokeny stavebnice.
 - `$studio->aiEdit($pid, $uid, $pokyn)`: u projektu ze stavebnice operace nad plánem, vrací novou verzi ke schválení.
 - `new TsStudioKit()`: `clean($plan)`, `render($plan)`, `cleanCss($css, $sekce)`, `catalog()`.
+
+HTTP (od 0.11.0): `POST ?r=ai-create` s `{ mode: 'kit', directions: 1|3, source, brief }` spustí úlohu `kitCreate`; `GET ?r=version` vrací u projektu `_kit` v `schema` popis stavebnice (`kit: true`, `tokens`, `fonts`, `site`, `tones`, `sections`).

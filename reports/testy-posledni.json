@@ -1,6 +1,6 @@
 {
-  "at": "2026-11-07T09:11:36",
-  "pass": 1124,
+  "at": "2026-11-07T09:22:54",
+  "pass": 1141,
   "fail": 0,
   "files": [
     {
@@ -53,7 +53,7 @@
     },
     {
       "file": "components/ts-design-studio/tests/ui_test.py",
-      "pass": 43,
+      "pass": 60,
       "fail": 0,
       "log": []
     }
