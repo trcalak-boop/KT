@@ -131,6 +131,21 @@ final class TsStudioStore
         $in = implode(', ', array_fill(0, count($from), '?'));
         return $this->q("UPDATE studio_deliveries SET status = ?, updated_at = ? WHERE id = ? AND status IN ($in)", array_merge([$to, self::now(), $id], $from))->rowCount() === 1;
     }
+    /* připomínky klienta (migrace 004) */
+    public function addFeedback(array $f): int
+    {
+        $this->q('INSERT INTO studio_feedback (project_id, num, delivery_id, kind, author, section, body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$f['project_id'], $f['num'], $f['delivery_id'], $f['kind'], $f['author'], $f['section'], $f['body'], self::now()]);
+        return (int) $this->db->lastInsertId();
+    }
+    public function feedback(int $id): ?array { $r = $this->q('SELECT * FROM studio_feedback WHERE id = ?', [$id])->fetch(); return $r ?: null; }
+    public function setFeedback(int $id, array $f): void { $set = implode(', ', array_map(fn ($k) => "$k = ?", array_keys($f))); $this->q("UPDATE studio_feedback SET $set WHERE id = ?", array_merge(array_values($f), [$id])); }
+    public function feedbackOfDelivery(int $did): array { return $this->q('SELECT * FROM studio_feedback WHERE delivery_id = ? ORDER BY id', [$did])->fetchAll(); }
+    public function feedbackOfProject(int $pid): array { return $this->q('SELECT * FROM studio_feedback WHERE project_id = ? ORDER BY id DESC', [$pid])->fetchAll(); }
+    public function feedbackCount(int $did, string $since): int { return (int) $this->q('SELECT COUNT(*) FROM studio_feedback WHERE delivery_id = ? AND created_at >= ?', [$did, $since])->fetchColumn(); }
+    public function feedbackUnnotified(): array { return $this->q("SELECT * FROM studio_feedback WHERE notified_at = '' ORDER BY id LIMIT 20")->fetchAll(); }
+    public function feedbackUnsynced(): array { return $this->q("SELECT f.*, p.lead_ref, p.name AS project_name FROM studio_feedback f JOIN studio_projects p ON p.id = f.project_id WHERE f.synced_at = '' ORDER BY f.id")->fetchAll(); }
+    public function feedbackOpenCount(): int { return (int) $this->q("SELECT COUNT(*) FROM studio_feedback WHERE status = 'new' AND kind = 'comment'")->fetchColumn(); }
+    public function anonymizeFeedback(string $before): int { return $this->q("UPDATE studio_feedback SET author = '', body = '', section = '' WHERE created_at < ? AND (body <> '' OR author <> '')", [$before])->rowCount(); }
     public function anonymizeDeliveries(string $before): int
     {
         return $this->q("UPDATE studio_deliveries SET to_email = '', to_name = '', body = '', subject = '', error = '', updated_at = ? WHERE created_at < ? AND to_email <> ''", [self::now(), $before])->rowCount();

@@ -237,7 +237,7 @@
     },
     {
       "name": "ts-design-studio",
-      "version": "0.11.0",
+      "version": "0.12.0",
       "kind": "php-library",
       "status": "demo",
       "maturity": "tested",
@@ -261,12 +261,14 @@
         "Šablony restaurace (Kořen), salon (Lokna) a autosalon (Motoria) a ordinace (Ordinace) a kosmetika (Šalvěj): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku.",
         "Stavebnice sekcí (etapa 6.7a): 21 typů, 46 variant, 15 rodin písem. Testy bez sítě: schéma, kontroly kvality, escapování, tokeny a oprava kontrastu, do projektu jen použité sekce a písma. Chrome: všechny varianty ve všech tónech, 4 vizuální styly, světlý i tmavý režim, počítač i telefon (přetékání, kontrast, rozdělená slova); celé weby škola a e-shop.",
         "Návrh na míru (etapa 6.7b): 104 testů s falešným modelem: prompt, tolerance k odpovědi, fakta jen ze zadání včetně čísel, kostra webu, sanitizér vrstvy CSS, odlišnost, tři směry, připomínky, export, náhled, brána, strop a chyby modelu.",
-        "Administrace návrhu na míru (etapa 6.7c): 17 kontrol v Chromu: tři směry vedle sebe v sandboxu, výběr směru, editor plánu (tokeny, údaje, sekce, rozvržení, přidání, přesun, seznamy), připomínka, kód, mobil."
+        "Administrace návrhu na míru (etapa 6.7c): 17 kontrol v Chromu: tři směry vedle sebe v sandboxu, výběr směru, editor plánu (tokeny, údaje, sekce, rozvržení, přidání, přesun, seznamy), připomínka, kód, mobil.",
+        "Nahraný návrh (etapa 7.1): 89 testů bez sítě (ZIP a jeho ochrany, přehled barev, písem a struktury, verze, doručení, brána, připomínky, schválení, upozornění, přenos do CRM, retence) a 22 kontrol v Chromu (sandbox návrhu, písma, obrázky, podstránky, formulář bez JavaScriptu, telefon, tmavý režim)."
       ],
       "missingForProduction": [
         "Produkce (6.5b): nasazení do administrace tasstudio.eu (přihlášení a role z CRM, CSRF), data /private/studio, brána nahledy.tasstudio.eu na produkčních datech, SMTP bez redirectTo.",
         "Další šablony (6.6).",
-        "Návrh na míru zatím neběžel se skutečným modelem (Gemma): kvalita plánů, spotřeba a časový limit tří dotazů na hostingu jsou neověřené; fotografie klienta zatím nejsou podporované."
+        "Návrh na míru zatím neběžel se skutečným modelem (Gemma): kvalita plánů, spotřeba a časový limit tří dotazů na hostingu jsou neověřené; fotografie klienta zatím nejsou podporované.",
+        "Nahraný návrh zatím nemá rozhraní v CRM (7.2) a na hostingu neověřené: paměť PHP při ZIPu do 40 MB."
       ],
       "path": "components/ts-design-studio"
     },
@@ -493,5 +495,5 @@
       "path": "components/ts-site-audit"
     }
   ],
-  "generated": "2026-11-07T09:21:02"
+  "generated": "2026-11-07T09:56:49"
 }

@@ -9,8 +9,10 @@
 final class TsDesignStudio
 {
     use TsStudioDeliveryOps;   /* doručení klientovi – core/TsStudioDelivery.php */
+    use TsStudioUploadOps;     /* nahraný návrh a připomínky – core/TsStudioUpload.php */
     const SOURCES = ['new', 'redesign', 'crm'];
     const STATUS = ['draft', 'in_review', 'approved_internal', 'archived'];
+    const UPLOAD = '_upload';   /* nahraný hotový návrh (ZIP, HTML) */
     const KIT = '_kit';     /* projekt ze stavebnice (návrh na míru): content = plán, tokens = tokeny stavebnice */
     private array $c; private TsStudioStore $store; private array $tpl = []; private ?TsStudioKit $kit = null;
 
@@ -32,6 +34,7 @@ final class TsDesignStudio
     public function kit(): TsStudioKit { return $this->kit ??= new TsStudioKit(); }
     public function template(string $id): TsStudioTemplate
     {
+        if ($id === self::UPLOAD) return TsStudioTemplate::virtual(['id' => self::UPLOAD, 'name' => 'Nahraný návrh'], [], fn (string $p) => '');
         if ($id === self::KIT) { $k = $this->kit(); return TsStudioTemplate::virtual(['id' => self::KIT, 'name' => 'Návrh na míru'], $k->allFontPaths(), fn (string $p) => $k->fontBytes($p)); }
         $t = $this->templates()[$id] ?? null; if (!$t) throw new InvalidArgumentException('neznámá šablona ' . $id);
         return $t;
@@ -50,7 +53,7 @@ final class TsDesignStudio
         $name = trim(mb_substr(preg_replace('/\s+/u', ' ', (string) ($p['name'] ?? '')), 0, 160));
         if ($name === '') throw new InvalidArgumentException('chybí název projektu');
         if (!in_array($p['source'] ?? '', self::SOURCES, true)) throw new InvalidArgumentException('zdroj projektu');
-        if (($p['template'] ?? '') === self::KIT) throw new InvalidArgumentException('návrh na míru vzniká jen ze zadání');
+        if (in_array($p['template'] ?? '', [self::KIT, self::UPLOAD], true)) throw new InvalidArgumentException('návrh na míru vzniká jen ze zadání');
         $t = $this->template((string) ($p['template'] ?? ''));
         $pid = $this->store->createProject(['name' => $name, 'source' => $p['source'], 'template' => $t->id(), 'lead_ref' => mb_substr((string) ($p['lead_ref'] ?? ''), 0, 64),
             'audit_ref' => mb_substr((string) ($p['audit_ref'] ?? ''), 0, 64), 'owner_uid' => $uid, 'brief' => (array) ($p['brief'] ?? [])]);
@@ -374,6 +377,10 @@ final class TsDesignStudio
         $p = $this->project($pid, $uid, $act); $t = $this->template($p['template']); $v = $this->store->version($pid, $num);
         if (!$v) throw new InvalidArgumentException('verze neexistuje');
         $out = $v['files'];
+        if (self::isUpload($p)) {
+            foreach ((array) ($v['content']['manifest'] ?? []) as $f => $m) $out[$f] = (string) TsStudioUpload::get($this->uploadDir(), (string) $m['sha']);
+            ksort($out); return $out;
+        }
         if ($p['template'] === self::KIT) {
             foreach ($this->kit()->binaryFor($v['tokens']) as $f => $src) if (!isset($out[$f])) $out[$f] = (string) file_get_contents($src);
             ksort($out); return $out;

@@ -1,5 +1,12 @@
 # ts-design-studio – změny
 
+## 0.12.0 – 2026-11-07
+- Nahraný návrh (etapa 7.1, plán `docs/ai/12-navrhy-v-crm-plan.md`): `uploadDesign` přijme ZIP nebo jeden HTML soubor jako projekt `_upload` s verzemi. Vlastní čtečka ZIP bez ZipArchive: žádné „..“, absolutní cesty, odkazy, šifrování ani nepovolené přípony; strop 40 MB a 800 souborů. Kód se na serveru nikdy nespouští, soubory jsou mimo webroot (`uploadDir`).
+- Přehled bez AI (`TsStudioInspect`): barvy (i tmavý režim a proměnné), písma (přiložená, Google, systémová, chybějící), stránky a sekce, statistiky, kontroly chybějících souborů a cizích zdrojů. Chyby brání odeslání.
+- Stránka klienta v bráně (`TsStudioClientPage`): návrh v `<iframe sandbox>` s CSP sandbox a bez přístupu na síť, panel Připomínky bez JavaScriptu, volba části, schválení, čeština a angličtina podle leadu.
+- Připomínky (migrace 004): limit na odkaz, past na roboty, ověření původu, ochrana proti dvojímu odeslání, e-mail nám s opakováním při výpadku, data pro přenos do CRM, vyřízení, anonymizace po 24 měsících.
+- Návrhy ze šablon a stavebnice fungují beze změny.
+
 ## 0.11.0 – 2026-11-07
 - Administrace návrhu na míru (etapa 6.7c): ve formuláři volba tři směry / jeden návrh / podle šablony a nová pole cíle webu, co se líbí a nelíbí. Záložka Směry ukáže návrhy vedle sebe a jedním tlačítkem vybere směr.
 - Záložka Obsah a barvy u návrhu na míru: barvy pro oba režimy, písma a tvar, údaje webu, sekce (rozvržení, tón, menu, sloty včetně vnořených seznamů, přidat, přesunout, odebrat), vlastní CSS. Uložení je nová verze.

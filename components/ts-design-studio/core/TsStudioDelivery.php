@@ -52,7 +52,9 @@ trait TsStudioDeliveryOps
         $key = spl_object_id($this->store) . '|' . date('Y-m-d');
         if (!$force && isset($done[$key])) return 0;
         $done[$key] = true;
-        return $this->store->anonymizeDeliveries(date('Y-m-d H:i:s', strtotime("-$months months")));
+        $before = date('Y-m-d H:i:s', strtotime("-$months months"));
+        $this->store->anonymizeFeedback($before);
+        return $this->store->anonymizeDeliveries($before);
     }
     public function hasDelivery(): bool { return strlen((string) ($this->c['deliverySecret'] ?? '')) >= 32 && (string) ($this->c['previewBase'] ?? '') !== ''; }
     /* detail pro rozhraní: náhled e-mailu s odkazem (odkaz samotný jen u aktivního doručení – kopírování je samostatná zaznamenaná akce) */
@@ -85,7 +87,7 @@ trait TsStudioDeliveryOps
         if ($p['status'] !== 'approved_internal') throw new InvalidArgumentException('sdílet jde jen interně schválený projekt');
         $v = $this->store->version($pid, $num); if (!$v || $v['status'] !== 'accepted') throw new InvalidArgumentException('sdílet jde jen přijatou verzi');
         $days = max(1, min(90, $days)); $nonce = bin2hex(random_bytes(16));
-        $txt = (array) ($this->c['deliveryText'] ?? []) + self::defaultDeliveryText();
+        $txt = self::isUpload($p) ? self::uploadDeliveryText((string) ($p['brief']['lang'] ?? 'cs')) : (array) ($this->c['deliveryText'] ?? []) + self::defaultDeliveryText();
         $lead = ($p['lead_ref'] !== '' && is_callable($this->c['leadLookup'] ?? null)) ? (array) (($this->c['leadLookup'])($p['lead_ref']) ?? []) : [];
         $tmp = ['project_id' => $pid, 'num' => $num, 'nonce' => $nonce];
         $id = $this->store->addDelivery($tmp + ['token_hash' => hash('sha256', $this->tokenOf($tmp)), 'status' => 'prepared', 'days' => $days, 'created_by' => $uid,

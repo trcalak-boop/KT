@@ -21,24 +21,27 @@ final class TsStudioPreviewGate
     public function serve(): void
     {
         $path = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
-        [$code, $headers, $body] = $this->handle($_SERVER['REQUEST_METHOD'] ?? 'GET', $path, (string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+        $h = ['origin' => (string) ($_SERVER['HTTP_ORIGIN'] ?? ''), 'host' => (string) ($_SERVER['HTTP_HOST'] ?? ''), 'sec-fetch-site' => (string) ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')];
+        [$code, $headers, $body] = $this->handle($_SERVER['REQUEST_METHOD'] ?? 'GET', $path, (string) ($_SERVER['REMOTE_ADDR'] ?? ''), $_POST, $h, (string) ($_SERVER['QUERY_STRING'] ?? ''));
         http_response_code($code);
         foreach ($headers as $k => $v) header("$k: $v");
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') echo $body;
     }
 
     /* → [HTTP kód, hlavičky, tělo] */
-    public function handle(string $method, string $path, string $ip): array
+    public function handle(string $method, string $path, string $ip, array $post = [], array $h = [], string $query = ''): array
     {
         $base = ['X-Robots-Tag' => 'noindex, nofollow, noarchive', 'Referrer-Policy' => 'no-referrer', 'X-Content-Type-Options' => 'nosniff', 'X-Frame-Options' => 'DENY',
             'Cache-Control' => 'private, no-store', 'Content-Security-Policy' => self::CSP, 'Cross-Origin-Resource-Policy' => 'same-origin'];
         if ($path === '/robots.txt') return [200, $base + ['Content-Type' => 'text/plain; charset=utf-8'], "User-agent: *\nDisallow: /\n"];
-        if ($method !== 'GET' && $method !== 'HEAD') return [405, $base + ['Allow' => 'GET, HEAD', 'Content-Type' => 'text/plain; charset=utf-8'], 'Metoda není povolena.'];
+        $isPost = $method === 'POST' && preg_match('~^/[A-Za-z0-9_-]{32}/pripominka$~', $path);
+        if ($method !== 'GET' && $method !== 'HEAD' && !$isPost) return [405, $base + ['Allow' => 'GET, HEAD', 'Content-Type' => 'text/plain; charset=utf-8'], 'Metoda není povolena.'];
         if ($this->blocked($ip)) return [429, $base + ['Content-Type' => 'text/html; charset=utf-8', 'Retry-After' => '3600'], self::page('Příliš mnoho pokusů', 'Zkuste to prosím později.')];
         if (!preg_match('~^/([A-Za-z0-9_-]{32})(/.*)?$~', $path, $m)) return $this->notFound($base, $ip);
         $hit = $this->s->deliveryForToken($m[1]);
         if (!$hit) return $this->notFound($base, $ip);
         if (!isset($m[2]) || $m[2] === '') return [301, $base + ['Location' => '/' . $m[1] . '/'], ''];
+        if (TsDesignStudio::isUpload($hit['project'])) return (new TsStudioClientPage($this->s, $this->c))->handle($method, $m[1], $m[2], $hit, $base, $post, $h, $query);
         $file = ltrim(rawurldecode($m[2]), '/'); if ($file === '' || str_ends_with($file, '/')) $file .= 'index.html';
         if (strpos($file, '..') !== false || !preg_match('~^[a-z0-9][a-z0-9._/-]{0,160}$~i', $file)) return [404, $base + ['Content-Type' => 'text/html; charset=utf-8'], self::page('Soubor nenalezen', '')];
         $t = $hit['template']; $files = $hit['version']['files'];

@@ -94,3 +94,10 @@ PHP, zatím bez rozhraní v administraci (etapa 6.7c):
 - `new TsStudioKit()`: `clean($plan)`, `render($plan)`, `cleanCss($css, $sekce)`, `catalog()`.
 
 HTTP (od 0.11.0): `POST ?r=ai-create` s `{ mode: 'kit', directions: 1|3, source, brief }` spustí úlohu `kitCreate`; `GET ?r=version` vrací u projektu `_kit` v `schema` popis stavebnice (`kit: true`, `tokens`, `fonts`, `site`, `tones`, `sections`).
+
+## Nahraný návrh a připomínky (od 0.12.0)
+Konfigurace: `uploadDir` (mimo webroot), `feedbackTo` (e-maily nebo `fn(array $projekt): array`), `mailer`, `crmUrl` (volitelně odkaz do CRM v e-mailu).
+- `uploadDesign($bajty, $nazevSouboru, $uid, ['project' | 'name', 'lead_ref', 'lang', 'message'])` → `{ id, num, accepted, analysis, checks }`; nepovolený obsah = `TsStudioUploadError` s polem `errors`.
+- `uploadFile($verze, $cesta)`, `uploadPaths($verze)`, `allFiles`, `preview`, `prepareDelivery`, `draftDelivery`, `sendDelivery`, `copyLink`, `revokeDelivery`.
+- `feedbackOf($pid, $uid)`, `feedbackUnsynced()`, `markFeedbackSynced($ids)`, `setFeedbackDone($id, $uid, $hotovo)`, `feedbackOpenCount()`, `retryFeedbackMail()`.
+- Brána: `GET /<token>/` stránka klienta, `GET /<token>/navrh/…` soubory návrhu, `POST /<token>/pripominka` (`text`, `cast`, `jmeno`, `web`, `akce=schvalit`).

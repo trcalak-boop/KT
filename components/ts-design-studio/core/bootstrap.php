@@ -14,9 +14,12 @@ require_once __DIR__ . '/TsStudioModels.php';
 require_once __DIR__ . '/TsStudioAi.php';
 require_once __DIR__ . '/TsStudioPlanner.php';
 require_once __DIR__ . '/TsStudioDelivery.php';
+require_once __DIR__ . '/TsStudioInspect.php';
+require_once __DIR__ . '/TsStudioUpload.php';
 require_once __DIR__ . '/TsDesignStudio.php';
 require_once __DIR__ . '/TsStudioApi.php';
 require_once __DIR__ . '/TsStudioPreviewGate.php';
+require_once __DIR__ . '/TsStudioClientPage.php';
 require_once __DIR__ . '/TsStudioRoles.php';
 
 function ts_design_studio(array $s): TsDesignStudio
