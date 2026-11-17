@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salon Vlna – online rezervace (serverová ukázka)</title>
+<link rel="stylesheet" href="vendor/ts/ts-booking-widget/core/booking-widget.css">
+<link rel="stylesheet" href="ts-theme/ts-booking-widget/tokens.css">
+<link rel="stylesheet" href="assets/web.css">
+</head><body>
+<header class="top"><a class="logo" href="index.html">Salon <em>Vlna</em></a><nav><a href="index.html#rezervace">Rezervace</a><a href="sprava.html">Pro salon</a></nav></header>
+<main>
+  <section class="hero"><p class="eyebrow">Kadeřnictví · Brno, Veveří 12</p><h1>Vlasy, které drží tvar i náladu.</h1><p>Rezervace se ukládají na server salonu, přijde vám potvrzení e-mailem a termín můžete zrušit odkazem.</p><a class="cta" href="#rezervace">Rezervovat termín</a></section>
+  <section id="sluzby" class="info"><h2>Služby a ceny</h2><ul id="cenik"></ul></section>
+  <section id="rezervace" class="booking"><h2>Online rezervace</h2><div id="widget"></div></section>
+</main>
+<footer>Salon Vlna je fiktivní ukázka studia T&amp;S – serverová verze (PHP + SQLite). E-maily se v ukázce neodesílají.</footer>
+<script src="vendor/ts/ts-booking-core/core/booking-core.js"></script>
+<script src="vendor/ts/ts-booking-core/adapters/store-http.js"></script>
+<script src="vendor/ts/ts-booking-widget/core/booking-widget.js"></script>
+<script>
+/* Vlastní kód projektu: konfigurace ze serveru + serverové úložiště. Rezervační logika je jen v knihovně. */
+var API = 'api/rezervace.php', store = TSBooking.stores.http(API, { lang: 'cs' });
+store.config().then(function (config) {
+  document.getElementById('cenik').innerHTML = config.services.map(function (s) {
+    var lo = Math.min.apply(null, s.prices), hi = Math.max.apply(null, s.prices);
+    return '<li><span>' + s.name + '</span><b>' + (lo === hi ? lo : 'od ' + lo) + ' Kč</b></li>';
+  }).join('');
+  return TSBookingWidget.mount('#widget', { config: config, store: store, ui: { lang: 'cs', resourceLabel: 'Stylista', variantLabel: 'Délka vlasů', location: 'Salon Vlna, Veveří 12, Brno', eventTitle: 'Salon Vlna: ', icsName: 'salon-vlna',
+    labels: { doneHint: 'Potvrzení jsme vám poslali e-mailem (v ukázce se zapisuje do private/mail.log). Salon rezervaci potvrdí.' } } });
+}).catch(function () { document.getElementById('widget').innerHTML = '<p class="tsb-err">Rezervace se teď nepodařilo načíst. Zavolejte nám prosím.</p>'; });
+</script>
+</body></html>

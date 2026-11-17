@@ -1,0 +1,26 @@
+{
+  "lockVersion": 1,
+  "library": "/Users/krystof/TS-Studio/ts-library",
+  "components": {
+    "ts-booking-core": {
+      "version": "1.2.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:56",
+      "files": {
+        "adapters/store-demo-local.js": "69945f360a8c3867d6840edc49264cd701a638488a09eef580ae95e83fda102d",
+        "adapters/store-http.js": "641b2c0ea75f756be027d1b8e1d6136df15632ed88849483aff760124ade09fd",
+        "config/schema.json": "7aae9dfac709cbfcdefba6166834bf3636f240ee4c4d62d75b1e0ec2e9405184",
+        "core/booking-core.js": "ebede4f3aeebac9365207f4838f804ddc2c13a7ce0f03153ff2bee7db7990953"
+      }
+    },
+    "ts-booking-widget": {
+      "version": "1.2.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:56",
+      "files": {
+        "core/booking-widget.css": "7b76e8fe0b87cb6a85861edb9188172c50771f691830fe822bf7013920edac0d",
+        "core/booking-widget.js": "e361050844f76a1919cd742570b062ecaee9896013bd2eef3df369f8afcb85b1"
+      }
+    }
+  }
+}

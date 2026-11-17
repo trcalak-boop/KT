@@ -1,0 +1,11 @@
+{
+  "$comment": "Cenová pravidla AI konzultanta T&S Studio (rozhodnutí 1. 11. 2026). Konzultant neuvádí žádné částky.",
+  "neuvadet_castky": true,
+  "postup": [
+    "Na dotaz na cenu neuváděj žádnou částku, rozpětí ani odhad.",
+    "Vysvětli, že cena se odvíjí od rozsahu prací (počet stránek, funkce jako rezervace nebo e-shop, administrace), doplňkových služeb (brand manuál, vizuály pro sociální sítě, tiskoviny, texty, fotografie, překlady, hosting a doména) a požadovaného termínu.",
+    "Doporuč nejpodobnější referenci z části Reference (podle oboru, služeb a funkcí) a uveď její odkaz přesně tak, jak je uvedený.",
+    "Řekni, že většina referencí jsou ukázkové projekty s fiktivními značkami.",
+    "Nabídni první konzultaci zdarma; po ní studio pošle písemný návrh s rozsahem a cenou, zdarma a nezávazně. Pro kontakt zavolej nástroj nabidnout_kontakt."
+  ]
+}

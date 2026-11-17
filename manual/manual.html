@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Manuál webu a administrace T&amp;S Studio</title>
+<style>
+@font-face{font-family:"Archivo";src:url("file:///Users/krystof/Downloads/T&S webstudio_28-10/web/assets/fonts/archivo.woff2") format("woff2");font-weight:400 900;font-stretch:100% 125%}@font-face{font-family:"Onest";src:url("file:///Users/krystof/Downloads/T&S webstudio_28-10/web/assets/fonts/onest-latin.woff2") format("woff2");font-weight:400 700}@font-face{font-family:"Onest";src:url("file:///Users/krystof/Downloads/T&S webstudio_28-10/web/assets/fonts/onest-latin-ext.woff2") format("woff2");font-weight:400 700;unicode-range:U+0100-02BA,U+1E00-1EFF}@font-face{font-family:"JetBrains Mono";src:url("file:///Users/krystof/Downloads/T&S webstudio_28-10/web/assets/fonts/jetbrains-mono.woff2") format("woff2");font-weight:400 500}
+@page { size: A4; margin: 16mm 15mm 18mm; }
+@page :first { margin: 0; }
+:root { --red: #e10600; --ink: #141416; --muted: #5d5d63; --line: #dcdcd6; --paper: #f4f4f0; --blue: #1f4e79; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; color: var(--ink); font: 10.2pt/1.5 "Onest", -apple-system, Arial, sans-serif; }
+h1, h2, h3, h4 { font-family: "Archivo", Arial, sans-serif; font-stretch: 112%; line-height: 1.15; break-after: avoid; }
+h1.kap { font-size: 25pt; margin: 0 0 4mm; padding-top: 2mm; letter-spacing: -.01em; break-before: page; }
+h1.kap span { font-family:"JetBrains Mono"; font-weight:500; color: var(--red); display: block; font-size: 11pt; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 2mm; }
+h2 { font-size: 14.5pt; margin: 7mm 0 2.5mm; padding-top: 1mm; border-top: 1.5px solid var(--ink); }
+h3 { font-size: 11.6pt; margin: 5mm 0 1.5mm; }
+h4 { font-size: 10.6pt; margin: 3.5mm 0 1mm; }
+p { margin: 0 0 2.4mm; }
+ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+li { margin: .6mm 0; }
+a { color: var(--blue); }
+code, .k { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 9pt; background: #efefea; padding: .2mm 1.2mm; border-radius: 1mm; }
+b.btn { display: inline-block; font-weight: 600; font-size: 9pt; border: 1px solid #b9b9b2; border-radius: 99px; padding: 0 2.2mm; background: #fff; white-space: nowrap; }
+b.btn.red { background: var(--red); border-color: var(--red); color: #fff; }
+figure { margin: 3mm 0 4.5mm; break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; border: 1px solid var(--line); border-radius: 2mm; }
+figure.m img { max-height: 125mm; }
+figure.s img { max-height: 98mm; }
+figure.xs img { max-height: 78mm; }
+figure.t img { max-height: 200mm; }
+figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 1.4mm; text-align: center; }
+.row { display: flex; gap: 4mm; align-items: flex-start; break-inside: avoid; }
+.row > figure { flex: 1; margin-top: 1mm; }
+.box { border-radius: 2mm; padding: 3mm 4mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.box > :last-child { margin-bottom: 0; }
+.tip { background: #eef5ec; border-left: 3px solid #2f8a43; }
+.pozor { background: #fdeeed; border-left: 3px solid var(--red); }
+.info { background: #eef2f8; border-left: 3px solid var(--blue); }
+.box b.t { display: block; margin-bottom: 1mm; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.4pt; break-inside: auto; }
+th, td { text-align: left; vertical-align: top; padding: 1.4mm 2mm; border-bottom: 1px solid var(--line); }
+th { background: #efefea; font-weight: 600; }
+tr { break-inside: avoid; }
+ol.kroky { counter-reset: k; list-style: none; padding-left: 0; }
+ol.kroky > li { counter-increment: k; position: relative; padding-left: 8.5mm; margin: 1.6mm 0; }
+ol.kroky > li::before { content: counter(k); position: absolute; left: 0; top: .1mm; width: 5.6mm; height: 5.6mm; border-radius: 50%; background: var(--ink); color: #fff; font-size: 8.4pt; font-weight: 700; display: grid; place-items: center; }
+.scen { border: 1px solid var(--line); border-radius: 2mm; padding: 2.6mm 3.6mm; margin: 2.4mm 0; break-inside: avoid; }
+.scen h4 { margin: 0 0 1mm; }
+.scen p:last-child, .scen ul:last-child, .scen ol:last-child { margin-bottom: 0; }
+.cover { height: 297mm; padding: 26mm 22mm; background: #111113; color: #f1f1ee; display: flex; flex-direction: column; break-after: page; }
+.cover .logo { display:flex; align-items:center; gap:5mm; }
+.cover .logo-svg { height: 13mm; width:auto; fill:#F1F1EE; }
+.cover .logo-svg .amp { fill: var(--red); }
+.cover .logo .mono { font:500 9pt/1 "JetBrains Mono"; letter-spacing:.22em; text-transform:uppercase; color:#B7B6BC; padding-left:5mm; border-left:1px solid #4A4A50; }
+.cover h1 { font-family:"Archivo"; font-weight:900; font-stretch:125%; text-transform:uppercase; font-size: 36pt; line-height: 1.02; margin: 36mm 0 8mm; letter-spacing: -.02em; }
+.cover h1 em { color: var(--red); font-style: normal; }
+.cover p { font-size: 13pt; color: #c9c9c3; max-width: 140mm; }
+.cover .sp { flex: 1; }
+.cover table { color: #c9c9c3; font-size: 10pt; max-width: 150mm; }
+.cover td { border-color: #333; padding: 1.6mm 0; }
+.cover td:first-child { color: #8b8b86; width: 46mm; }
+.obsah { columns: 2; column-gap: 10mm; font-size: 10pt; }
+.obsah ol { padding-left: 5mm; margin: 0; }
+.obsah > ol > li { break-inside: avoid; margin-bottom: 2mm; font-weight: 600; }
+.obsah > ol > li ol { font-weight: 400; font-size: 9.2pt; color: var(--muted); margin-top: .6mm; }
+.pb { break-before: page; }
+.mala { font-size: 8.8pt; color: var(--muted); }
+dl.slov { display: grid; grid-template-columns: 38mm 1fr; gap: 1.2mm 4mm; margin: 2mm 0 4mm; }
+dl.slov dt { font-weight: 700; }
+dl.slov dd { margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============================ TITULNÍ STRANA ============================ -->
+<section class="cover">
+  <div class="logo"><svg viewBox="0 0 2685 712" aria-hidden="true" class="logo-svg"><path d="M292 700L292 201L0 201L0 12L831 12L831 201L539 201L539 700Z"/><path class="amp" d="M1314 712C1213 712 1131 704 1066 687C1002 670 955 647 924 616C894 586 879 550 879 508C879 467 892 432 917 402C942 373 977 353 1021 343L1021 339C988 330 961 312 938 286C915 259 904 230 904 197C904 158 919 124 949 94C979 65 1024 42 1084 25C1143 8 1218 0 1307 0C1394 0 1469 8 1532 24C1594 39 1642 61 1674 89C1708 117 1724 150 1724 188L1724 213L1501 213L1501 202C1500 191 1494 181 1480 172C1468 163 1448 157 1423 152C1398 147 1366 145 1327 145C1293 145 1264 147 1240 150C1215 154 1195 160 1180 166C1165 174 1153 182 1146 192C1139 201 1135 212 1135 225C1135 238 1139 250 1148 258C1156 268 1167 274 1180 278C1194 282 1209 284 1224 284L1378 284L1378 415L1197 415C1181 415 1166 418 1153 422C1140 428 1129 435 1121 445C1113 455 1109 468 1109 483C1109 501 1116 516 1129 528C1142 541 1164 550 1194 557C1224 564 1264 567 1313 567C1362 567 1400 563 1427 556C1454 548 1474 538 1484 524C1496 512 1501 497 1501 482L1501 284L1876 284L1876 415L1724 415L1724 478C1724 525 1710 567 1682 602C1655 637 1611 664 1551 684C1491 702 1412 712 1314 712Z"/><path d="M2307 712C2248 712 2192 708 2141 702C2090 694 2045 682 2006 666C1967 648 1937 625 1915 594C1893 564 1882 526 1882 480C1882 479 1882 477 1882 474C1882 472 1882 470 1883 467L2124 467C2123 470 2123 472 2123 474C2123 477 2123 479 2123 481C2123 501 2130 516 2143 527C2156 538 2175 545 2199 548C2223 552 2251 554 2282 554C2295 554 2308 554 2322 554C2335 553 2348 552 2362 550C2374 549 2386 546 2396 543C2407 540 2415 535 2422 530C2428 524 2431 517 2431 508C2431 496 2424 487 2408 480C2394 473 2373 468 2348 464C2322 461 2293 457 2262 454C2230 451 2197 446 2163 441C2129 436 2096 428 2064 418C2033 409 2004 396 1978 379C1953 362 1932 341 1918 315C1902 289 1895 257 1895 220C1895 180 1906 146 1926 118C1948 90 1976 67 2012 50C2048 33 2089 20 2136 12C2183 4 2231 0 2282 0C2334 0 2383 4 2428 12C2474 19 2514 31 2550 48C2584 65 2612 86 2632 114C2652 140 2662 173 2662 212L2662 224L2423 224L2423 220C2423 207 2419 195 2410 184C2401 174 2387 166 2368 160C2349 153 2323 150 2292 150C2260 150 2233 152 2212 156C2191 160 2175 166 2164 172C2154 180 2149 187 2149 195C2149 207 2156 216 2172 223C2186 230 2207 235 2232 238C2258 242 2287 246 2318 249C2350 252 2383 256 2417 262C2451 266 2484 274 2516 282C2547 292 2576 304 2602 320C2627 336 2648 356 2662 381C2678 406 2685 436 2685 472C2685 529 2668 575 2636 610C2602 645 2558 671 2500 688C2444 704 2379 712 2307 712Z"/></svg><span class="mono">Studio</span></div>
+  <h1>Manuál webu<br>a administrace<em>.</em></h1>
+  <p>Kompletní průvodce webem tasstudio.eu, asistentkou Tessou, administrací, CRM a návrhy webů pro klienty. Je psaný pro člověka, který systém nikdy neviděl: co kde najde, jak co udělat krok za krokem a co dělat, když něco nejde podle plánu.</p>
+  <div class="sp"></div>
+  <table>
+    <tr><td>Web</td><td>https://www.tasstudio.eu</td></tr>
+    <tr><td>Administrace</td><td>https://www.tasstudio.eu/admin/</td></tr>
+    <tr><td>Stránky s návrhy pro klienty</td><td>https://nahledy.tasstudio.eu</td></tr>
+    <tr><td>Kontakt studia</td><td>tasstudio@tasstudio.eu</td></tr>
+    <tr><td>Stav k</td><td>7. 11. 2026 (CRM s návrhy webů, ts-design-studio 0.13.0)</td></tr>
+  </table>
+</section>
+
+<!-- ============================ OBSAH ============================ -->
+<h2 style="border:0;font-size:22pt;margin-top:0">Obsah</h2>
+<div class="obsah">
+<ol>
+  <li>Začínáme<ol><li>Co je co</li><li>Slovníček</li><li>Kdo co dělá a kam chodí upozornění</li><li>Ukázková data v manuálu</li></ol></li>
+  <li>Veřejný web<ol><li>Hlavička, jazyky, tmavý vzhled</li><li>Stránky webu</li><li>Reference a detail zakázky</li><li>Ukázkové weby</li><li>Lišta cookies</li><li>Poptávkový formulář</li><li>Telefon</li></ol></li>
+  <li>Asistentka Tessa<ol><li>Co umí a co ne</li><li>Psaní a hlas</li><li>Předání poptávky</li><li>Audit webu v chatu</li><li>Ochrana a limity</li></ol></li>
+  <li>Administrace: přihlášení a orientace<ol><li>Přihlášení a hesla</li><li>Rozvržení obrazovky</li><li>Administrace v telefonu</li></ol></li>
+  <li>Reference (zakázky na webu)<ol><li>Seznam a pořadí</li><li>Editor zakázky po oddílech</li><li>Ukládání a koncept</li><li>Nová, skrytá a smazaná zakázka</li></ol></li>
+  <li>Kontakty a údaje</li>
+  <li>Zálohy</li>
+  <li>Účet a nápověda</li>
+  <li>CRM: přehled, leady, úkoly<ol><li>Pojmy CRM</li><li>Přehled</li><li>Seznam leadů a filtry</li><li>Detail leadu</li><li>Kontakty, úkoly, stavy</li><li>Úkoly</li><li>Nový lead, import, export</li><li>Archiv a trvalé smazání</li></ol></li>
+  <li>Poptávky z webu a od Tessy</li>
+  <li>GDPR dokument a souhlas s referencí</li>
+  <li>Návrhy webů pro klienty<ol><li>Nahrání a přehled</li><li>Odeslání klientovi</li><li>Co vidí klient</li><li>Připomínky a schválení</li><li>Nová verze, odvolání</li></ol></li>
+  <li>Audity webů</li>
+  <li>Návštěvnost</li>
+  <li>Ukázky odesílaných e-mailů</li>
+  <li>Scénáře a řešení problémů</li>
+  <li>Bezpečnost a pravidla</li>
+  <li>Technická příloha</li>
+</ol>
+</div>
+
+<!-- ============================ 1 ZAČÍNÁME ============================ -->
+<h1 class="kap"><span>Kapitola 1</span>Začínáme</h1>
+
+<h2>1.1 Co je co</h2>
+<p>Celý systém má čtyři části, které spolu souvisejí:</p>
+<table>
+  <tr><th style="width:36mm">Část</th><th>K čemu slouží</th><th style="width:52mm">Kde</th></tr>
+  <tr><td><b>Veřejný web</b></td><td>Prezentace studia v 18 jazycích: služby, reference, ukázkové weby, kontakt a poptávkový formulář.</td><td>www.tasstudio.eu</td></tr>
+  <tr><td><b>Tessa</b></td><td>AI asistentka v pravém dolním rohu webu. Odpovídá návštěvníkům, doporučí referenci, umí udělat rychlý audit webu a předat poptávku studiu.</td><td>tlačítko „Tessa“ na každé stránce</td></tr>
+  <tr><td><b>Administrace</b></td><td>Neveřejná část pro tým: úpravy referencí a kontaktů, zálohy, CRM s leady a úkoly, návrhy webů pro klienty, audity, návštěvnost.</td><td>www.tasstudio.eu/admin/</td></tr>
+  <tr><td><b>Stránky s návrhy</b></td><td>Neveřejné stránky, kde si klient prohlédne návrh webu, napíše připomínky nebo návrh schválí. Odkaz dostane jen e-mailem a má omezenou platnost.</td><td>nahledy.tasstudio.eu/…</td></tr>
+</table>
+
+<h2>1.2 Slovníček</h2>
+<dl class="slov">
+  <dt>Lead</dt><dd>Zájemce nebo potenciální klient v CRM (firma či člověk). Vzniká ručně, importem ze souboru, z formuláře na webu nebo od Tessy.</dd>
+  <dt>Odpovědná osoba</dt><dd>Člen týmu, který má lead na starosti. Lead bez odpovědné osoby je <b>nepřiřazený</b>.</dd>
+  <dt>Kontakt</dt><dd>Záznam o proběhlé komunikaci s leadem (telefonát, e-mail, schůzka…) s výsledkem.</dd>
+  <dt>Další krok / úkol</dt><dd>Co se má s leadem stát dál a do kdy. Každý aktivní lead by měl mít další krok.</dd>
+  <dt>Reference / zakázka</dt><dd>Hotový projekt zobrazený na webu v sekci Práce/Reference.</dd>
+  <dt>Návrh webu</dt><dd>Hotový návrh (ZIP nebo HTML), který nahrajete k leadu a pošlete klientovi k připomínkám.</dd>
+  <dt>Verze návrhu</dt><dd>Každé nové nahrání k témuž návrhu je další verze (verze 1, 2, 3…). Klient vždy vidí verzi, kterou jste mu poslali.</dd>
+  <dt>Doručení</dt><dd>Jedno odeslání odkazu na návrh konkrétnímu příjemci, s datem platnosti.</dd>
+  <dt>Mezipaměť</dt><dd>Kopie souborů webu uložená v prohlížečích návštěvníků, aby se web načítal rychleji.</dd>
+  <dt>Audit webu</dt><dd>Automatické měření cizího webu (rychlost, přístupnost, SEO) a postřehy AI ke vzhledu.</dd>
+</dl>
+
+<h2>1.3 Kdo co dělá a kam chodí upozornění</h2>
+<ul>
+  <li>V administraci pracují <b>Kryštof Trčala</b> a <b>Matouš Slováček</b>. Každý se přihlašuje <b>pod svým jménem</b>, aby u leadů, kontaktů a úkolů bylo vidět, kdo co udělal.</li>
+  <li>Poptávky z webu a od Tessy chodí e-mailem na <b>tasstudio@tasstudio.eu</b> a zároveň se samy založí jako lead v CRM.</li>
+  <li>Připomínky a schválení návrhů od klientů chodí na <b>tasstudio@tasstudio.eu</b> a odpovědné osobě leadu; v CRM se k leadu založí úkol.</li>
+  <li>Nic se klientům neposílá samo. E-mail s návrhem odejde jen tehdy, když ho člověk v CRM zkontroluje a výslovně potvrdí.</li>
+</ul>
+
+<h2>1.4 Ukázková data v manuálu</h2>
+<div class="box info"><b class="t">Všechny snímky jsou z ukázkové kopie</b>Snímky obrazovek vznikly na zkušební kopii webu se <b>smyšlenými firmami a osobami</b> (Pekárna U Zlatého klasu, Autoservis Rychlík, Kavárna Modrý hrnek…) a smyšlenými adresami <code>@example.test</code>. Adresy v ukázkách začínají <code>localhost</code> nebo <code>127.0.0.1</code>; na skutečném webu je místo nich <code>www.tasstudio.eu</code>, resp. <code>nahledy.tasstudio.eu</code>. Čísla a texty v ukázkách se od skutečného stavu liší.</div>
+
+<!-- ============================ 2 VEŘEJNÝ WEB ============================ -->
+<h1 class="kap"><span>Kapitola 2</span>Veřejný web</h1>
+<p>Web vidí každý návštěvník. Texty stránek a služeb se mění ve zdrojových souborech (úkol pro vývojáře); <b>reference, kontakty, údaje provozovatele a ceny</b> upravíte sami v administraci (kapitoly 5 a 6).</p>
+
+<h2>2.1 Hlavička, jazyky, tmavý vzhled</h2>
+<figure class="m"><img src="obr/w03-uvod.jpg"><figcaption>Úvodní stránka (čeština). Nahoře menu Práce, Služby, Studio, Kontakt; vpravo jazyk, přepínač vzhledu a tlačítko Začít projekt.</figcaption></figure>
+<ul>
+  <li><b>Logo T&amp;S</b> vede vždy na úvodní stránku.</li>
+  <li><b>Práce</b> – seznam referencí. <b>Služby</b> – rozbalovací nabídka pěti služeb. <b>Studio</b> – o nás. <b>Kontakt</b> – kontakty a poptávkový formulář.</li>
+  <li><b>Jazyk (CS)</b> – web je v 18 jazycích: čeština, angličtina, němčina, španělština, francouzština, portugalština, italština, polština, nizozemština, ukrajinština, arabština (zprava doleva), hindština, čínština, japonština, korejština, turečtina, indonéština a ruština. Výchozí adresa <code>www.tasstudio.eu</code> je anglická, česká verze je na <code>/cs/</code>.</li>
+  <li><b>Měsíc / slunce</b> – přepíná světlý a tmavý vzhled. Bez volby web respektuje nastavení zařízení.</li>
+  <li><b>Začít projekt</b> – vede na poptávkový formulář.</li>
+</ul>
+<div class="row">
+  <figure class="s"><img src="obr/w04-jazyky-menu.jpg"><figcaption>Výběr jazyka</figcaption></figure>
+  <figure class="s"><img src="obr/w06-sluzby-menu.jpg"><figcaption>Nabídka Služby</figcaption></figure>
+</div>
+<figure class="s"><img src="obr/w05-tmavy.jpg"><figcaption>Tmavý vzhled</figcaption></figure>
+<div class="box info">Kromě češtiny a angličtiny jsou překlady strojové a rodilý mluvčí je zatím nekontroloval. Pokud vás klient upozorní na chybu v překladu, zapište ji a předejte vývojáři.</div>
+
+<h2>2.2 Stránky webu</h2>
+<table>
+  <tr><th style="width:48mm">Stránka (česky)</th><th>Obsah</th></tr>
+  <tr><td>Úvod <code>/cs/</code></td><td>Hlavní sdělení, vybrané reference, služby, rychlý formulář.</td></tr>
+  <tr><td>Reference <code>/cs/reference.html</code></td><td>Všechny zobrazené zakázky s filtrem podle typu práce.</td></tr>
+  <tr><td>Detail zakázky <code>/cs/projekt.html?id=…</code></td><td>Popis, funkce, galerie, barvy a písmo, soubory ke stažení, případně orientační cena.</td></tr>
+  <tr><td>Služby <code>/cs/sluzby.html</code> a 5 podstránek</td><td>Strategie a identita, grafika a obsah, design a vývoj webů, AI a chytrá řešení, dlouhodobé partnerství.</td></tr>
+  <tr><td>Studio <code>/cs/studio.html</code></td><td>O studiu a týmu.</td></tr>
+  <tr><td>Kontakt <code>/cs/kontakt.html</code></td><td>E-mail, telefon a poptávkový formulář.</td></tr>
+  <tr><td>Ochrana osobních údajů</td><td>Zásady zpracování údajů (formulář, Tessa, audit, návrhy, cookies). Údaje provozovatele se berou z administrace.</td></tr>
+  <tr><td>Stránka 404</td><td>Zobrazí se při neexistující adrese.</td></tr>
+</table>
+
+<h2>2.3 Reference a detail zakázky</h2>
+<div class="row">
+  <figure class="s"><img src="obr/w07-reference.jpg"><figcaption>Stránka Reference</figcaption></figure>
+  <figure class="s"><img src="obr/w08-detail-zakazky.jpg"><figcaption>Detail zakázky</figcaption></figure>
+</div>
+<p>V detailu zakázky jsou tlačítka pro otevření webu klienta (nebo ukázky), galerie, brand manuál a další soubory. Pokud jsou v administraci zapnuté ceny, objeví se rozpis „od … Kč“ a tlačítko <b>Chci podobný projekt</b>, které předvyplní poptávku. Vše na těchto stránkách se řídí tím, co uložíte v administraci v záložce <b>Reference</b>.</p>
+
+<h2>2.4 Ukázkové weby</h2>
+<figure class="s"><img src="obr/w14-ukazka.jpg"><figcaption>Ukázkový web Motoria (vymyšlená firma) s horní lištou ukázky</figcaption></figure>
+<p>Ve složce <code>/ukazky/</code> jsou plně funkční ukázky webů pro vymyšlené firmy (Motoria, Lokna, Kořen, Salon Šalvěj a další). Mají horní lištu, kterou se přepíná mezi webem, ukázkovou administrací a ukázkovými e-maily. Ukázky slouží jen k předvedení; data v nich nejsou skutečná a nic se z nich nikam neposílá. Na webu jsou označené „Ukázkový web · fiktivní značka“.</p>
+
+<h2>2.5 Lišta cookies</h2>
+<div class="row">
+  <figure class="s"><img src="obr/w01-uvod-cookies.jpg"><figcaption>Lišta při první návštěvě</figcaption></figure>
+  <figure class="s"><img src="obr/w02-cookies-nastaveni.jpg"><figcaption>Podrobné nastavení</figcaption></figure>
+</div>
+<p>Při první návštěvě se vlevo dole ukáže lišta. Návštěvník volí:</p>
+<ul>
+  <li><b>Přijmout vše</b> – zapne se vlastní měření návštěvnosti a (pokud je v administraci vyplněné ID) Google Analytics 4.</li>
+  <li><b>Jen nezbytné</b> – nic se neměří, web funguje normálně.</li>
+  <li><b>Nastavení</b> – zaškrtávání po kategoriích. Volbu lze kdykoli změnit odkazem <b>Nastavení cookies</b> v patičce.</li>
+</ul>
+<p>Návštěvníci, kteří měření odmítnou, se v přehledu Návštěvnost nepočítají. Proto jsou čísla nižší než skutečný počet návštěv; je to záměr (ochrana soukromí).</p>
+
+<h2>2.6 Poptávkový formulář</h2>
+<p>Formulář je na stránce Kontakt (a zkrácený na úvodní stránce). Má tři kroky:</p>
+<div class="row">
+  <figure class="xs"><img src="obr/w09-formular-1.jpg"><figcaption>1. Co potřebujete (služby)</figcaption></figure>
+  <figure class="xs"><img src="obr/w09-formular-2.jpg"><figcaption>2. O projektu, rozpočet, termín</figcaption></figure>
+  <figure class="xs"><img src="obr/w09-formular-4.jpg"><figcaption>3. O vás a souhlas</figcaption></figure>
+</div>
+<ol class="kroky">
+  <li><b>Co potřebujete?</b> Návštěvník zaškrtne služby a stiskne <b>Pokračovat</b>.</li>
+  <li><b>Řekněte nám o projektu:</b> popis, orientační rozpočet, kdy začít, adresa současného webu.</li>
+  <li><b>O vás:</b> jméno, firma, e-mail, telefon, preferovaný způsob kontaktu a souhlas se zpracováním údajů. Pak <b>Odeslat poptávku</b>.</li>
+</ol>
+<h3>Co se stane po odeslání</h3>
+<ul>
+  <li>V CRM vznikne nový lead ve stavu <b>Nový</b>, <b>nepřiřazený</b>, se štítkem <b>Z WEBU</b> a s původní poptávkou (služby, rozpočet, zpráva, odkud návštěvník přišel).</li>
+  <li>Na <b>tasstudio@tasstudio.eu</b> přijde e-mail s celou poptávkou a tlačítkem <b>Otevřít lead v administraci</b> (ukázka v kapitole 15). Odpovědí na e-mail píšete rovnou zájemci.</li>
+  <li>Dvojklik nebo opakované odeslání téže poptávky nový lead nezaloží.</li>
+  <li>Ochrana proti robotům: skryté pole a minimální doba vyplnění. Robot dostane „úspěch“, ale nic se neuloží.</li>
+  <li>Kdyby databáze CRM nebyla dostupná, poptávka se neztratí: odejde aspoň e-mailem.</li>
+</ul>
+
+<h2>2.7 Telefon</h2>
+<div class="row">
+  <figure class="s"><img src="obr/w13-mobil-uvod.jpg"><figcaption>Úvod na telefonu</figcaption></figure>
+  <figure class="s"><img src="obr/w13-mobil-menu.jpg"><figcaption>Menu (tlačítko se třemi čárami)</figcaption></figure>
+</div>
+<p>Na telefonu je menu schované pod tlačítkem vpravo nahoře. Dole v menu jsou výběr jazyka, vzhled (světlý / automaticky / tmavý) a Začít projekt.</p>
+
+<!-- ============================ 3 TESSA ============================ -->
+<h1 class="kap"><span>Kapitola 3</span>Asistentka Tessa</h1>
+<p>Tessa je AI asistentka T&amp;S Studia. Otevírá se tlačítkem <b>Tessa</b> vpravo dole na každé stránce webu. Běží na bezplatném jazykovém modelu (Cloudflare Workers AI) a odpovídá jen z řízených znalostí o studiu (služby, reference, pravidla cen).</p>
+
+<h2>3.1 Co umí a co ne</h2>
+<div class="row">
+  <figure class="s"><img src="obr/w10-tessa-uvod.jpg"><figcaption>Úvod konverzace a rychlé volby</figcaption></figure>
+  <figure class="s"><img src="obr/w11-tessa-odpoved.jpg"><figcaption>Odpověď na dotaz návštěvníka</figcaption></figure>
+</div>
+<ul>
+  <li><b>Umí:</b> vysvětlit služby, doporučit podobnou referenci, popsat postup spolupráce, udělat rychlý audit webu, předat poptávku studiu.</li>
+  <li><b>Rychlé volby:</b> Nový web, Zlepšit můj web, Reference, Orientační cena, Kontaktovat studio.</li>
+  <li><b>Neumí a nesmí:</b> uvádět konkrétní ceny a termíny, slibovat výsledky, posílat nabídky, zobrazovat interní návrhy. Místo ceny doporučí podobnou referenci a nabídne kontakt.</li>
+  <li>Ovládání v hlavičce panelu: výběr jazyka, ztlumení hlasu, <b>↺</b> nová konverzace, <b>×</b> zavřít.</li>
+  <li>Návštěvník je vždy upozorněn, že mluví s AI a že se může mýlit.</li>
+</ul>
+
+<h2>3.2 Psaní a hlas</h2>
+<p>Návštěvník může psát, nebo kliknout na <b>mikrofon</b> a mluvit. Řeč rozpoznává prohlížeč návštěvníka (podle prohlížeče Google, Apple nebo Microsoft); ke studiu dorazí jen přepsaný text, zvuk se neukládá. Odpovědi Tessa čte nahlas svým hlasem (služba ElevenLabs s měsíčním stropem); když strop dojde nebo služba nefunguje, čte hlasem prohlížeče. Mikrofon se nikdy nezapne bez kliknutí a souhlasu prohlížeče; psaní funguje vždy.</p>
+
+<h2>3.3 Předání poptávky</h2>
+<div class="row">
+  <figure class="s"><img src="obr/w12-tessa-formular.jpg"><figcaption>Tessa nabídne kontakt</figcaption></figure>
+  <figure class="s"><img src="obr/w12c-tessa-kontakt-vyplneny.jpg"><figcaption>Formulář v chatu se souhlasem</figcaption></figure>
+  <figure class="s"><img src="obr/w12d-tessa-odeslano.jpg"><figcaption>Potvrzení odeslání</figcaption></figure>
+</div>
+<p>Když návštěvník chce nabídku nebo kontakt, Tessa zobrazí tlačítko <b>Kontaktovat studio</b> a krátký formulář (jméno, e-mail, telefon, zpráva, souhlas). Osobní údaje sama v chatu nevyžaduje. Po odeslání:</p>
+<ul>
+  <li>v CRM vznikne lead se štítkem <b>AI ASISTENT</b>, ve stavu Nový a nepřiřazený, včetně přepisu konverzace;</li>
+  <li>na tasstudio@tasstudio.eu přijde e-mail „Poptávka z AI asistenta“ (ukázka v kapitole 15).</li>
+</ul>
+
+<h2>3.4 Audit webu v chatu</h2>
+<p>Když návštěvník napíše adresu svého webu, Tessa nabídne tlačítko pro audit. Měří se přes Google PageSpeed Insights (mobil i počítač) a AI přidá postřehy ke vzhledu. Návštěvník uvidí stručné shrnutí; úplný výsledek je pro tým v administraci v <b>Auditech webů</b> (kapitola 13). Počet auditů za den je omezený.</p>
+
+<h2>3.5 Ochrana a limity</h2>
+<ul>
+  <li>Bezplatná kvóta Cloudflare (10 000 „neuronů“ denně) se dělí mezi Tessu (strop 6 000 za den) a audity. Po vyčerpání Tessa odpovídá jen náhradním textem s e-mailem studia; další den funguje zase.</li>
+  <li>Proti robotům: výpočetní výzva v prohlížeči před novou konverzací, kontrola původu požadavku, filtr robotů, limity na adresu a den. Pokud správce vloží klíče Cloudflare Turnstile, zapne se navíc ověření „nejsem robot“.</li>
+  <li>Formulář vyplněný nepřirozeně rychle se odmítne jako robot (stalo se i při testech – člověk to nepozná).</li>
+  <li>Konverzace se mažou po 30 dnech, leady z Tessy v databázi asistentky po 90 dnech (v CRM zůstávají).</li>
+  <li><b>Vypnutí Tessy:</b> v souboru <code>/private/ai/ai-consultant.php</code> nastavit <code>'enabled' =&gt; false</code>. Tlačítko z webu zmizí.</li>
+</ul>
+
+<!-- ============================ 4 ADMINISTRACE ============================ -->
+<h1 class="kap"><span>Kapitola 4</span>Administrace: přihlášení a orientace</h1>
+
+<h2>4.1 Přihlášení a hesla</h2>
+<div class="row">
+  <figure class="s" style="flex:.9"><img src="obr/a01-prihlaseni.jpg"><figcaption>Přihlašovací obrazovka</figcaption></figure>
+  <div style="flex:1.1">
+  <ol class="kroky">
+    <li>Otevřete <b>www.tasstudio.eu/admin/</b>.</li>
+    <li>V poli <b>Kdo se přihlašuje</b> vyberte své jméno (prohlížeč si volbu pamatuje).</li>
+    <li>Zadejte <b>své heslo</b> a klikněte na <b>Přihlásit</b>.</li>
+  </ol>
+  <ul>
+    <li>Kdo si ještě nenastavil vlastní heslo, přihlásí se <b>společným heslem administrace</b> a nahoře uvidí žlutou výzvu <i>„nastavte si prosím vlastní heslo“</i>. Heslo si nastaví v <b>Účet a nápověda</b> (kapitola 8).</li>
+    <li>Heslo musí mít aspoň 10 znaků.</li>
+    <li>Po <b>6 špatných pokusech</b> se přihlášení z dané adresy na <b>15 minut</b> zamkne.</li>
+    <li>Po <b>12 hodinách nečinnosti</b> vás administrace odhlásí. Když se to stane během práce, objeví se okno <b>Přihlaste se znovu</b>; po přihlášení můžete pokračovat, rozpracované změny zůstanou.</li>
+  </ul>
+  </div>
+</div>
+<div class="box pozor"><b class="t">Zapomenuté heslo</b>V administraci se heslo obnovit nedá (žádné „zapomněl jsem heslo“ e-mailem). Postup je v kapitole 16 (scénář „Zapomněl jsem heslo“). Hesla nikdy neposílejte e-mailem ani do chatu.</div>
+<div class="box info"><b class="t">První spuštění</b>Na úplně nové instalaci se místo přihlášení ukáže <b>První spuštění administrace</b>: zadá se instalační kód ze souboru <code>PRISTUP-DO-ADMINU.txt</code> a dvakrát nové heslo. Na tasstudio.eu je to dávno hotové.</div>
+
+<h2>4.2 Rozvržení obrazovky</h2>
+<figure class="m"><img src="obr/a02-reference.jpg"><figcaption>Horní lišta administrace a záložka Reference</figcaption></figure>
+<table>
+  <tr><th style="width:40mm">Prvek</th><th>Co dělá</th></tr>
+  <tr><td>Logo T&amp;S Administrace</td><td>Otevře web v nové záložce.</td></tr>
+  <tr><td><b>Reference</b></td><td>Zakázky zobrazené na webu (kapitola 5).</td></tr>
+  <tr><td><b>CRM / Leady</b></td><td>Leady, úkoly, poptávky, návrhy webů. Červené číslo = počet vašich úkolů na dnešek a po termínu.</td></tr>
+  <tr><td><b>Kontakty a údaje</b></td><td>E-mail, telefon, údaje provozovatele, sociální sítě, ceny, Google Analytics (kapitola 6).</td></tr>
+  <tr><td><b>Zálohy</b></td><td>Návrat webu do dřívějšího stavu (kapitola 7).</td></tr>
+  <tr><td><b>Účet a nápověda</b></td><td>Mezipaměť webu, návod, změna hesla, odhlášení (kapitola 8).</td></tr>
+  <tr><td>Iniciály a jméno</td><td>Kdo je přihlášený.</td></tr>
+  <tr><td>● Vše uloženo / Neuloženo</td><td>Stav změn v Referencích a Kontaktech.</td></tr>
+  <tr><td><b>Návštěvnost</b></td><td>Přehled měření návštěvnosti (kapitola 14).</td></tr>
+  <tr><td><b>Audity</b></td><td>Audity webů (kapitola 13).</td></tr>
+  <tr><td><b>Web ↗</b></td><td>Otevře web.</td></tr>
+  <tr><td><b>Uložit změny</b></td><td>Uloží Reference a Kontakty a hned je zveřejní. CRM se ukládá samo u každé akce.</td></tr>
+</table>
+
+<h2>4.3 Administrace v telefonu</h2>
+<div class="row">
+  <figure class="s"><img src="obr/a50-mobil-prehled.jpg"><figcaption>Přehled CRM v telefonu</figcaption></figure>
+  <figure class="s"><img src="obr/a51-mobil-lead.jpg"><figcaption>Detail leadu</figcaption></figure>
+  <figure class="s"><img src="obr/a52-mobil-vice.jpg"><figcaption>Nabídka Více</figcaption></figure>
+</div>
+<p>V telefonu je dole lišta jako v aplikaci: <b>Přehled</b>, <b>Leady</b>, <b>Úkoly</b>, <b>Reference</b> a <b>Více</b> (Kontakty a údaje, Zálohy, Účet a nápověda, Návštěvnost, Audity webů, Otevřít web, Odhlásit se). Červené tlačítko vpravo dole zakládá lead nebo zaznamenává kontakt. Vše ostatní funguje stejně jako na počítači.</p>
+
+<!-- ============================ 5 REFERENCE ============================ -->
+<h1 class="kap"><span>Kapitola 5</span>Reference (zakázky na webu)</h1>
+
+<h2>5.1 Seznam a pořadí</h2>
+<p>Vlevo je seznam zakázek. <b>Pořadí v seznamu = pořadí na webu.</b> Šipkami ▲ ▼ zakázku posunete. Štítky: <b>HLAVNÍ STR.</b> – zakázka je i na úvodní stránce; <b>UKÁZKA</b> – vymyšlená firma (ukázkový web). Kliknutím zakázku otevřete v editoru vpravo.</p>
+
+<h2>5.2 Editor zakázky po oddílech</h2>
+<figure class="m"><img src="obr/a02b-reference-editor.jpg"><figcaption>Oddíl 1 – Základní údaje</figcaption></figure>
+<h3>1 Základní údaje</h3>
+<ul>
+  <li><b>Název zakázky*</b> a <b>Obor*</b> (krátce, např. „Autoservis“) – povinné.</li>
+  <li><b>Rok</b>, <b>Klient</b> (nepovinné).</li>
+  <li><b>Co jsme dělali</b> – štítky (Web, E-shop, Redesign, Brand manuál, Logo, Sociální sítě, Tiskoviny, Fotografie, SEO, Rezervační systém, Administrace, + Jiné…). Podle nich se filtruje na stránce Reference.</li>
+  <li><b>Zobrazit na webu</b> – vypnuté = zakázka zůstane uložená, ale na webu nebude.</li>
+  <li><b>Zobrazit i na hlavní stránce</b> – zakázka bude v úvodní animaci a v referencích na úvodní stránce.</li>
+  <li><b>Ukázkový projekt (vymyšlená firma)</b> – na webu bude označen „Ukázkový web · fiktivní značka“.</li>
+  <li><b>Adresa detailu</b> – vytvoří se sama z názvu.</li>
+</ul>
+<h3>2 Web a náhled</h3>
+<figure class="s"><img src="obr/a02c-reference-editor-0.jpg"><figcaption>Oddíl 2 – odkaz na web a automatické náhledy</figcaption></figure>
+<ul>
+  <li><b>Odkaz na web</b> – celá adresa včetně <code>https://</code>. U ukázek uložených na tomto webu např. <code>ukazky/motoria.html</code>. Zakázka bez webu (např. jen logo) pole nechá prázdné.</li>
+  <li>Náhled webu (počítač i telefon) se po vložení odkazu <b>vytvoří sám</b> a po uložení se uloží na server. <b>Vyměnit obrázek</b> nahraje vlastní; <b>Použít automatický</b> vrátí vytvořený.</li>
+  <li><b>Adresa v rámečku prohlížeče</b> – co se ukáže v řádku adresy na obrázku náhledu.</li>
+</ul>
+<h3>3 Texty</h3>
+<figure class="s"><img src="obr/a02c-reference-editor-1.jpg"><figcaption>Oddíl 3 – texty a štítky funkcí, začátek oddílu 4</figcaption></figure>
+<ul>
+  <li><b>Krátký popis</b> (do 280 znaků) – na kartě zakázky. Počítadlo ukazuje, kolik znaků zbývá; přes limit zčervená.</li>
+  <li><b>Podrobný popis</b> – v detailu zakázky. Nový odstavec = prázdný řádek (dvakrát Enter). Prázdný = použije se krátký popis.</li>
+  <li><b>Hlavní funkce (štítky)</b> – napište a potvrďte Enterem; ideálně 3 krátké štítky. Křížkem odeberete.</li>
+</ul>
+<h3>4 Barvy a písmo</h3>
+<p>Nepovinné. Barvy značky (kód <code>#RRGGBB</code> nebo výběr kolečkem, <b>+ Přidat barvu</b>, × odebrat) a název písma. Na webu se ukážou jako barevná kolečka a název písma.</p>
+<h3>5 Galerie a 6 Soubory ke stažení</h3>
+<figure class="s"><img src="obr/a02c-reference-editor-2.jpg"><figcaption>Oddíl 5 – Galerie</figcaption></figure>
+<ul>
+  <li><b>+ Přidat obrázky</b> – stránky brand manuálu, grafika, fotky. Velké obrázky se samy zmenší. Šipkami ◀ ▶ měníte pořadí, × odebere. Prázdná galerie se v detailu nezobrazí.</li>
+  <li><b>+ Přidat soubory</b> – např. brand manuál v PDF, tisková data, logo v ZIPu. Název napište tak, jak se má ukázat na webu. Největší soubor 150 MB; nahrává se po částech, počkejte na dokončení.</li>
+</ul>
+<h3>7 Orientační cena</h3>
+<p><b>Cena od (Kč)</b> a rozpis položek (+ Přidat položku, ▲ ▼, ×). Na webu se ceny ukážou, <b>jen když</b> je v záložce Kontakty a údaje zapnuté <b>Zobrazovat orientační ceny</b>.</p>
+<h3>8 Překlady</h3>
+<p>Texty zakázky pro další jazykové verze webu. Co nevyplníte, ukáže se anglicky, a když chybí i angličtina, česky. Názvy značek se nepřekládají.</p>
+
+<h2>5.3 Ukládání a koncept</h2>
+<div class="row">
+  <figure class="xs"><img src="obr/a03-neulozeno.jpg"><figcaption>Neuložené změny v liště</figcaption></figure>
+  <figure class="xs"><img src="obr/a03b-ulozeno.jpg"><figcaption>Po uložení</figcaption></figure>
+</div>
+<ol class="kroky">
+  <li>Udělejte změny. Stav vpravo nahoře se změní na <b>Neuloženo</b>.</li>
+  <li>Klikněte na <b>Uložit změny</b>. Ukáže se průběh (obrázky se nahrávají na server).</li>
+  <li>Okno <b>Uloženo – Změny už jsou na webu</b>. <b>Zobrazit na webu ↗</b> otevře web, <b>Hotovo</b> zavře okno.</li>
+</ol>
+<ul>
+  <li>Před každým uložením se automaticky vytvoří záloha předchozího stavu (kapitola 7).</li>
+  <li>Neuložené změny si prohlížeč pamatuje. Když okno omylem zavřete, po návratu uvidíte žlutý pruh <b>V tomto prohlížeči jsou neuložené změny z …</b> s možností je obnovit nebo zahodit. Koncept je jen v tom prohlížeči a počítači.</li>
+  <li>Když server upozorní na problém (např. chybějící povinné pole), uložení se neprovede a chyba se ukáže u pole.</li>
+</ul>
+<div class="box pozor"><b class="t">Dva lidé najednou</b>Reference a kontakty se ukládají jako celek. Když dva lidé upravují Reference současně, vyhraje pozdější uložení. Domluvte se, kdo právě upravuje web (v CRM tento problém není, tam se hlídá každá změna zvlášť).</div>
+
+<h2>5.4 Nová, skrytá a smazaná zakázka</h2>
+<ol class="kroky">
+  <li><b>+ Nová zakázka</b> vlevo nahoře; vyplňte název a obor.</li>
+  <li>Vložte odkaz na web (náhled se vytvoří sám), napište krátký a podrobný popis.</li>
+  <li>Přidejte obrázky a soubory, zaškrtněte, zda má být i na hlavní stránce.</li>
+  <li>Šipkami zařaďte na správné místo a klikněte na <b>Uložit změny</b>.</li>
+</ol>
+<ul>
+  <li><b>Skrýt</b> zakázku: vypněte <b>Zobrazit na webu</b> a uložte. Kdykoli ji vrátíte.</li>
+  <li><b>Smazat</b>: <b>Smazat zakázku</b> v editoru a uložit. Obrázky a soubory jdou do koše; obnovením zálohy se vrátí i s nimi.</li>
+  <li><b>Připravené podklady:</b> když vývojář nahraje podklady k zakázce na server, objeví se žlutý pruh „nové podklady“ nebo „přidali jsme připravenou zakázku“. Zkontrolujte ji a uložte, nebo zvolte <b>Ponechat současnou verzi</b>.</li>
+</ul>
+
+<!-- ============================ 6 KONTAKTY ============================ -->
+<h1 class="kap"><span>Kapitola 6</span>Kontakty a údaje</h1>
+<div class="row">
+  <figure class="t" style="flex:.8"><img src="obr/a04-kontakty.jpg" style="max-height:175mm"><figcaption>Záložka Kontakty a údaje</figcaption></figure>
+  <div style="flex:1.2">
+  <p>Údaje se ukážou v sekci Poptávka, v patičce a na stránce Ochrana osobních údajů ve všech jazycích. Co necháte prázdné, na webu se nezobrazí (nebo se ukáže „doplníme“). Změny se projeví po <b>Uložit změny</b>.</p>
+  <table>
+    <tr><th>Skupina</th><th>Pole</th></tr>
+    <tr><td>Kontakty</td><td>E-mail (chodí na něj i poptávky z formuláře), telefon</td></tr>
+    <tr><td>Provozovatel webu</td><td>Jméno nebo firma, IČO, sídlo, zápis v rejstříku</td></tr>
+    <tr><td>Adresa webu</td><td>Doména – pro mapu webu (sitemap.xml) a náhledy při sdílení</td></tr>
+    <tr><td>Sociální sítě</td><td>Instagram, Facebook, LinkedIn – celý odkaz</td></tr>
+    <tr><td>Ceny u referencí</td><td><b>Zobrazovat orientační ceny</b> – zapne „od … Kč“ na kartách a rozpis v detailu</td></tr>
+    <tr><td>Měření návštěvnosti</td><td>Google Analytics 4 (ID měření <code>G-…</code>); spouští se jen po souhlasu v liště cookies</td></tr>
+  </table>
+  <div class="box pozor">Změna e-mailu změní i adresu, kam chodí poptávky z formuláře. Zkontrolujte ji dvakrát.</div>
+  </div>
+</div>
+
+<!-- ============================ 7 ZÁLOHY ============================ -->
+<h1 class="kap"><span>Kapitola 7</span>Zálohy</h1>
+<figure class="s"><img src="obr/a05-zalohy.jpg"><figcaption>Seznam záloh</figcaption></figure>
+<ul>
+  <li>Před každým <b>Uložit změny</b> se automaticky uloží záloha předchozího stavu referencí a kontaktů. Uchovává se posledních <b>60</b> záloh.</li>
+  <li>Tabulka ukazuje <b>Kdy</b>, <b>Důvod</b> (např. Před uložením, Před obnovením), <b>Počet zakázek</b> a tlačítko <b>Obnovit</b>.</li>
+  <li><b>Obnovit</b> vrátí web do stavu zálohy včetně obrázků a souborů smazaných zakázek. Před obnovením se uloží záloha současného stavu, takže krok jde vrátit.</li>
+</ul>
+<div class="box info"><b class="t">CRM se zálohuje zvlášť</b>Databáze CRM se zálohuje sama jednou denně (posledních 30 dní) do neveřejné složky na serveru. Obnovení CRM není v administraci – je to úkol pro správce serveru (kapitola 18). Záložka Zálohy CRM nevrací.</div>
+
+<!-- ============================ 8 ÚČET ============================ -->
+<h1 class="kap"><span>Kapitola 8</span>Účet a nápověda</h1>
+<div class="row">
+  <figure class="t" style="flex:.8"><img src="obr/a06-ucet.jpg" style="max-height:150mm"><figcaption>Účet a nápověda</figcaption></figure>
+  <div style="flex:1.2">
+  <h3 style="margin-top:0">Mezipaměť webu</h3>
+  <p>Po <b>Uložit změny</b> se nová verze ukáže všem sama. Tlačítko <b>Obnovit mezipaměť webu</b> použijte, jen když se někde pořád ukazuje stará verze (typicky po nahrání souborů přes FTP). Všechny obrázky, styly a skripty dostanou novou adresu a návštěvníci si je stáhnou znovu.</p>
+  <h3>Jak přidat zakázku</h3>
+  <p>Stručný návod (stejný jako v kapitole 5.4).</p>
+  <h3>Vaše heslo</h3>
+  <ol class="kroky">
+    <li>Do <b>Současné heslo</b> napište své heslo (kdo ještě vlastní nemá, napíše společné heslo administrace).</li>
+    <li>Dvakrát nové heslo, aspoň 10 znaků.</li>
+    <li><b>Změnit heslo</b>. Každý mění jen své heslo.</li>
+  </ol>
+  <h3>Odhlášení</h3>
+  <p><b>Odhlásit se</b>. Na cizím počítači se po práci vždy odhlaste.</p>
+  </div>
+</div>
+
+<!-- ============================ 9 CRM ============================ -->
+<h1 class="kap"><span>Kapitola 9</span>CRM: přehled, leady, úkoly</h1>
+
+<h2>9.1 Pojmy CRM</h2>
+<table>
+  <tr><th style="width:34mm">Stav leadu</th><th>Význam</th></tr>
+  <tr><td><b>Nový</b></td><td>Zatím jsme s ním nemluvili.</td></tr>
+  <tr><td><b>Kontaktován</b></td><td>Proběhl první kontakt. <i>Nastaví se sám</i> po prvním zaznamenaném kontaktu.</td></tr>
+  <tr><td><b>V řešení</b></td><td>Aktivně se jedná (nabídka, návrh, schůzky). <i>Nastaví se sám</i> po druhém kontaktu.</td></tr>
+  <tr><td><b>Dokončeno</b></td><td>Úspěšně uzavřeno – zakázka je naše / hotová.</td></tr>
+  <tr><td><b>Ukončeno</b></td><td>Uzavřeno bez zakázky (nezájem, nereaguje…). Lze uvést důvod.</td></tr>
+</table>
+<p><b>Priorita:</b> Nízká, Standardní, Vysoká (▲). <b>Původ:</b> Zadaný ručně, Načtený ze souboru, Poptávka z webu (štítek Z WEBU), AI asistent na webu (štítek AI ASISTENT). <b>Typy kontaktu:</b> telefonát, e-mail, osobní schůzka, videohovor, jiný. <b>Výsledky kontaktu:</b> Bez odpovědi, Nezastižen, Zájem, Potenciální zájem, Požaduje více informací, Požaduje cenovou nabídku, Domluvena schůzka, Odloženo na později, Nezájem, Jiný výsledek.</p>
+<div class="box tip"><b class="t">Zlaté pravidlo CRM</b>Každý aktivní lead má mít <b>odpovědnou osobu</b> a <b>další krok s termínem</b> – nebo být výslovně označen „Čeká bez termínu“. Přehled vám pak sám ukáže, co je potřeba udělat.</div>
+
+<h2>9.2 Přehled</h2>
+<figure class="t"><img src="obr/a07-crm-prehled.jpg" style="max-height:205mm"><figcaption>Přehled CRM (záložka CRM / Leady › Přehled)</figcaption></figure>
+<ul>
+  <li><b>Dlaždice nahoře</b>: celkem leadů, nové, kontaktované, v řešení, dokončené, ukončené, úkoly na dnešek, úkoly po termínu. Kliknutím otevřete odpovídající seznam.</li>
+  <li><b>Po termínu</b> (červeně) a <b>Dnes vyřídit</b> – vaše úkoly. Kolečkem vlevo úkol splníte.</li>
+  <li><b>Leady vyžadující pozornost</b> – bez dalšího kroku, nepřiřazené, dlouho bez aktivity.</li>
+  <li><b>Nepřiřazené leady</b> – <b>Převzít</b> (budou vaše) nebo <b>Přiřadit…</b> kolegovi.</li>
+  <li><b>Souhlasy GDPR k obnovení</b> – souhlasy s referencí, kterým za 2 měsíce končí platnost.</li>
+  <li><b>Moje leady</b>, <b>Poslední aktivity</b> (kdo co kdy udělal).</li>
+  <li><b>Obchodní aktivita</b> – kontakty, nové a dokončené leady a úspěšnost za tento/minulý měsíc nebo celkem, rozepsané po lidech.</li>
+  <li><b>Poptávky z webu</b> – počet leadů z webu, nepřiřazené, <b>neodeslaná oznámení</b> (e-maily, které se nepodařilo poslat), rozpad podle zdroje, kampaně a jazyka.</li>
+  <li><b>Hledání</b> nahoře hledá v názvu, webu, e-mailu i telefonu napříč všemi leady.</li>
+</ul>
+
+<h2>9.3 Seznam leadů a filtry</h2>
+<figure class="m"><img src="obr/a08-leady.jpg"><figcaption>Seznam leadů s rychlými filtry</figcaption></figure>
+<ul>
+  <li><b>Rychlé filtry:</b> Všechny, Moje, Nepřiřazené, Nové, Z webu, Aktivní, Dnes, Po termínu, Bez dalšího kroku, Dokončené, Ukončené, Archiv. Číslo = počet.</li>
+  <li><b>Filtry</b> – podrobné: odpovědná osoba, obchodní stav, priorita, původ leadu, zdroj poptávky, kampaň, jazyk poptávky, vytvořeno od–do. <b>Zrušit filtry</b> vše vrátí.</li>
+  <li><b>Řadit</b> – poslední aktivita, priorita, termín dalšího kroku, datum vytvoření, název.</li>
+  <li>Sloupce: jméno a e-mail, web, stav, priorita, odpovědná osoba, poslední kontakt, výsledek, další krok, termín. Řádek otevřete kliknutím (nebo šipkami a Enter).</li>
+  <li><b>Načíst ze souboru</b> a <b>Export CSV</b> – viz 9.7.</li>
+</ul>
+
+<h2>9.4 Detail leadu</h2>
+<figure class="t"><img src="obr/a10-lead-detail.jpg" style="max-height:200mm"><figcaption>Detail leadu</figcaption></figure>
+<ul>
+  <li><b>Hlavička:</b> název, stav, priorita, odpovědná osoba, poslední výsledek; telefon, e-mail a web jsou klikací.</li>
+  <li><b>Tlačítka:</b> <b class="btn red">+ Zaznamenat kontakt</b> <b class="btn">Přidat úkol</b> <b class="btn">Upravit lead</b> <b class="btn">Změnit stav</b> a <b class="btn">•••</b> další akce.</li>
+  <li><b>Nejbližší další krok</b> s termínem: <b>Splnit</b> nebo <b>Upravit</b>.</li>
+  <li><b>Návrhy webu</b> – nahrání a odeslání návrhu klientovi (kapitola 12).</li>
+  <li><b>Základní informace</b>, <b>Další kroky</b> (všechny úkoly), <b>GDPR dokument a souhlas</b> (kapitola 11).</li>
+  <li><b>Historie komunikace</b> – kontakty a interní poznámky (přepínače Vše / Kontakty / Poznámky); u záznamu <b>Opravit</b> a <b>Smazat</b>.</li>
+  <li><b>Historie změn</b> – kdo, kdy a co změnil (stav, odpovědná osoba, úkoly, návrhy…). Nedá se upravit.</li>
+</ul>
+<div class="row">
+  <figure class="xs"><img src="obr/a15-dalsi-akce.jpg"><figcaption>Nabídka ••• Další akce</figcaption></figure>
+  <figure class="xs"><img src="obr/a14-dlg-upravit.jpg"><figcaption>Upravit lead</figcaption></figure>
+</div>
+<p><b>••• Další akce:</b> Interní poznámka, Čeká bez termínu, GDPR dokument k podpisu, Stáhnout údaje (GDPR), Archivovat lead.</p>
+
+<h2>9.5 Kontakty, úkoly, stavy</h2>
+<h3>Zaznamenat kontakt (nejčastější akce)</h3>
+<figure class="m"><img src="obr/a11-dlg-kontakt.jpg"><figcaption>Zaznamenat kontakt</figcaption></figure>
+  <div>
+  <ol class="kroky">
+    <li><b>+ Zaznamenat kontakt</b>.</li>
+    <li>Vyberte <b>typ</b> (telefonát, e-mail…) a <b>výsledek</b>.</li>
+    <li><b>Datum a čas</b> – předvyplněno „teď“; kontakt nemůže být v budoucnosti.</li>
+    <li><b>Průběh komunikace</b> – co jsme se dozvěděli, co klient chce.</li>
+    <li><b>Další krok</b> – co se má stát dál, termín, případně čas a odpovědná osoba. Vznikne z toho úkol.</li>
+    <li><b>Uložit kontakt</b>.</li>
+  </ol>
+  <p>Pokud byl kontakt splněním naplánovaného úkolu, úkol se zároveň označí jako splněný. První kontakt změní stav Nový › Kontaktován, druhý › V řešení.</p>
+  </div>
+<h3>Změnit stav</h3>
+<div class="row">
+  <figure class="xs"><img src="obr/a12-dlg-stav.jpg"><figcaption>Změnit stav</figcaption></figure>
+  <figure class="xs"><img src="obr/a13-dlg-ukol.jpg"><figcaption>Přidat úkol</figcaption></figure>
+</div>
+<p>Ruční změna stavu se zapíše do historie. Při <b>Dokončeno</b> nebo <b>Ukončeno</b> lze vyplnit důvod a rozhodnout, co s otevřenými úkoly (zrušit). Uzavřený lead jde kdykoli <b>Znovu otevřít</b>.</p>
+<h3>Úkoly</h3>
+<ul>
+  <li><b>Přidat úkol</b>: název, termín splnění, nepovinný čas, odpovědná osoba, poznámka.</li>
+  <li>Úkol splníte kolečkem / <b>Splnit</b>. Volba <b>Jen označit jako splněné</b> splní úkol bez záznamu kontaktu; <b>Zaznamenat výsledek a další krok</b> otevře okno kontaktu.</li>
+  <li><b>Zrušit úkol</b> – úkol se nebude dělat (zůstane v historii).</li>
+  <li>Když úkol mezitím vyřídil kolega, CRM to oznámí a nic nepřepíše.</li>
+</ul>
+<h3>Čeká bez termínu</h3>
+<p>Když čekáte na klienta a nevíte do kdy (např. „rozhodne se po poradě“), zvolte <b>••• › Čeká bez termínu</b> a napište, na co se čeká. Lead pak nespadne mezi „bez dalšího kroku“. <b>Zrušit čekání</b> to vrátí.</p>
+<h3>Převzetí a předání</h3>
+<p>Nepřiřazený lead si vezmete <b>Převzít</b>, kolegovi ho dáte <b>Přiřadit…</b> nebo <b>Předat…</b>. Odpovědnou osobu jde změnit i v <b>Upravit lead</b>.</p>
+<h3>Interní poznámka</h3>
+<p><b>+ Interní poznámka</b> – informace, která není kontaktem (např. „volat dopoledne paní Horákové“). Klient ji nikdy nevidí.</p>
+
+<h2>9.6 Úkoly</h2>
+<figure class="s"><img src="obr/a09-ukoly.jpg"><figcaption>Záložka Úkoly</figcaption></figure>
+<p>Čekající úkoly seskupené: <b>Po termínu</b> (jen když nějaké jsou), <b>Dnes</b>, <b>Zítra</b>, <b>Dalších 7 dní</b>; vpravo <b>Leady bez dalšího kroku</b> a <b>Čekají bez termínu</b>. Přepínač <b>Moje / Všech</b> nahoře. Červené číslo u Úkolů = počet vašich úkolů na dnešek a po termínu.</p>
+
+<h2>9.7 Nový lead, import, export</h2>
+<div class="row">
+  <figure class="s"><img src="obr/a18-dlg-novy-lead.jpg"><figcaption>+ Nový lead</figcaption></figure>
+  <figure class="s"><img src="obr/a19-dlg-import.jpg"><figcaption>Načíst ze souboru</figcaption></figure>
+</div>
+<h3>Nový lead</h3>
+<p><b>+ Nový lead</b>: jméno/společnost (povinné), telefon, e-mail, web, <b>důvod oslovení</b> (proč a s čím jdeme), odpovědná osoba, priorita. Stav bude Nový. Když už v CRM existuje lead se stejným e-mailem, telefonem nebo webem, CRM na to upozorní a ukáže ho – můžete otevřít existující, nebo přesto založit nový.</p>
+<h3>Import ze souboru</h3>
+<ol class="kroky">
+  <li><b>Načíst ze souboru</b> v seznamu leadů.</li>
+  <li>Vyberte CSV soubor, nebo vložte zkopírované buňky z Excelu/Tabulek <b>včetně řádku se záhlavím</b>. <b>Stáhnout vzorový soubor (CSV)</b> ukáže správný formát.</li>
+  <li>Sloupce se přiřadí samy podle záhlaví (jinak podle pořadí). Zvolte výchozí odpovědnou osobu a prioritu pro řádky, které je neuvádějí.</li>
+  <li>Nejdřív se ukáže <b>náhled</b> s počty nových, duplicitních a chybných řádků. Rozhodněte, co s duplicitami, a potvrďte.</li>
+</ol>
+<h3>Export</h3>
+<p><b>Export CSV</b> stáhne leady podle aktuálního filtru (pro Excel). <b>••• › Stáhnout údaje (GDPR)</b> stáhne <i>vše</i> o jednom leadu – použijte, když o své údaje požádá sám klient.</p>
+
+<h2>9.8 Archiv a trvalé smazání</h2>
+<ul>
+  <li><b>Archivovat lead</b> (••• Další akce) – lead zmizí ze seznamů a přehledu, ale nic se nesmaže. Najdete ho ve filtru <b>Archiv</b>; <b>Obnovit z archivu</b> ho vrátí. Archivovaný lead nejde upravovat.</li>
+  <li><b>Smazat trvale…</b> – jen u archivovaného leadu a jen po napsání přesného názvu leadu. Smaže lead se všemi kontakty, úkoly, poznámkami, historií a naskenovanými souhlasy. <b>Nedá se vrátit</b> (kromě obnovy denní zálohy správcem). Používejte jen na žádost klienta o výmaz (GDPR).</li>
+</ul>
+
+<!-- ============================ 10 POPTÁVKY ============================ -->
+<h1 class="kap"><span>Kapitola 10</span>Poptávky z webu a od Tessy</h1>
+<div class="row">
+  <figure class="t"><img src="obr/a16-lead-z-webu.jpg" style="max-height:150mm"><figcaption>Lead z webového formuláře</figcaption></figure>
+  <figure class="t"><img src="obr/a17-lead-z-tessy.jpg" style="max-height:150mm"><figcaption>Lead od Tessy s přepisem konverzace</figcaption></figure>
+</div>
+<p>Lead z poptávky má navíc kartu <b>Poptávka z webu</b> / <b>Poptávka z AI asistenta</b> s původními údaji (služby, rozpočet, termín, zpráva, jazyk, odkud návštěvník přišel) a stavem <b>oznámení e-mailem</b>.</p>
+<h3>Doporučený postup s novou poptávkou</h3>
+<ol class="kroky">
+  <li>Přijde e-mail na tasstudio@tasstudio.eu a v CRM svítí lead mezi <b>Nepřiřazenými</b>.</li>
+  <li>Kdo se ujme: <b>Převzít</b> (nebo <b>Přiřadit…</b> kolegovi).</li>
+  <li>Odpovězte zájemci (odpověď na e-mail jde rovnou jemu) nebo zavolejte.</li>
+  <li><b>+ Zaznamenat kontakt</b> s výsledkem a <b>dalším krokem</b>.</li>
+</ol>
+<h3>Stavy oznámení e-mailem</h3>
+<table>
+  <tr><th style="width:62mm">Stav</th><th>Význam a co dělat</th></tr>
+  <tr><td>Čeká na odeslání</td><td>Odejde během chvíle.</td></tr>
+  <tr><td>Odesláno (potvrdil poštovní server)</td><td>V pořádku.</td></tr>
+  <tr><td>Předáno serveru webu</td><td>Hosting ho přijal, doručení nepotvrdil. Obvykle v pořádku.</td></tr>
+  <tr><td>Nepodařilo se, zkusí se znovu</td><td>Další pokus proběhne sám, kdykoli někdo pracuje v CRM.</td></tr>
+  <tr><td>Selhalo (vyčerpány pokusy)</td><td>Poptávka je v CRM, jen e-mail nedorazil. Tlačítko <b>Odeslat znovu</b>; když opakovaně selhává, viz kapitola 16.</td></tr>
+</table>
+
+<!-- ============================ 11 GDPR ============================ -->
+<h1 class="kap"><span>Kapitola 11</span>GDPR dokument a souhlas s referencí</h1>
+<p>Pro klienty, se kterými spolupracujeme, CRM vytvoří PDF dokument: <b>informace o zpracování osobních údajů</b> pro poskytnutí služeb (nevyžaduje souhlas) a volitelný <b>souhlas se zveřejněním zakázky jako reference</b>, případně fotografie, jména a citace. Souhlas platí <b>3 roky</b> od podpisu.</p>
+<div class="row">
+  <figure class="s"><img src="obr/a20b-dlg-souhlas-vyplneny.jpg"><figcaption>GDPR dokument k podpisu</figcaption></figure>
+  <figure class="s"><img src="obr/a23-souhlas-pdf.jpg"><figcaption>První strana vytvořeného PDF (3 strany)</figcaption></figure>
+</div>
+<ol class="kroky">
+  <li>V detailu leadu <b>Připravit dokument k podpisu</b> (nebo ••• › GDPR dokument k podpisu).</li>
+  <li>Vyplňte, kdo podepíše (jméno, funkce), firmu, IČO, e-mail, sídlo. Co necháte prázdné, bude v dokumentu jako linka k ručnímu vyplnění.</li>
+  <li>Zaškrtněte služby, které klientovi poskytujeme (případně další služby), a účely souhlasu.</li>
+  <li><b>Vytvořit PDF</b> – dokument dostane číslo (např. GDPR-2026-0001) a stáhnete ho. Pošlete ho klientovi k podpisu.</li>
+  <li>Až ho klient podepíše: <b>Zaznamenat podpis</b> – datum podpisu, s čím klient souhlasil (co neodškrtl), a nahrát sken nebo fotku (PDF, JPG, PNG, do 20 MB).</li>
+</ol>
+<div class="row">
+  <figure class="xs"><img src="obr/a22-dlg-podpis.jpg"><figcaption>Zaznamenat podpis</figcaption></figure>
+  <figure class="xs"><img src="obr/a21-souhlas-vytvoren.jpg"><figcaption>Dokument připravený k podpisu</figcaption></figure>
+</div>
+<ul>
+  <li><b>Klient odvolal…</b> – zaznamenejte odvolání (celé nebo jen některé účely) a datum. Zakázku pak stáhněte z webu (Reference › vypnout Zobrazit na webu, uložit).</li>
+  <li><b>Zrušit dokument</b> – když se dokument nepodepíše (chyba v údajích apod.).</li>
+  <li>2 měsíce před koncem platnosti se souhlas objeví v Přehledu mezi <b>Souhlasy GDPR k obnovení</b>.</li>
+  <li>Naskenované dokumenty jsou na serveru v neveřejné složce, z internetu nejsou přístupné.</li>
+</ul>
+
+<!-- ============================ 12 NÁVRHY ============================ -->
+<h1 class="kap"><span>Kapitola 12</span>Návrhy webů pro klienty</h1>
+<p>Návrh webu pro klienta vytvoříte mimo web (v Claude nebo jiném nástroji) jako hotové soubory. V CRM ho nahrajete k leadu, CRM z něj samo vytáhne přehled (barvy, písma, stránky, kontroly), vy ho zkontrolujete a pošlete klientovi. Klient si návrh prohlédne na neveřejné stránce, napíše připomínky nebo návrh schválí – a vy dostanete upozornění e-mailem i úkol v CRM.</p>
+<div class="box info"><b class="t">Celý tok jedním pohledem</b>Nahrát návrh › zkontrolovat přehled a náhled › Poslat klientovi (zkontrolovat e-mail, potvrdit adresu) › klient otevře odkaz › připomínka nebo schválení › e-mail nám + úkol v CRM › nová verze › znovu poslat.</div>
+
+<h2>12.1 Nahrání a přehled</h2>
+<figure class="xs"><img src="obr/a31-dlg-nahrat.jpg"><figcaption>Nahrát návrh</figcaption></figure>
+  <div>
+  <ol class="kroky">
+    <li>Otevřete lead a v bloku <b>Návrhy webu</b> klikněte na <b>Nahrát návrh</b>.</li>
+    <li>Vyberte <b>ZIP</b> s <code>index.html</code> (a dalšími stránkami, styly, obrázky, písmy) nebo jeden soubor <b>HTML</b>. Nejvýš 40 MB a 800 souborů. Velké soubory se nahrávají po částech – nezavírejte okno.</li>
+    <li><b>Nahrát</b>. Za chvíli se objeví přehled a náhled.</li>
+  </ol>
+  </div>
+<div class="box pozor"><b class="t">Co ZIP nesmí obsahovat</b>Soubory PHP a jiné spustitelné soubory, cesty mimo složku, odkazy (symlinky) a šifrované soubory se odmítnou s vysvětlením. Obrázky, písma a skripty musí být přímo v ZIPu – z internetu se načítají jen písma Google Fonts. Formuláře v návrhu nikam neodesílají.</div>
+<figure class="m"><img src="obr/a32-navrh-prehled.jpg"><figcaption>Přehled nahraného návrhu: náhled vlevo, vpravo vytažené údaje</figcaption></figure>
+<p><b>Přehled</b> obsahuje bez použití AI: titulek a popis stránky, počet stránek a souborů, velikost, <b>barvy</b> (včetně tmavého režimu a názvů proměnných), <b>písma</b> (Google / vlastní / systémová / chybějící), <b>sekce</b> podle nadpisů a <b>kontroly</b> (chybějící soubory, nefunkční odkazy, chybějící popisy…). Výběrem <b>Verze</b> přepínáte mezi nahranými verzemi. Náhled má přepínače <b>Počítač / Tablet / Mobil</b> a odkaz <b>Otevřít na celou obrazovku</b>. Návrh s vážnou chybou (např. chybějící soubor stylů) nejde poslat, dokud nenahrajete opravenou verzi.</p>
+
+<h2>12.2 Odeslání klientovi</h2>
+<figure class="s"><img src="obr/a33-dlg-poslat.jpg"><figcaption>Poslat návrh klientovi</figcaption></figure>
+<ol class="kroky">
+  <li>Klikněte na <b>Poslat klientovi</b> u verze, kterou chcete poslat.</li>
+  <li>Zkontrolujte předvyplněné: <b>e-mail příjemce</b> (z leadu), <b>jméno</b>, <b>předmět</b> a <b>text e-mailu</b>. Text je česky, nebo anglicky podle jazyka poptávky; upravit ho můžete libovolně.</li>
+  <li>Značky v textu se nahradí samy: <code>{odkaz}</code> = neveřejný odkaz (povinný), <code>{datum}</code> = platnost, <code>{jmeno}</code> = váš podpis.</li>
+  <li><b>Platnost odkazu</b> – 7 až 30 dní (výchozí 14).</li>
+  <li><b>Pro potvrzení opište e-mail příjemce</b> – pojistka proti překlepu a odeslání omylem.</li>
+  <li><b>Odeslat e-mail</b>. E-mail odejde z tasstudio@tasstudio.eu, odpověď klienta přijde vám (odpovědné osobě).</li>
+</ol>
+<figure class="s"><img src="obr/a34-navrh-odeslany.jpg"><figcaption>Po odeslání: doručení s platností a stavem</figcaption></figure>
+<p>V bloku pak vidíte doručení: komu, kdy, do kdy platí, zda klient odkaz otevřel, a tlačítko <b>Odvolat odkaz</b>.</p>
+
+<h2>12.3 Co vidí klient</h2>
+<figure class="m"><img src="obr/a35-klient-stranka.jpg"><figcaption>Stránka s návrhem pro klienta (nahledy.tasstudio.eu)</figcaption></figure>
+<p>Klient otevře odkaz z e-mailu. Vidí návrh přes celou šířku (může se v něm proklikat, na telefonu se přizpůsobí) a vpravo panel <b>Připomínky</b>: k jaké části se vztahuje (nepovinné), text připomínky, jméno, <b>Odeslat připomínku</b> a <b>Návrh schvaluji</b>. Stránka nepoužívá cookies, není ve vyhledávačích a po vypršení platnosti nebo odvolání přestane fungovat.</p>
+<div class="row">
+  <figure class="s"><img src="obr/a37-klient-dekujeme.jpg"><figcaption>Po odeslání připomínky</figcaption></figure>
+  <figure class="s"><img src="obr/a39-klient-schvaleno.jpg"><figcaption>Po schválení návrhu</figcaption></figure>
+</div>
+
+<h2>12.4 Připomínky a schválení</h2>
+<ul>
+  <li>Po připomínce přijde e-mail <b>„Připomínka k návrhu: …“</b> na tasstudio@tasstudio.eu i odpovědné osobě (ukázka v kapitole 15) s odkazem do CRM.</li>
+  <li>V CRM se připomínka objeví v bloku Návrhy webu, zapíše se do historie a vznikne úkol <b>Reagovat na připomínky k návrhu</b> (jen jeden, i když přijde víc připomínek).</li>
+  <li>Připomínku po vyřešení označte <b>Vyřízeno</b>; klient pak na své stránce vidí, že je vyřešená.</li>
+  <li>Po schválení přijde e-mail <b>„Návrh schválen: …“</b> a vznikne úkol <b>Klient schválil návrh: domluvit další postup</b>.</li>
+  <li>Ochrana: nejvýš 20 připomínek za hodinu a 60 za den na jedno doručení; stejné připomínky se neukládají dvakrát.</li>
+</ul>
+<figure class="m"><img src="obr/a38-navrh-pripominka.jpg"><figcaption>Připomínka klienta v CRM s počtem nevyřízených</figcaption></figure>
+<div class="box info">Připomínky se do CRM přenášejí ve chvíli, kdy někdo CRM otevře (e-mail ale odchází hned). Když tedy CRM nikdo nemá otevřené, úkol se v něm objeví až po otevření.</div>
+
+<h2>12.5 Nová verze, odvolání, platnost</h2>
+<ul>
+  <li><b>Nová verze</b> – nahrajete upravený ZIP ke stejnému návrhu (verze 2, 3…). Starší verze zůstávají v historii. Klientovi novou verzi pošlete znovu přes <b>Poslat klientovi</b>.</li>
+  <li><b>Odvolat odkaz</b> – odkaz okamžitě přestane fungovat (např. poslali jste omylem jinou verzi nebo jinému člověku).</li>
+  <li>Po vypršení platnosti nebo odvolání klient uvidí stránku <b>Odkaz neplatí</b> s kontaktem na studio. Pošlete mu nový odkaz.</li>
+  <li>Připomínky se po 24 měsících anonymizují.</li>
+</ul>
+
+<!-- ============================ 13 AUDITY ============================ -->
+<h1 class="kap"><span>Kapitola 13</span>Audity webů</h1>
+<p>Otevřete tlačítkem <b>Audity</b> v horní liště administrace (v telefonu Více › Audity webů), adresa <code>www.tasstudio.eu/admin/audity.php</code>. Slouží k rychlému posouzení webu zájemce před schůzkou nebo nabídkou.</p>
+<figure class="t"><img src="obr/a41-audit-vysledek.jpg" style="max-height:170mm"><figcaption>Výsledek auditu (ukázková data)</figcaption></figure>
+<ol class="kroky">
+  <li>Vložte <b>adresu webu</b> a klikněte na <b>Spustit audit</b>. Měření trvá obvykle do minuty.</li>
+  <li><b>Změřit znovu (bez mezipaměti)</b> – jinak se do 24 hodin použije předchozí výsledek.</li>
+  <li>Výsledek: skóre <b>Výkon, Přístupnost, Osvědčené postupy, SEO</b> pro mobil a počítač, metriky (načtení největšího obsahu, blokování, posun rozvržení), <b>Zjištěno měřením</b> a <b>Doporučení AI k vzhledu (subjektivní)</b>.</li>
+  <li><b>Poslední audity</b> – seznam včetně auditů, které spustili návštěvníci přes Tessu. Mažou se po 30 dnech.</li>
+</ol>
+<div class="box pozor">Měření je laboratorní (emulovaný telefon), ne data skutečných návštěvníků. Doporučení AI jsou názor, ne fakt – klientovi je tak i prezentujte. Některé weby měření blokují; pak audit skončí chybou.</div>
+
+<!-- ============================ 14 NÁVŠTĚVNOST ============================ -->
+<h1 class="kap"><span>Kapitola 14</span>Návštěvnost</h1>
+<figure class="t"><img src="obr/a42-navstevnost.jpg" style="max-height:200mm"><figcaption>Přehled návštěvnosti za 30 dní (smyšlená data)</figcaption></figure>
+<ul>
+  <li>Tlačítko <b>Návštěvnost</b> v horní liště. Po otevření se ukáže posledních 30 dní; jiné období <b>7 / 30 / 90 / 365 dní</b> vpravo nahoře; čísla se srovnávají s předchozím stejně dlouhým obdobím.</li>
+  <li>Dlaždice: návštěvníci, návštěvy, zobrazení stránek, stránek na návštěvu, odchod po jedné stránce, průměrná délka návštěvy.</li>
+  <li>Graf po dnech, nejnavštěvovanější stránky, odkud lidé přišli (vyhledávače, přímo, sítě, kampaně), weby, které na nás odkazují, jazyk, zařízení, prohlížeče, systémy a <b>události</b> (odeslaná poptávka, rozhovor s Tessou).</li>
+  <li>Počítají se jen návštěvníci, kteří v liště cookies povolili měření. Údaje se uchovávají 14 měsíců, bez IP adres.</li>
+  <li>Podrobnější statistiky má Google Analytics (pokud je v Kontaktech a údajích vyplněné ID) na analytics.google.com.</li>
+</ul>
+
+<!-- ============================ 15 E-MAILY ============================ -->
+<h1 class="kap"><span>Kapitola 15</span>Ukázky odesílaných e-mailů</h1>
+<p>Systém posílá tyto e-maily. Žádný z nich neodchází klientovi bez vašeho výslovného potvrzení – kromě upozornění, která chodí nám.</p>
+<table>
+  <tr><th>E-mail</th><th>Komu</th><th>Kdy</th></tr>
+  <tr><td>Nová poptávka z webu</td><td>tasstudio@tasstudio.eu</td><td>Návštěvník odešle formulář</td></tr>
+  <tr><td>Nová poptávka z AI asistenta</td><td>tasstudio@tasstudio.eu</td><td>Návštěvník odešle formulář v chatu Tessy</td></tr>
+  <tr><td>Návrh webu pro …</td><td>klient</td><td>Vy v CRM potvrdíte Odeslat e-mail</td></tr>
+  <tr><td>Připomínka k návrhu</td><td>tasstudio@ + odpovědná osoba</td><td>Klient odešle připomínku</td></tr>
+  <tr><td>Návrh schválen</td><td>tasstudio@ + odpovědná osoba</td><td>Klient klikne Návrh schvaluji</td></tr>
+</table>
+<figure class="t"><img src="obr/e01.jpg" style="max-height:225mm"><figcaption>Poptávka z webového formuláře. Tlačítko otevře lead v administraci; odpověď jde přímo zájemci.</figcaption></figure>
+<figure class="t"><img src="obr/e02.jpg" style="max-height:225mm"><figcaption>Poptávka od Tessy včetně přepisu konverzace.</figcaption></figure>
+<p class="mala">Pozn.: v ukázkovém prostředí je odesílatel „web@localhost“; na tasstudio.eu je to adresa domény webu.</p>
+<figure class="s"><img src="obr/e03.jpg"><figcaption>E-mail klientovi s odkazem na návrh (text upravíte před odesláním). Na webu odkaz začíná https://nahledy.tasstudio.eu/.</figcaption></figure>
+<div class="row">
+  <figure class="xs"><img src="obr/e04.jpg"><figcaption>Upozornění na připomínku klienta</figcaption></figure>
+  <figure class="xs"><img src="obr/e06.jpg"><figcaption>Upozornění na schválení návrhu</figcaption></figure>
+</div>
+<p class="mala">Odkaz „V CRM“ v upozorněních vede na lead v administraci (na webu https://www.tasstudio.eu/admin/#crm/lead/…).</p>
+
+<!-- ============================ 16 SCÉNÁŘE ============================ -->
+<h1 class="kap"><span>Kapitola 16</span>Scénáře a řešení problémů</h1>
+
+<h2>Přihlášení a účet</h2>
+<div class="scen"><h4>Zapomněl jsem heslo</h4><p>Obnova e-mailem neexistuje. Možnosti: (1) pokud jste si vlastní heslo nikdy nenastavili, přihlaste se společným heslem administrace; (2) jinak požádejte správce serveru (vývojáře) o smazání vašeho osobního hesla v databázi – pak se přihlásíte společným heslem a nastavíte si nové. Kolega vaše heslo změnit nemůže.</p></div>
+<div class="scen"><h4>„Příliš mnoho špatných pokusů“</h4><p>Po 6 chybách je přihlášení z vaší sítě 15 minut zamčené. Počkejte; zkontrolujte, zda máte vybrané správné jméno a vypnutý Caps Lock.</p></div>
+<div class="scen"><h4>Uprostřed práce se objevilo „Přihlaste se znovu“</h4><p>Vypršelo přihlášení (12 h nečinnosti) nebo jste se odhlásili v jiném okně. Zadejte heslo v okně – rozpracované změny zůstanou a uložení dokončíte.</p></div>
+<div class="scen"><h4>Žlutý pruh „nastavte si vlastní heslo“</h4><p>Přihlašujete se společným heslem. Nastavte si vlastní v Účet a nápověda › Vaše heslo.</p></div>
+
+<h2>Web a reference</h2>
+<div class="scen"><h4>Uložil jsem, ale na webu vidím starou verzi</h4><ol><li>Obnovte stránku (Cmd+Shift+R / Ctrl+F5) nebo zkuste anonymní okno.</li><li>Zkontrolujte, že stav v administraci je „Vše uloženo“.</li><li>Pomůže-li to jen vám, šlo o mezipaměť vašeho prohlížeče. Jinak Účet a nápověda › <b>Obnovit mezipaměť webu</b>.</li></ol></div>
+<div class="scen"><h4>Omylem jsem smazal nebo pokazil zakázku</h4><p>Zálohy › najděte zálohu před chybou (podle času) › <b>Obnovit</b>. Vrátí se i obrázky a soubory. Současný stav se předtím sám zazálohuje.</p></div>
+<div class="scen"><h4>Červený pruh „Soubor data/reference.js nejde přečíst“</h4><p>Soubor s referencemi je poškozený (typicky po ruční úpravě přes FTP). Zálohy › obnovte poslední zálohu. Nic neukládejte, dokud pruh nezmizí.</p></div>
+<div class="scen"><h4>Zavřel jsem okno s neuloženými změnami</h4><p>Otevřete administraci ve stejném prohlížeči – žlutý pruh nabídne obnovení konceptu. Na jiném počítači koncept není.</p></div>
+<div class="scen"><h4>Náhled webu u zakázky se nevytvořil nebo je špatný</h4><p>Zkontrolujte odkaz (celý, s https://). Web klienta může tvorbu náhledu blokovat – nahrajte vlastní obrázek tlačítkem Vyměnit obrázek.</p></div>
+<div class="scen"><h4>Chci zakázku jen dočasně schovat</h4><p>Vypněte Zobrazit na webu a uložte. Nic se nesmaže.</p></div>
+<div class="scen"><h4>Klient odvolal souhlas se zveřejněním reference</h4><p>V CRM u leadu zaznamenejte odvolání (Klient odvolal…). V Referencích vypněte Zobrazit na webu (nebo zakázku smažte) a uložte.</p></div>
+
+<h2>CRM a poptávky</h2>
+<div class="scen"><h4>Přišel e-mail s poptávkou, ale nevím, kdo ji vyřídí</h4><p>CRM › Přehled › Nepřiřazené leady › Převzít. Tím je jasné, že to máte vy, a kolega už ji neřeší.</p></div>
+<div class="scen"><h4>Poptávka je v CRM, ale e-mail nepřišel</h4><p>V detailu leadu na kartě poptávky zkontrolujte stav oznámení. „Nepodařilo se“ se zkusí znovu samo; „Selhalo“ – klikněte Odeslat znovu. Pokud selhává opakovaně, je problém s poštou hostingu – předejte vývojáři. Zkontrolujte i spam.</p></div>
+<div class="scen"><h4>Zájemce poslal poptávku dvakrát / už ho v CRM máme</h4><p>Dvojí odeslání téhož formuláře nový lead nezaloží. Pokud jde o dvě různé poptávky téhož člověka, vzniknou dva leady – jeden archivujte a důležité informace přepište do druhého jako poznámku.</p></div>
+<div class="scen"><h4>Kolega změnil lead ve stejnou chvíli</h4><p>CRM ukáže hlášku, že se lead mezitím změnil, a načte aktuální stav. Vaše úprava se nepřepíše přes jeho – zkontrolujte a zopakujte ji.</p></div>
+<div class="scen"><h4>Odcházím na dovolenou</h4><p>Úkoly: Moje › u každého leadu Upravit lead › Odpovědná osoba = kolega (nebo Předat…). Termíny úkolů posuňte.</p></div>
+<div class="scen"><h4>Klient chce vědět, co o něm máme / chce výmaz</h4><ol><li>Vědět: ••• › <b>Stáhnout údaje (GDPR)</b> a pošlete mu soubor.</li><li>Výmaz: ••• › Archivovat lead › ve filtru Archiv otevřít › <b>Smazat trvale…</b> › napsat přesný název. Případnou referenci stáhněte z webu.</li></ol></div>
+<div class="scen"><h4>Omylem jsem archivoval lead</h4><p>Leady › filtr Archiv › otevřít › Obnovit z archivu.</p></div>
+<div class="scen"><h4>Omylem jsem trvale smazal lead</h4><p>V administraci nejde vrátit. Okamžitě napište správci serveru: z denní zálohy CRM (posledních 30 dní) lze lead dohledat. Do té doby v CRM nic nemažte.</p></div>
+<div class="scen"><h4>Import ze souboru hlásí chyby</h4><p>Stáhněte vzorový CSV, porovnejte záhlaví. Chybné řádky náhled vypíše – opravte je v tabulce a importujte znovu jen je. Duplicity můžete přeskočit.</p></div>
+
+<h2>Návrhy webů</h2>
+<div class="scen"><h4>Nahrání ZIPu se odmítlo</h4><p>Hláška říká proč: příliš velký (víc než 40 MB / 800 souborů), obsahuje PHP nebo jiný zakázaný typ, chybí index.html. Odstraňte problém a nahrajte znovu. Velké obrázky zmenšete.</p></div>
+<div class="scen"><h4>Návrh nejde poslat („nejde poslat“ v přehledu)</h4><p>Kontroly našly vážnou chybu (např. chybějící soubor stylů nebo stránka bez obsahu). Opravte soubory a nahrajte <b>Novou verzi</b>.</p></div>
+<div class="scen"><h4>V náhledu chybí písmo nebo obrázky</h4><p>Návrh nesmí načítat soubory z internetu (kromě Google Fonts). Vložte písma a obrázky přímo do ZIPu a odkazujte na ně relativně (např. <code>img/logo.svg</code>).</p></div>
+<div class="scen"><h4>Odeslání hlásí chybu potvrzení</h4><p>Opsaný e-mail se neshoduje s adresou příjemce. Opravte; nic se neodeslalo.</p></div>
+<div class="scen"><h4>Poslal jsem návrh špatnému člověku / špatnou verzi</h4><p>Ihned <b>Odvolat odkaz</b> u doručení. Pak pošlete správnou verzi správnému příjemci.</p></div>
+<div class="scen"><h4>Klientovi odkaz nefunguje</h4><p>Zkontrolujte v CRM platnost a stav doručení. Vypršel nebo byl odvolaný › pošlete nový. Klient má otevírat celý odkaz z e-mailu (některé poštovní programy ho zalomí).</p></div>
+<div class="scen"><h4>Klient napsal připomínku, ale v CRM nic není</h4><p>Připomínky se přenesou po otevření CRM. Otevřete Přehled a znovu detail leadu. E-mail o připomínce přichází hned.</p></div>
+<div class="scen"><h4>Klient chce poslat podklady (fotky, texty)</h4><p>Na stránce s návrhem přílohy nejdou. Ať je pošle e-mailem odpovědí na e-mail s návrhem.</p></div>
+
+<h2>Tessa, audit, návštěvnost</h2>
+<div class="scen"><h4>Tessa odpovídá jen „napište nám na e-mail“</h4><p>Došla denní kvóta AI nebo má poskytovatel výpadek. Druhý den se obnoví sama. Opakuje-li se denně, kvótu vyčerpávají roboti nebo velký provoz – předejte vývojáři.</p></div>
+<div class="scen"><h4>Tessa řekla něco nepravdivého</h4><p>Zapište si přesné znění a stránku a předejte vývojáři – upraví se znalosti nebo pravidla. Konverzace jsou uložené na serveru 30 dní a obsahují osobní údaje návštěvníků.</p></div>
+<div class="scen"><h4>Chci Tessu okamžitě vypnout</h4><p>Správce serveru nastaví v <code>/private/ai/ai-consultant.php</code> hodnotu <code>'enabled' =&gt; false</code>. Tlačítko z webu zmizí, zbytek webu funguje.</p></div>
+<div class="scen"><h4>Audit skončil chybou</h4><p>Web nemusí být dostupný, blokuje měření, nebo došel denní limit měření. Zkuste později nebo jinou adresu (s https://).</p></div>
+<div class="scen"><h4>Návštěvnost ukazuje nuly</h4><p>Buď v daném období nikdo nepovolil měření (zkuste delší období), nebo měření nefunguje – předejte vývojáři.</p></div>
+
+<!-- ============================ 17 BEZPEČNOST ============================ -->
+<h1 class="kap"><span>Kapitola 17</span>Bezpečnost a pravidla</h1>
+<ul>
+  <li><b>Hesla a klíče</b> nikdy nepište do e-mailu, chatu, CRM poznámek ani do souborů na webu. Klíče služeb (Cloudflare, Google, ElevenLabs) vkládá jen provozovatel do neveřejné složky <code>/private</code>.</li>
+  <li>Administraci otevírejte jen přes <b>https://</b>. Na cizím počítači se odhlaste.</li>
+  <li><b>Interní schválení není odeslání.</b> Klientovi nic neodchází bez kontroly a výslovného potvrzení.</li>
+  <li>Do CRM pište jen to, co je potřeba k obchodní komunikaci. Citlivé údaje (zdraví, rodná čísla, platební karty) do CRM nepatří.</li>
+  <li>Žádosti klientů o přístup k údajům nebo o výmaz vyřizujte do 30 dní (kapitola 16).</li>
+  <li>Konverzace s Tessou obsahují osobní údaje návštěvníků – na serveru je otevírejte jen, když je to nutné.</li>
+  <li>Klienti, kteří dostali odkaz na návrh, nevidí nic jiného než svůj návrh; odkaz je neveřejný a časově omezený. Přesto ho neposílejte dál.</li>
+</ul>
+
+<!-- ============================ 18 TECHNIKA ============================ -->
+<h1 class="kap"><span>Kapitola 18</span>Technická příloha</h1>
+<p>Pro správce serveru a vývojáře. Běžný uživatel administrace tuto kapitolu nepotřebuje.</p>
+<h2>Hosting a složky</h2>
+<table>
+  <tr><th style="width:48mm">Složka na serveru (Active24)</th><th>Obsah</th></tr>
+  <tr><td><code>/web</code></td><td>Veřejný web včetně <code>/web/admin</code> (administrace) a <code>/web/vendor/ts</code> (knihovny).</td></tr>
+  <tr><td><code>/web/admin/data</code></td><td>Data administrace: CRM databáze, hesla, relace, zálohy, naskenované souhlasy. <b>Nikdy nepřepisovat ani do ní nic nenahrávat.</b> Z internetu je zavřená.</td></tr>
+  <tr><td><code>/sub/nahledy</code></td><td>Brána stránek s návrhy (nahledy.tasstudio.eu).</td></tr>
+  <tr><td><code>/private/ai</code></td><td>Konfigurace a znalosti Tessy, klíče, databáze konverzací.</td></tr>
+  <tr><td><code>/private/audit</code></td><td>Konfigurace auditů, klíč Google, výsledky a snímky (30 dní).</td></tr>
+  <tr><td><code>/private/stat</code></td><td>Konfigurace a databáze měření návštěvnosti.</td></tr>
+  <tr><td><code>/private/studio</code></td><td>Konfigurace návrhů (<code>studio.php</code>), nahrané návrhy, připomínky. <b>Tajný klíč doručení v studio.php se nesmí měnit</b> – jinak přestanou fungovat všechny odeslané odkazy.</td></tr>
+  <tr><td><code>/logs</code></td><td>Logy hostingu.</td></tr>
+</table>
+<h2>Vypínače</h2>
+<table>
+  <tr><th>Funkce</th><th>Jak vypnout</th></tr>
+  <tr><td>Tessa</td><td><code>/private/ai/ai-consultant.php</code> › <code>'enabled' =&gt; false</code></td></tr>
+  <tr><td>Návrhy webů v CRM a stránky pro klienty</td><td><code>/private/studio/studio.php</code> › <code>'enabled' =&gt; false</code> (CRM funguje dál, blok Návrhy se skryje)</td></tr>
+  <tr><td>Měření návštěvnosti</td><td><code>/private/stat/analytics.php</code> › <code>'enabled' =&gt; false</code></td></tr>
+  <tr><td>Audity</td><td><code>/private/audit/site-audit.php</code> › <code>'enabled' =&gt; false</code></td></tr>
+  <tr><td>Google Analytics</td><td>Administrace › Kontakty a údaje › smazat ID měření › Uložit</td></tr>
+</table>
+<h2>Nahrávání změn (FTP)</h2>
+<ul>
+  <li>Změny kódu se nahrávají připravenými balíčky přes FileZillu (zapnout zobrazení skrytých souborů, kvůli <code>.htaccess</code>). Každý balíček obsahuje návod a složku pro návrat.</li>
+  <li>Před nahráním stránek se musí sladit čísla verzí souborů (<code>?v=…</code>) s produkcí, protože je administrace při ukládání přeznačuje.</li>
+  <li>Po nahrání souborů přes FTP použijte v administraci <b>Obnovit mezipaměť webu</b>.</li>
+</ul>
+<h2>Služby třetích stran</h2>
+<table>
+  <tr><th>Služba</th><th>K čemu</th><th>Limit</th></tr>
+  <tr><td>Cloudflare Workers AI</td><td>Odpovědi Tessy, postřehy AI v auditu</td><td>10 000 neuronů/den zdarma (Tessa 6 000)</td></tr>
+  <tr><td>ElevenLabs</td><td>Hlas Tessy</td><td>měsíční strop znaků</td></tr>
+  <tr><td>Google PageSpeed Insights</td><td>Měření v auditech</td><td>kvóta Google</td></tr>
+  <tr><td>Google Analytics 4</td><td>Volitelné statistiky</td><td>jen po souhlasu</td></tr>
+  <tr><td>Cloudflare Turnstile</td><td>Ochrana Tessy proti robotům (volitelně)</td><td>po vložení klíčů</td></tr>
+</table>
+<h2>Zálohy</h2>
+<ul>
+  <li>Reference a kontakty: 60 záloh v administraci (kapitola 7).</li>
+  <li>CRM: denní kopie databáze, 30 dní, v <code>/web/admin/data/crm-zalohy</code>. Obnovení = nahrazení databáze kopií (nejdřív stáhnout současnou), jen správce serveru.</li>
+  <li>Doporučení: jednou měsíčně stáhnout celou složku <code>/web/admin/data</code> a <code>/private</code> do bezpečného úložiště mimo hosting.</li>
+</ul>
+
+<p class="mala" style="margin-top:10mm">Manuál vychází ze stavu webu a administrace k 7. 11. 2026. Při změnách funkcí je potřeba ho aktualizovat.</p>
+</body>
+</html>

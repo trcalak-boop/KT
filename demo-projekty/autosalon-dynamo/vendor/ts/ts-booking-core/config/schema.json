@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ts-booking-core/config.schema.json",
+  "title": "Konfigurace ts-booking-core",
+  "description": "Časy jsou minuty od půlnoci (540 = 9:00), data YYYY-MM-DD, dny v týdnu 0 = neděle. Výchozí hodnoty: TSBooking.DEFAULTS.",
+  "type": "object",
+  "$defs": {
+    "day": { "type": ["object", "null"], "properties": { "open": { "type": "boolean" }, "from": { "type": "integer", "minimum": 0, "maximum": 1440 }, "to": { "type": "integer", "minimum": 0, "maximum": 1440 } }, "required": ["open", "from", "to"] },
+    "week": { "type": "array", "minItems": 7, "maxItems": 7, "items": { "$ref": "#/$defs/day" } }
+  },
+  "properties": {
+    "mode": { "enum": ["resources", "capacity"] },
+    "step": { "type": "integer", "minimum": 1 },
+    "minStep": { "type": "integer", "minimum": 1 },
+    "gap": { "type": "integer", "minimum": 0 },
+    "leadMin": { "type": "integer", "minimum": 0 },
+    "leadScope": { "enum": ["all-days", "today-only"] },
+    "adminMinStart": { "enum": ["none", "now"] },
+    "maxDays": { "type": "integer", "minimum": 0 },
+    "activeStatuses": { "type": "array", "items": { "type": "string" } },
+    "hours": { "$ref": "#/$defs/week" },
+    "closures": { "type": "array", "items": { "type": "object", "required": ["from", "to"], "properties": { "from": { "type": "string" }, "to": { "type": "string" }, "open": { "type": "boolean" }, "hours": { "type": ["array", "null"] }, "note": { "type": "string" } } } },
+    "fullDayBlockCloses": { "type": "boolean" },
+    "blocksIncludeBuffer": { "type": "boolean" },
+    "variants": { "type": "array", "items": { "type": "string" }, "description": "názvy variant služby (např. délka vlasů) – pro UI" },
+    "services": { "type": "array", "items": { "type": "object", "required": ["id", "durations"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "durations": { "type": "array", "items": { "type": "integer" } }, "prices": { "type": "array", "items": { "type": "number" } }, "buffer": { "type": "integer" }, "active": { "type": "boolean" } } } },
+    "addons": { "type": "array", "items": { "type": "object", "required": ["id", "services", "durations"] } },
+    "resources": { "type": "array", "items": { "type": "object", "required": ["id", "services"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "services": { "oneOf": [{ "const": "*" }, { "type": "array", "items": { "type": "string" } }] }, "hours": { "oneOf": [{ "$ref": "#/$defs/week" }, { "type": "null" }] }, "away": { "type": "array" }, "bookable": { "type": "boolean" } } } },
+    "pool": { "type": ["object", "null"], "properties": { "members": { "type": "array", "items": { "type": "string" } } } },
+    "spread": { "type": "object", "properties": { "perDay": { "type": "integer" }, "minGapMin": { "type": "integer" } } },
+    "capacity": { "type": ["object", "null"], "properties": { "units": { "type": "integer", "minimum": 1 }, "step": { "type": "integer" }, "sampleMin": { "type": "integer" }, "lastBeforeCloseMin": { "type": "integer" }, "todayLeadMin": { "type": "integer" }, "serviceStart": { "type": "object" } } },
+    "ics": { "type": "object", "properties": { "prodId": { "type": "string" }, "uidDomain": { "type": "string" }, "timezone": { "type": "string" }, "alarmMin": { "type": "integer" } } }
+  },
+  "required": ["mode", "hours", "services"]
+}

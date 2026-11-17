@@ -1,0 +1,6 @@
+/* Salon Vlna – vzhled rezervací (patří projektu; knihovna ho při aktualizaci nepřepíše) */
+.tsb{
+  --tsb-bg:transparent; --tsb-surface:#fffaf6; --tsb-ink:#3a2a2f; --tsb-muted:#7d6a6f; --tsb-line:#ecdcd3;
+  --tsb-accent:#b4536f; --tsb-accent-ink:#fff; --tsb-accent-soft:#f8e6ec; --tsb-free:#3f7d5a; --tsb-full:#a23b3b; --tsb-warn-bg:#fdf1dc; --tsb-warn-ink:#6b4504;
+  --tsb-font:"Avenir Next","Segoe UI",system-ui,sans-serif; --tsb-font-head:Georgia,"Times New Roman",serif; --tsb-r:18px; --tsb-r-btn:999px; --tsb-gap:18px;
+}

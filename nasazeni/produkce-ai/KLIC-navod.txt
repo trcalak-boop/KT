@@ -1,0 +1,9 @@
+API klíč pro produkci – tento soubor se NENAHRÁVÁ.
+
+1. V Claude Console (console.anthropic.com) založte nový pracovní prostor (Workspace) „tasstudio-produkce“
+   a nastavte mu měsíční limit útraty (např. 10 USD). Testovací prostor „tasstudio-test“ tím zůstane oddělený.
+2. V tomto prostoru vytvořte API klíč (začíná sk-ant-).
+3. Na serveru ve složce /private/ai/ vytvořte soubor claude-api-klic.txt, který obsahuje JEN klíč na jednom řádku
+   (FileZilla: pravé tlačítko ve složce › Vytvořit nový soubor, pak na souboru › Zobrazit/Upravit, vložit, uložit a potvrdit nahrání).
+
+Klíč nikam jinam nepište (git, e-mail, chat). Zneplatnit ho můžete kdykoli v Console.

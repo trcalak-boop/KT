@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salon Vlna – zrušení rezervace</title>
+<link rel="stylesheet" href="vendor/ts/ts-booking-widget/core/booking-widget.css">
+<link rel="stylesheet" href="ts-theme/ts-booking-widget/tokens.css">
+<link rel="stylesheet" href="assets/web.css">
+</head><body>
+<header class="top"><a class="logo" href="index.html">Salon <em>Vlna</em></a><nav><a href="index.html#rezervace">Rezervace</a><a href="sprava.html">Pro salon</a></nav></header>
+<main><section class="booking"><div id="zruseni"></div></section></main>
+<script src="vendor/ts/ts-booking-core/core/booking-core.js"></script>
+<script src="vendor/ts/ts-booking-core/adapters/store-http.js"></script>
+<script src="vendor/ts/ts-booking-widget/core/booking-widget.js"></script>
+<script>TSBookingWidget.mountCancel('#zruseni', { store: TSBooking.stores.http('api/rezervace.php') });</script>
+</body></html>

@@ -1,0 +1,5 @@
+3ee008b3a5c2341f0d3a0146e0b7118ec5f01a7e50e20b634c3d76e3f9cda64d  ./NAVOD.md
+e17229e7f5cebb65e3748bf4e0384db9612b65a375a3b89b617e1f73a0ac0cc5  ./k-nahrani/web/admin/index.php
+d0f2bbce477f8dd31976402056ed80920cc0680c01a179562918e78e69131153  ./k-nahrani/web/admin/navstevnost.php
+6d7c5e0f8916be0d69bf6cc17c8188990bdc18ca31cb15db8c719bf677843b68  ./navrat-pri-problemu/web/admin/index.php
+37ffcfd53715c098db24bbda3f98913c7c2d747fd4d603e4affd7a83e683779b  ./navrat-pri-problemu/web/admin/navstevnost.php

@@ -1,0 +1,6 @@
+/* Autosalon Dynamo – tmavý vzhled rezervací (patří projektu) */
+.tsb{
+  --tsb-bg:transparent; --tsb-surface:#1b1d22; --tsb-ink:#f1f2f4; --tsb-muted:#a2a7b0; --tsb-line:#30333b;
+  --tsb-accent:#ff7a1a; --tsb-accent-ink:#111; --tsb-accent-soft:#3a2716; --tsb-free:#5fd08b; --tsb-full:#ff6b5e; --tsb-warn-bg:#3a3016; --tsb-warn-ink:#ffd98a;
+  --tsb-font:"Helvetica Neue",Arial,system-ui,sans-serif; --tsb-font-head:"Arial Black","Helvetica Neue",Arial,sans-serif; --tsb-r:4px; --tsb-r-btn:4px; --tsb-gap:16px;
+}

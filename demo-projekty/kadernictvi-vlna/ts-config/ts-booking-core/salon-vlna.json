@@ -1,0 +1,285 @@
+{
+  "$comment": "Salon Vlna (fiktivní) – konfigurace vzniklá z předvolby kadernictvi.json. Patří projektu.",
+  "mode": "resources",
+  "step": 15,
+  "gap": 0,
+  "leadMin": 120,
+  "maxDays": 60,
+  "activeStatuses": [
+    "pending",
+    "confirmed",
+    "done"
+  ],
+  "hours": [
+    {
+      "open": false,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": false,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1200
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1200
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1200
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1200
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 900
+    }
+  ],
+  "closures": [
+    {
+      "from": "2026-11-17",
+      "to": "2026-11-17",
+      "note": "Státní svátek"
+    },
+    {
+      "from": "2026-12-24",
+      "to": "2026-12-26",
+      "note": "Vánoce"
+    }
+  ],
+  "variants": [
+    "Krátké vlasy",
+    "Polodlouhé vlasy",
+    "Dlouhé vlasy"
+  ],
+  "services": [
+    {
+      "id": "damsky-strih",
+      "name": "Dámský střih a foukaná",
+      "durations": [
+        45,
+        60,
+        75
+      ],
+      "prices": [
+        790,
+        890,
+        990
+      ],
+      "buffer": 0
+    },
+    {
+      "id": "pansky-strih",
+      "name": "Pánský střih",
+      "durations": [
+        30,
+        30,
+        30
+      ],
+      "prices": [
+        450,
+        450,
+        450
+      ],
+      "buffer": 0
+    },
+    {
+      "id": "barveni",
+      "name": "Barvení a střih",
+      "durations": [
+        105,
+        135,
+        165
+      ],
+      "prices": [
+        1690,
+        1990,
+        2290
+      ],
+      "buffer": 15
+    },
+    {
+      "id": "melir",
+      "name": "Melír / balayage",
+      "durations": [
+        150,
+        180,
+        210
+      ],
+      "prices": [
+        2490,
+        2890,
+        3290
+      ],
+      "buffer": 15
+    }
+  ],
+  "addons": [
+    {
+      "id": "maska",
+      "name": "Regenerační maska",
+      "services": [
+        "damsky-strih",
+        "barveni",
+        "melir"
+      ],
+      "durations": [
+        10,
+        10,
+        15
+      ],
+      "prices": [
+        190,
+        190,
+        250
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "id": "klara",
+      "name": "Klára",
+      "services": "*",
+      "hours": [
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": true,
+          "from": 720,
+          "to": 1200
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 900
+        }
+      ]
+    },
+    {
+      "id": "tereza",
+      "name": "Tereza",
+      "services": [
+        "damsky-strih",
+        "pansky-strih",
+        "barveni"
+      ],
+      "hours": [
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": true,
+          "from": 720,
+          "to": 1200
+        },
+        {
+          "open": true,
+          "from": 720,
+          "to": 1200
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": true,
+          "from": 720,
+          "to": 1200
+        },
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        }
+      ]
+    },
+    {
+      "id": "marek",
+      "name": "Marek",
+      "services": [
+        "pansky-strih",
+        "damsky-strih"
+      ],
+      "hours": [
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": false,
+          "from": 540,
+          "to": 1080
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 1020
+        },
+        {
+          "open": true,
+          "from": 540,
+          "to": 900
+        }
+      ]
+    }
+  ]
+}

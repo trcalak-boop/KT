@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kavárna Modrý hrnek – výběrová káva a domácí dorty</title>
+<meta name="description" content="Smyšlený návrh webu pro manuál T&S Studia.">
+<style>
+:root{--krem:#f6f1e7;--modra:#1f4e79;--kava:#3b2a20;--meruna:#e8a33d;--sedy:#6d665e;--nadpis:Georgia,"Times New Roman",serif;--text:"Helvetica Neue",Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root{--krem:#16191d;--kava:#f1e9dc;--sedy:#b5aca1}}
+*{box-sizing:border-box}body{margin:0;background:var(--krem);color:var(--kava);font:17px/1.6 var(--text)}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 6vw}
+.logo{font-family:var(--nadpis);font-size:24px;color:var(--modra);font-weight:700}
+nav a{color:inherit;text-decoration:none;margin-left:24px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:5vw;align-items:center;padding:6vh 6vw 9vh}
+h1{font-family:var(--nadpis);font-size:clamp(40px,6vw,78px);line-height:1.02;margin:0 0 20px;color:var(--modra)}
+h2{font-family:var(--nadpis);font-size:34px;margin:0 0 18px;color:var(--modra)}
+.btn{display:inline-block;background:var(--meruna);color:#1b1208;padding:14px 24px;border-radius:999px;text-decoration:none;font-weight:700}
+.hrnek{aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 45%,#6b4430 0 34%,#fff 35% 44%,var(--modra) 45%);box-shadow:0 30px 60px rgba(31,78,121,.25)}
+.menu{padding:7vh 6vw;background:#fff}.menu ul{list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:10px 6vw;max-width:900px}
+.menu li{display:flex;justify-content:space-between;border-bottom:1px dotted var(--sedy);padding:8px 0}
+.rezervace{padding:8vh 6vw;text-align:center}footer{padding:5vh 6vw;background:var(--modra);color:#fff;font-size:14px}
+@media (max-width:760px){.hero,.menu ul{grid-template-columns:1fr}nav a{margin-left:12px}}
+</style></head>
+<body>
+<header><span class="logo">Modrý hrnek</span><nav><a href="#menu">Menu</a><a href="#rezervace">Rezervace</a><a href="#kontakt">Kontakt</a></nav></header>
+<main>
+<section class="hero"><div><h1>Káva, u které se zastavíte.</h1><p>Výběrová káva z malých pražíren, domácí dorty a klidné místo uprostřed města. Smyšlený návrh pro manuál.</p><a class="btn" href="#rezervace">Rezervovat stůl</a></div><div class="hrnek" role="img" aria-label="Modrý hrnek s kávou"></div></section>
+<section class="menu" id="menu"><h2>Menu</h2><ul><li>Espresso<b>55 Kč</b></li><li>Flat white<b>85 Kč</b></li><li>Filtrovaná káva<b>75 Kč</b></li><li>Mrkvový dort<b>95 Kč</b></li><li>Domácí limonáda<b>65 Kč</b></li><li>Snídaňový talíř<b>189 Kč</b></li></ul></section>
+<section class="rezervace" id="rezervace"><h2>Rezervace</h2><p>Stůl pro větší skupinu si rezervujte telefonicky nebo e-mailem.</p></section>
+</main>
+<footer id="kontakt">Kavárna Modrý hrnek · smyšlená adresa, Testovací 5 · denně 8–20 h</footer>
+</body></html>

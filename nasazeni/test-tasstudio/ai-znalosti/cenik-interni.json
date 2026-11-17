@@ -1,0 +1,127 @@
+{
+  "$comment": "INTERNÍ orientační ceník studia (z rozpisů u referencí, 1. 11. 2026). AI konzultant ho NEDOSTÁVÁ – částky neuvádí (rozhodnutí 1. 11. 2026).",
+  "mena": "CZK",
+  "platnost": "orientační, nezávazné – přesnou cenu stanoví studio po konzultaci",
+  "polozky": [
+    {
+      "id": "web",
+      "nazev": "Prezentační web s administrací",
+      "od": 15000,
+      "do": 25000,
+      "pozn": "15 000 Kč u standardního webu služby (salon, restaurace, ordinace); 19 000–25 000 Kč u rozsáhlejšího webu (škola, autosalon, portfolio).",
+      "zdroje": [
+        "salon-salvej",
+        "ordinace",
+        "koren",
+        "lokna",
+        "slunecnice",
+        "motoria",
+        "krystof-trcala"
+      ]
+    },
+    {
+      "id": "eshop",
+      "nazev": "E-shop s administrací",
+      "od": 25000,
+      "pozn": "Bez platební brány a napojení dopravců – ty se oceňují zvlášť po analýze.",
+      "zdroje": [
+        "vrstva"
+      ]
+    },
+    {
+      "id": "aplikace",
+      "nazev": "Webová aplikace (rezervační / objednávkový systém, správa klientů, sklad a objednávky)",
+      "od": 10000,
+      "pozn": "Doplněk k webu nebo e-shopu.",
+      "zdroje": [
+        "salon-salvej",
+        "ordinace",
+        "koren",
+        "lokna",
+        "vrstva"
+      ]
+    },
+    {
+      "id": "brand",
+      "nazev": "Brand manuál (logo, barvy, písma, pravidla použití)",
+      "od": 5000,
+      "zdroje": [
+        "salon-salvej",
+        "ordinace",
+        "vrstva",
+        "koren",
+        "slunecnice",
+        "motoria",
+        "lokna"
+      ]
+    },
+    {
+      "id": "socialni-site",
+      "nazev": "Vizuály a šablony pro sociální sítě",
+      "od": 1500,
+      "do": 2000,
+      "zdroje": [
+        "salon-salvej",
+        "ordinace",
+        "vrstva",
+        "koren",
+        "slunecnice",
+        "motoria",
+        "lokna"
+      ]
+    },
+    {
+      "id": "tiskoviny",
+      "nazev": "Tiskoviny (vizitky, letáky, menu…)",
+      "od": 1500,
+      "zdroje": [
+        "salon-salvej",
+        "ordinace",
+        "vrstva",
+        "koren",
+        "slunecnice",
+        "motoria",
+        "lokna"
+      ]
+    }
+  ],
+  "balicky": [
+    {
+      "nazev": "Web služby s rezervacemi a identitou",
+      "obsah": [
+        "web",
+        "aplikace",
+        "brand",
+        "socialni-site",
+        "tiskoviny"
+      ],
+      "orientacne": 33000,
+      "priklady": [
+        "lokna",
+        "koren",
+        "ordinace",
+        "salon-salvej"
+      ]
+    },
+    {
+      "nazev": "E-shop s identitou",
+      "obsah": [
+        "eshop",
+        "aplikace",
+        "brand",
+        "socialni-site",
+        "tiskoviny"
+      ],
+      "orientacne": 43000,
+      "priklady": [
+        "vrstva"
+      ]
+    }
+  ],
+  "pravidla": [
+    "Vždy uvádět „orientačně od …“ a že jde o nezávazný odhad; nikdy nesmí znít jako nabídka nebo závazná cena.",
+    "Nezahrnuje: hosting a doménu, platební bránu, napojení dopravců, texty a fotografie, překlady, AI funkce – ty se řeší individuálně.",
+    "Většina referencí jsou ukázkové projekty s fiktivními značkami – při odkazu na ně to říct.",
+    "Při nejasném zadání nabídnout předání poptávky studiu místo odhadu."
+  ]
+}

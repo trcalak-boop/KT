@@ -1,0 +1,14 @@
+:root{--bg:#f6efe9;--ink:#3a2a2f;--accent:#b4536f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Avenir Next","Segoe UI",system-ui,sans-serif}
+.top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:18px clamp(16px,5vw,64px)}
+.logo{font:600 1.5rem Georgia,serif;color:var(--ink);text-decoration:none}.logo em{color:var(--accent)}
+nav{display:flex;gap:18px}nav a{color:var(--ink);text-decoration:none}
+main{max-width:1080px;margin:0 auto;padding:0 clamp(16px,5vw,64px)}
+.hero{padding:48px 0 32px}.hero h1{font:600 clamp(2rem,5vw,3.4rem)/1.1 Georgia,serif;margin:.2em 0 .4em;max-width:16ch}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;color:var(--accent);margin:0}
+.cta{display:inline-block;margin-top:12px;padding:12px 24px;border-radius:999px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}
+.info,.booking{background:#fffaf6;border-radius:24px;padding:clamp(18px,4vw,36px);margin:0 0 28px}
+h2{font:600 1.6rem Georgia,serif;margin:0 0 16px}
+#cenik{list-style:none;padding:0;margin:0;display:grid;gap:8px}#cenik li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed #e6d4c8;padding:6px 0}
+footer{text-align:center;padding:24px 16px 40px;color:#7d6a6f;font-size:.9rem}

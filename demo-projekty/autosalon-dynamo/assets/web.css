@@ -1,0 +1,13 @@
+*{box-sizing:border-box}
+body{margin:0;background:#111216;color:#f1f2f4;font:16px/1.5 "Helvetica Neue",Arial,system-ui,sans-serif}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px clamp(16px,5vw,64px);border-bottom:1px solid #2a2d34}
+.logo{font:900 1.4rem "Arial Black",Arial,sans-serif;letter-spacing:.08em;color:#fff;text-decoration:none}.logo span{color:#ff7a1a}
+nav{display:flex;gap:20px}nav a{color:#cfd3da;text-decoration:none;text-transform:uppercase;font-size:.85rem;letter-spacing:.08em}
+main{max-width:1120px;margin:0 auto;padding:0 clamp(16px,5vw,64px)}
+.hero{padding:56px 0 28px;display:grid;gap:10px}.hero h1{font:900 clamp(2rem,6vw,4rem)/1 "Arial Black",Arial,sans-serif;margin:0;text-transform:uppercase}
+.hero p{color:#a2a7b0;max-width:52ch;margin:0}
+.cars{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding:0;list-style:none;margin:0 0 32px}
+.cars li{background:#1b1d22;border:1px solid #30333b;border-radius:4px;padding:16px}.cars b{display:block}.cars span{color:#a2a7b0;font-size:.9rem}
+.booking{background:#16181c;border:1px solid #2a2d34;border-radius:4px;padding:clamp(16px,4vw,32px);margin-bottom:32px}
+h2{font:900 1.3rem "Arial Black",Arial,sans-serif;text-transform:uppercase;margin:0 0 16px}
+footer{text-align:center;padding:24px 16px 40px;color:#7c818a;font-size:.85rem}

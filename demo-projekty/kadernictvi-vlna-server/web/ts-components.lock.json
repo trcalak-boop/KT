@@ -1,0 +1,68 @@
+{
+  "lockVersion": 1,
+  "library": "/Users/krystof/TS-Studio/ts-library",
+  "components": {
+    "ts-booking-core": {
+      "version": "1.2.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:57",
+      "files": {
+        "adapters/store-demo-local.js": "69945f360a8c3867d6840edc49264cd701a638488a09eef580ae95e83fda102d",
+        "adapters/store-http.js": "641b2c0ea75f756be027d1b8e1d6136df15632ed88849483aff760124ade09fd",
+        "config/schema.json": "7aae9dfac709cbfcdefba6166834bf3636f240ee4c4d62d75b1e0ec2e9405184",
+        "core/booking-core.js": "ebede4f3aeebac9365207f4838f804ddc2c13a7ce0f03153ff2bee7db7990953"
+      }
+    },
+    "ts-auth-php": {
+      "version": "1.0.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:57",
+      "files": {
+        "core/TsAuth.php": "193fa4a57625c0d70cf336835abfe3970fc9fc4811b97bb973fbb5e8809d0134"
+      }
+    },
+    "ts-mailer-php": {
+      "version": "1.1.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:57",
+      "files": {
+        "core/TsMailer.php": "1499de17671a064eb376ce38a7bf434b40eeaf682e748d306dafe30306467a84",
+        "migrations/001_ts_mail_queue.sql": "2f085745492c6e95fc054b69827df700f5cc392a420cff3f735cb29be4366285"
+      }
+    },
+    "ts-booking-server": {
+      "version": "1.1.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:57",
+      "files": {
+        "bin/.htaccess": "91c19251b315adc1e26c475972f2cfb6233278a2790e250fd795b553e4b6cac1",
+        "bin/create-user.php": "1783a1d449cad01efc477d5cc585bdbb33f89307e8951d75c1ed29c3947613ed",
+        "bin/cron.php": "e7bed683227e8ca1615552ea9f6c8d9687859edb76f1ecf5e114e524e500ce69",
+        "bin/migrate.php": "d89b91e617b29231a6ea951c866704802ebdc1cf7180b58a2c6e08173b575c98",
+        "config/.htaccess": "460a81f064f0cd281c18fe7489313d3746cf2d8f2095a72f584ca5e32c4bcc5b",
+        "config/api.example.php": "54c4230073933f18cb8c3927bdd0da6a7410c837ca67bfeb63b618f1272d7ef0",
+        "config/server.example.php": "8375d031a062ff903ef49e734d9e9ee5eaffcb37680b8ecbff837ce927326b72",
+        "core/.htaccess": "91c19251b315adc1e26c475972f2cfb6233278a2790e250fd795b553e4b6cac1",
+        "core/TsBookingApi.php": "d1b2e3702d379af328b18813242175d76879eb9db7824f52fb0ab41fde606401",
+        "core/TsBookingEngine.php": "8ee43ad9d100de1f292a7c795b7eb07f2e001d9ab029b97cbeb14fd3e788e59a",
+        "core/TsBookingInstaller.php": "8d658d4f5b3801cefc19b50204a875f758b4ac5a0c37d931be87f64c3fb6b5f0",
+        "core/TsBookingNotifier.php": "c964dffee55bb24bd49ffd6ea67ab219ab6a63c45544255420792a03bd573780",
+        "core/TsBookingStore.php": "a7aadc02b4e43203020a8e4d3f04df163a680f2bb4463d38308938ebc3f8771a",
+        "core/bootstrap.php": "45345d407cf05019b98620c113f7019bc92c806bca867c2e109f74bc487b2175",
+        "migrations/.htaccess": "91c19251b315adc1e26c475972f2cfb6233278a2790e250fd795b553e4b6cac1",
+        "migrations/001_booking.down.sql": "02f9a6c98c1134d5536b70dbec1061dc40f36d7cebea687703f6c04ae7e3797d",
+        "migrations/001_booking.mysql.sql": "d9dab20a96efc33ea2a541b7450c2d7e18e5287be4795720b8d9b420c8cb8b69",
+        "migrations/001_booking.sqlite.sql": "def9e97c5a0c36328f39a01ce6e7bd6909cb256e669fe92b7ec3ec35f5dcf143"
+      }
+    },
+    "ts-booking-widget": {
+      "version": "1.2.0",
+      "status": "demo",
+      "installedAt": "2026-10-31T01:17:57",
+      "files": {
+        "core/booking-widget.css": "7b76e8fe0b87cb6a85861edb9188172c50771f691830fe822bf7013920edac0d",
+        "core/booking-widget.js": "e361050844f76a1919cd742570b062ecaee9896013bd2eef3df369f8afcb85b1"
+      }
+    }
+  }
+}

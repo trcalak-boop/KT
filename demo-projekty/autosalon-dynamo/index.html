@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autosalon Dynamo – testovací jízdy (ukázka)</title>
+<link rel="stylesheet" href="vendor/ts/ts-booking-widget/core/booking-widget.css">
+<link rel="stylesheet" href="ts-theme/ts-booking-widget/tokens.css">
+<link rel="stylesheet" href="assets/web.css">
+</head>
+<body>
+<header class="top"><a class="logo" href="index.html">DYNA<span>MO</span></a><nav><a href="#vozy">Vozy</a><a href="#jizda">Testovací jízda</a><a href="sprava.html">Prodejci</a></nav></header>
+<main>
+  <section class="hero"><h1>Vyzkoušejte ho dřív, než podepíšete.</h1><p>Vyberte vůz a čas. Prodejce bude čekat s nabitým autem, jízda trvá 30 minut.</p></section>
+  <section id="vozy"><h2>Vozy k testovací jízdě</h2><ul class="cars" id="vozy-seznam"></ul></section>
+  <section id="jizda" class="booking"><h2>Rezervace testovací jízdy</h2><div id="widget"></div></section>
+</main>
+<footer>Autosalon Dynamo je fiktivní ukázka studia T&amp;S. Rezervace se ukládají jen ve vašem prohlížeči.</footer>
+<script src="vendor/ts/ts-booking-core/core/booking-core.js"></script>
+<script src="vendor/ts/ts-booking-core/adapters/store-demo-local.js"></script>
+<script src="vendor/ts/ts-booking-widget/core/booking-widget.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

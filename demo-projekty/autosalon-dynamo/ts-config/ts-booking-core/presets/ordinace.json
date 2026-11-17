@@ -1,0 +1,21 @@
+{
+  "$comment": "Předvolba: ordinace – lékař/ka jako zdroj, typy návštěv s různou délkou, pauza mezi pacienty. Rozdílově zatím neověřeno proti ukázce Ordinace (další etapa).",
+  "mode": "resources",
+  "step": 10, "gap": 5, "leadMin": 240, "maxDays": 30,
+  "activeStatuses": ["pending", "confirmed"],
+  "hours": [
+    { "open": false, "from": 450, "to": 900 },
+    { "open": true, "from": 450, "to": 900 },
+    { "open": true, "from": 720, "to": 1080 },
+    { "open": true, "from": 450, "to": 900 },
+    { "open": true, "from": 720, "to": 1080 },
+    { "open": true, "from": 450, "to": 780 },
+    { "open": false, "from": 450, "to": 900 }
+  ],
+  "services": [
+    { "id": "preventivni", "name": "Preventivní prohlídka", "durations": [30] },
+    { "id": "akutni", "name": "Akutní potíže", "durations": [15] },
+    { "id": "kontrola", "name": "Kontrola", "durations": [10] }
+  ],
+  "resources": [{ "id": "lekar-1", "name": "MUDr. …", "services": "*" }]
+}

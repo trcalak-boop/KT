@@ -1,0 +1,29 @@
+{
+  "$comment": "Předvolba: kadeřnictví / kosmetika. Zdroje = stylistky s vlastní pracovní dobou a dovednostmi, varianta služby = délka vlasů. Hodnoty jsou ukázkové, upravte je v ts-config/.",
+  "mode": "resources",
+  "step": 15, "gap": 0, "leadMin": 120, "maxDays": 60,
+  "activeStatuses": ["pending", "confirmed", "done"],
+  "hours": [
+    { "open": false, "from": 540, "to": 1080 },
+    { "open": false, "from": 540, "to": 1080 },
+    { "open": true, "from": 540, "to": 1200 },
+    { "open": true, "from": 540, "to": 1200 },
+    { "open": true, "from": 540, "to": 1200 },
+    { "open": true, "from": 540, "to": 1200 },
+    { "open": true, "from": 540, "to": 900 }
+  ],
+  "closures": [],
+  "variants": ["Krátké vlasy", "Polodlouhé vlasy", "Dlouhé vlasy"],
+  "services": [
+    { "id": "damsky-strih", "name": "Dámský střih", "durations": [45, 60, 75], "prices": [790, 890, 990], "buffer": 0 },
+    { "id": "pansky-strih", "name": "Pánský střih", "durations": [30, 30, 30], "prices": [450, 450, 450], "buffer": 0 },
+    { "id": "barva", "name": "Barvení", "durations": [90, 120, 150], "prices": [1490, 1790, 2090], "buffer": 15 }
+  ],
+  "addons": [
+    { "id": "maska", "name": "Regenerační maska", "services": ["damsky-strih", "barva"], "durations": [10, 10, 15], "prices": [190, 190, 250] }
+  ],
+  "resources": [
+    { "id": "stylistka-1", "name": "Stylistka 1", "services": "*", "hours": null },
+    { "id": "stylistka-2", "name": "Stylistka 2", "services": ["damsky-strih", "pansky-strih"], "hours": null }
+  ]
+}

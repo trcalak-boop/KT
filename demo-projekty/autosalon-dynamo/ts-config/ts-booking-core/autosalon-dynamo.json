@@ -1,0 +1,115 @@
+{
+  "$comment": "Autosalon Dynamo (fiktivní) – z předvolby autosalon.json: zdroj = vůz, souběh jízd omezují 2 prodejci (pool).",
+  "mode": "resources",
+  "step": 30,
+  "minStep": 1,
+  "gap": 0,
+  "leadMin": 120,
+  "leadScope": "today-only",
+  "adminMinStart": "now",
+  "maxDays": 21,
+  "fullDayBlockCloses": false,
+  "blocksIncludeBuffer": false,
+  "activeStatuses": [
+    "pending",
+    "confirmed"
+  ],
+  "hours": [
+    {
+      "open": false,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 1080
+    },
+    {
+      "open": true,
+      "from": 540,
+      "to": 720
+    }
+  ],
+  "closures": [
+    {
+      "from": "2026-11-17",
+      "to": "2026-11-17",
+      "note": "Státní svátek"
+    }
+  ],
+  "services": [
+    {
+      "id": "testovaci-jizda",
+      "name": "Testovací jízda (30 min)",
+      "durations": [
+        30
+      ],
+      "buffer": 15
+    },
+    {
+      "id": "prohlidka",
+      "name": "Prohlídka vozu s prodejcem (45 min)",
+      "durations": [
+        45
+      ],
+      "buffer": 15
+    }
+  ],
+  "resources": [
+    {
+      "id": "octavia",
+      "name": "Škoda Octavia Combi 2.0 TDI",
+      "services": "*"
+    },
+    {
+      "id": "tucson",
+      "name": "Hyundai Tucson 1.6 T-GDI HEV",
+      "services": "*"
+    },
+    {
+      "id": "id4",
+      "name": "Volkswagen ID.4 Pro",
+      "services": [
+        "testovaci-jizda"
+      ]
+    },
+    {
+      "id": "model3",
+      "name": "Tesla Model 3 RWD",
+      "services": "*",
+      "away": [
+        {
+          "from": "2026-11-09",
+          "to": "2026-11-11"
+        }
+      ]
+    }
+  ],
+  "pool": {
+    "members": [
+      "prodejce-novak",
+      "prodejce-dvorak"
+    ]
+  }
+}
