@@ -1,0 +1,140 @@
+/* ts-ai-consultant – widget. Barvy z proměnných webu (--paper, --surface, --ink, --line, --red), jinak výchozí. */
+.tsai{--tsai-bg:var(--surface,#fff);--tsai-paper:var(--paper,#f1f1ee);--tsai-ink:var(--ink,#111113);--tsai-line:var(--line,#d9d9d4);--tsai-accent:var(--red,#e10600);--tsai-accent-ink:#fff;--tsai-muted:color-mix(in srgb,var(--tsai-ink) 62%,transparent);
+  position:fixed;inset-inline-end:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:2147483000;font:15px/1.5 var(--f-body,system-ui,-apple-system,"Segoe UI",sans-serif);color:var(--tsai-ink)}
+.tsai *,.tsai *::before,.tsai *::after{box-sizing:border-box}
+.tsai-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tsai-launcher{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;border:0;border-radius:999px;background:var(--tsai-ink);color:var(--tsai-paper);font:inherit;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.tsai-launcher:hover{background:var(--tsai-accent);color:var(--tsai-accent-ink)}
+.tsai-dot{width:10px;height:10px;border-radius:50%;background:var(--tsai-accent)}
+.tsai-launcher:hover .tsai-dot{background:var(--tsai-accent-ink)}
+.tsai[hidden],.tsai[data-open=true] .tsai-launcher{display:none}
+.tsai-panel{position:absolute;inset-inline-end:0;bottom:0;width:min(400px,calc(100vw - 32px));height:min(620px,calc(100vh - 32px));height:min(620px,calc(100dvh - 32px));display:flex;flex-direction:column;background:var(--tsai-bg);border:1px solid var(--tsai-line);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.22);overflow:hidden}
+.tsai-panel[hidden]{display:none}
+.tsai-head{display:flex;align-items:center;gap:6px;padding:10px 10px 10px 16px;border-bottom:1px solid var(--tsai-line);background:var(--tsai-paper)}
+.tsai-who{flex:1;min-width:0}
+.tsai-title{margin:0;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.tsai-role{margin:0;font-size:12px;line-height:1.25;color:var(--tsai-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tsai-role[hidden],.tsai-head-face[hidden]{display:none}
+.tsai-face{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:var(--tsai-line)}
+.tsai-launcher .tsai-face{margin-inline-start:-10px;box-shadow:0 0 0 2px var(--tsai-accent)}
+.tsai-face-lg{width:40px;height:40px;box-shadow:0 0 0 2px var(--tsai-accent)}
+.tsai-head-face{display:flex}
+.tsai-lang{max-width:104px;min-height:36px;border:1px solid var(--tsai-line);border-radius:8px;background:var(--tsai-bg);color:var(--tsai-ink);font:inherit;font-size:13px;padding:0 6px}
+.tsai-icon{width:40px;height:40px;border:0;border-radius:8px;background:transparent;color:var(--tsai-ink);font-size:22px;line-height:1;cursor:pointer}
+.tsai-icon:hover{background:var(--tsai-line)}
+.tsai-log{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
+.tsai-msg{max-width:88%;padding:10px 13px;border-radius:12px;white-space:normal;overflow-wrap:anywhere}
+.tsai-assistant{align-self:flex-start;background:var(--tsai-paper);border-start-start-radius:4px}
+.tsai-user{align-self:flex-end;background:var(--tsai-ink);color:var(--tsai-paper);border-end-end-radius:4px;white-space:pre-wrap}
+.tsai-msg a{color:inherit;font-weight:700;text-decoration:underline;text-decoration-color:var(--tsai-accent);text-underline-offset:3px}
+.tsai-msg ul{margin:6px 0;padding-inline-start:20px}
+.tsai-note{margin:0;font-size:12.5px;color:var(--tsai-muted)}
+.tsai-note a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.tsai-quick{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px 10px}
+.tsai-quick[hidden]{display:none}
+.tsai-chip{min-height:40px;padding:0 14px;border:1px solid var(--tsai-line);border-radius:999px;background:var(--tsai-bg);color:var(--tsai-ink);font:inherit;font-size:14px;cursor:pointer}
+.tsai-chip:hover{border-color:var(--tsai-ink)}
+.tsai-offer{align-self:flex-start;border-color:var(--tsai-accent);font-weight:600}
+.tsai-status{margin:0;padding:0 16px;min-height:0;font-size:13px;color:var(--tsai-muted)}
+.tsai-status:not(:empty){padding-bottom:6px}
+.tsai-composer{display:flex;gap:8px;align-items:flex-end;padding:10px;border-top:1px solid var(--tsai-line)}
+.tsai-ts{display:flex;justify-content:center;padding:0 10px}.tsai-ts:empty{display:none}
+.tsai-input{flex:1;min-height:44px;max-height:140px;resize:none;padding:11px 12px;border:1px solid var(--tsai-line);border-radius:10px;background:var(--tsai-bg);color:var(--tsai-ink);font:inherit}
+.tsai-send{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--tsai-accent);color:var(--tsai-accent-ink);font:inherit;font-weight:700;cursor:pointer}
+.tsai-send:disabled{opacity:.55;cursor:progress}
+.tsai-form{display:grid;gap:6px;padding:12px;border:1px solid var(--tsai-line);border-radius:12px;background:var(--tsai-bg)}
+.tsai-form h3{margin:0 0 4px;font-size:15px}
+.tsai-form label{font-size:13px;font-weight:600}
+.tsai-field{width:100%;min-height:42px;padding:9px 10px;border:1px solid var(--tsai-line);border-radius:8px;background:var(--tsai-bg);color:var(--tsai-ink);font:inherit}
+.tsai-field[aria-invalid=true]{border-color:var(--tsai-accent)}
+.tsai-consent{display:flex;gap:8px;align-items:flex-start;font-weight:400!important;margin-top:4px}
+.tsai-consent input{width:20px;height:20px;margin-top:2px;flex:none}
+.tsai-hp{position:absolute;left:-9999px;width:1px;height:1px}
+.tsai-err{margin:0;color:var(--tsai-accent);font-size:13px;font-weight:600}
+.tsai-err:empty{display:none}
+.tsai-actions{display:flex;gap:8px;flex-wrap:wrap}
+.tsai :focus-visible{outline:3px solid var(--tsai-accent);outline-offset:2px}
+.tsai-busy .tsai-status::after{content:"";display:inline-block;width:1em;animation:tsai-dots 1.2s steps(4) infinite;overflow:hidden;vertical-align:bottom}
+@keyframes tsai-dots{0%{width:0}100%{width:1em}}
+@media (max-width:640px){
+  .tsai[data-open=true]{inset:0}
+  .tsai-panel{position:fixed;inset:0;width:100%;height:100%;border-radius:0;border:0;padding-bottom:env(safe-area-inset-bottom)}
+  .tsai-msg{max-width:92%}
+  .tsai-input{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){.tsai *{animation:none!important;transition:none!important}}
+@media (forced-colors:active){.tsai-launcher,.tsai-send,.tsai-chip,.tsai-panel{border:1px solid CanvasText}}
+/* hlas (1.6.0) */
+.tsai-mic{width:44px;height:44px;flex:none;border:1px solid var(--tsai-line);border-radius:10px;display:inline-flex;align-items:center;justify-content:center}
+.tsai-mic[aria-pressed=true]{background:var(--tsai-accent);border-color:var(--tsai-accent);color:var(--tsai-accent-ink);animation:tsai-pulse 1.4s ease-in-out infinite}
+@keyframes tsai-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--tsai-accent) 45%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
+.tsai-mute{display:inline-flex;align-items:center;justify-content:center}
+.tsai-mute[hidden]{display:none}
+.tsai-mute.tsai-off .tsai-wave{opacity:.2}
+.tsai[data-state=speaking] .tsai-mute:not(.tsai-off) .tsai-wave{animation:tsai-wave 1s ease-in-out infinite}
+@keyframes tsai-wave{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.tsai-mic[aria-pressed=true],.tsai[data-state=speaking] .tsai-wave{animation:none!important}}
+/* maskot persony (1.7.0): létající robůtek místo portrétu, stavy podle data-state */
+.tsai-bot{display:block;flex:none;width:30px;height:30px;overflow:visible}
+.tsai-face.tsai-bot,.tsai-launcher .tsai-face.tsai-bot{border-radius:0;background:none;box-shadow:none}
+.tsai-bot svg{display:block;width:100%;height:100%;overflow:visible}
+.tsai-bot *{transform-box:fill-box;transform-origin:center}
+.tsai-launcher .tsai-bot{width:44px;height:44px;margin:-10px -2px -6px -12px}
+.tsai-face-lg.tsai-bot{width:44px;height:44px;margin:-4px 0}
+.tsai-bot-head{fill:#f7f7f4;stroke:#111113;stroke-width:2}
+.tsai-bot-visor{fill:#111113}
+.tsai-bot-eyes rect{fill:#fff}
+.tsai-bot-mouth rect,.tsai-bot-tip,.tsai-bot-ear,.tsai-bot-jet{fill:var(--tsai-accent)}
+.tsai-launcher:hover .tsai-bot-jet,.tsai-launcher:hover .tsai-bot-tip,.tsai-launcher:hover .tsai-bot-ear{fill:#111113}
+.tsai-bot-base{fill:var(--tsai-ink)}
+.tsai-bot-ant{stroke:var(--tsai-ink);stroke-width:2.4;stroke-linecap:round}
+.tsai-launcher .tsai-bot-ant{stroke:currentColor}
+.tsai-launcher .tsai-bot-base{fill:currentColor}
+.tsai-bot-shadow{fill:currentColor;opacity:.18}
+.tsai-bot-sig{fill:none;stroke:var(--tsai-accent);stroke-width:2.4;stroke-linecap:round;opacity:0}
+.tsai-bot-x{fill:none;stroke:var(--tsai-accent);stroke-width:2.4;stroke-linecap:round;opacity:0}
+.tsai-bot-fly{animation:tsai-fly 3.2s ease-in-out infinite;transform-box:view-box}
+.tsai-bot-shadow{animation:tsai-shadow 3.2s ease-in-out infinite}
+.tsai-bot-jet{transform-origin:50% 0;animation:tsai-jet .32s ease-in-out infinite alternate}
+.tsai-bot-eyes{animation:tsai-blink 5.5s infinite}
+.tsai-bot-tip{animation:tsai-tip 2.4s ease-in-out infinite}
+.tsai-launcher:hover .tsai-bot-fly{animation:tsai-hi .7s ease-in-out}
+@keyframes tsai-fly{0%,100%{transform:translateY(1px) rotate(-2deg)}50%{transform:translateY(-3px) rotate(2deg)}}
+@keyframes tsai-shadow{0%,100%{transform:scaleX(1);opacity:.2}50%{transform:scaleX(.7);opacity:.1}}
+@keyframes tsai-jet{to{transform:scaleY(.55)}}
+@keyframes tsai-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes tsai-tip{50%{opacity:.45}}
+@keyframes tsai-hi{30%{transform:translateY(-5px) rotate(-10deg)}65%{transform:translateY(-4px) rotate(8deg)}}
+/* poslouchá: nakloní se, vlny u uší, větší oči */
+.tsai[data-state=listening] .tsai-bot-fly{animation:tsai-tilt 1.6s ease-in-out infinite}
+.tsai[data-state=listening] .tsai-bot-sig{animation:tsai-sig 1s ease-out infinite}
+.tsai[data-state=listening] .tsai-bot-eyes{animation:none;transform:scale(1.15)}
+@keyframes tsai-tilt{0%,100%{transform:translateY(-1px) rotate(-7deg)}50%{transform:translateY(-3px) rotate(-4deg)}}
+@keyframes tsai-sig{0%{opacity:0;transform:scale(.7)}40%{opacity:1}100%{opacity:0;transform:scale(1.25)}}
+/* přemýšlí: oči těkají, anténa bliká rychleji */
+.tsai[data-state=processing] .tsai-bot-eyes{animation:tsai-scan 1.1s ease-in-out infinite}
+.tsai[data-state=processing] .tsai-bot-tip{animation:tsai-tip .5s ease-in-out infinite}
+@keyframes tsai-scan{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
+/* mluví: ústa jako ekvalizér, na hranici slova krátký záškub */
+.tsai[data-state=speaking] .tsai-bot-mouth rect{animation:tsai-talk .36s ease-in-out infinite alternate}
+.tsai[data-state=speaking] .tsai-bot-mouth rect:nth-child(2){animation-delay:-.12s}
+.tsai[data-state=speaking] .tsai-bot-mouth rect:nth-child(3){animation-delay:-.24s}
+.tsai[data-state=speaking] .tsai-bot-eyes{animation:none;transform:scaleY(.8)}
+.tsai-beat .tsai-bot-mouth{transform:scaleY(1.5)}
+@keyframes tsai-talk{from{transform:scaleY(1)}to{transform:scaleY(2.6)}}
+/* chyba: oči křížky, zatřese se */
+.tsai[data-state=error] .tsai-bot-eyes{opacity:0}
+.tsai[data-state=error] .tsai-bot-x{opacity:1}
+.tsai[data-state=error] .tsai-bot-fly{animation:tsai-shake .5s ease-in-out 2}
+@keyframes tsai-shake{25%{transform:translateX(-2px) rotate(-4deg)}75%{transform:translateX(2px) rotate(4deg)}}
+/* hlas persony (1.8.0): ústa podle skutečné hlasitosti přehrávaného zvuku (--tsai-mouth nastavuje widget) */
+.tsai-live[data-state=speaking] .tsai-bot-mouth rect{animation:none;transform:scaleY(var(--tsai-mouth,1))}
+.tsai-live[data-state=speaking] .tsai-bot-mouth rect:nth-child(2){transform:scaleY(calc(var(--tsai-mouth,1) * 1.3))}
+/* audit webu v chatu (1.9.0) */
+.tsai-audit{max-width:100%;width:100%}
+.tsai-abar{height:6px;border-radius:99px;background:var(--tsai-line);overflow:hidden;margin-top:8px}.tsai-abar span{display:block;height:100%;width:5%;background:var(--tsai-accent);transition:width .6s}
+.tsai-ascores{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;text-align:center}.tsai-ascores th,.tsai-ascores td{padding:4px 2px;border-bottom:1px solid var(--tsai-line)}
+.tsai-ascores th[scope=row]{text-align:start;font-weight:600}.tsai-ascores td{font-weight:800;font-size:15px}
+.tsai-ok{color:#0c7a43}.tsai-mid{color:#b25e00}.tsai-bad{color:#c8102e}
+.tsai-ah{margin:8px 0 2px;font-weight:700;font-size:13px}.tsai-audit ul{margin:0;padding-inline-start:18px;font-size:13px}
+.tsai-anote{margin:8px 0 0;font-size:11px;color:var(--tsai-muted)}

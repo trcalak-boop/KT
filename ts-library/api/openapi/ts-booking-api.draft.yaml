@@ -1,0 +1,29 @@
+openapi: 3.1.0
+info:
+  title: ts-booking-server – původní NÁVRH z Etapy 1 (nahrazeno)
+  version: 0.0.0-draft
+  description: |
+    NAHRAZENO: implementované API je popsané v api/ts-booking-server.md (ts-booking-server 1.0.0, směrování ?r=…).
+    Tento soubor zůstává jen jako záznam původního návrhu.
+    Server musí volné časy počítat stejným jádrem (nebo jeho PHP portem ověřeným rozdílovými testy) a termín
+    ověřit znovu v transakci těsně před zápisem. Nic z tohoto souboru zatím neexistuje.
+paths:
+  /api/booking/slots:
+    get:
+      parameters:
+        - { name: date, in: query, required: true, schema: { type: string } }
+        - { name: service, in: query, required: true, schema: { type: string } }
+        - { name: variant, in: query, schema: { type: integer } }
+        - { name: resource, in: query, schema: { type: string, default: any } }
+      responses: { '200': { description: '[{ t, resources }]' } }
+  /api/booking/bookings:
+    post:
+      description: 'Hlavička Idempotency-Key povinná; CSRF/robot ochrana; limit požadavků.'
+      responses:
+        '201': { description: '{ ok, booking }' }
+        '409': { description: '{ ok: false, error: taken | capacity | pool }' }
+        '429': { description: limit }
+  /api/booking/bookings/{id}:
+    patch:
+      description: 'Jen administrace (TsAuth, oprávnění booking.edit) nebo zákazník s jednorázovým tokenem pro zrušení.'
+      responses: { '200': { description: '{ ok, booking }' } }

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>ts-kit-core – testy</title>
+<script src="../../../tools/testlib.js"></script>
+</head><body><div id="app"></div>
+<script>
+/* Funkční testy veřejného API window.TS (core/kit.js). Čas je zmrazený na úterý 3. 11. 2026 10:17. */
+T.freeze('2026-11-03T10:17:00');
+T.run(function () {
+  return T.scripts([T.lib('components/ts-kit-core/core/kit.js')]).then(function () {
+    var TS = window.TS;
+    T.ok(TS && typeof TS.data === 'function', 'window.TS existuje');
+    /* utility */
+    T.eq(TS.esc('<a href="x">&\'</a>'), '&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;', 'TS.esc');
+    T.eq(TS.esc(null), '', 'TS.esc(null)');
+    T.eq(TS.num('1 234,5'), 1234.5, 'TS.num čárka a mezera');
+    T.eq(TS.num('x'), 0, 'TS.num neplatné');
+    T.eq([TS.plural(1, 'a', 'b', 'c'), TS.plural(3, 'a', 'b', 'c'), TS.plural(5, 'a', 'b', 'c')], ['a', 'b', 'c'], 'TS.plural');
+    T.eq(TS.money(1234), '1 234 Kč', 'TS.money celé');
+    T.eq(TS.money(1234.5), '1 234,50 Kč', 'TS.money desetinné');
+    T.eq(TS.money2(5), '5,00 Kč', 'TS.money2');
+    T.eq(TS.int(1234567.4), '1 234 567', 'TS.int');
+    T.ok(TS.validEmail('a.b@firma.cz') && !TS.validEmail('a@b') && !TS.validEmail('a b@c.cz'), 'TS.validEmail');
+    T.ok(TS.validPhone('+420 777 123 456') && !TS.validPhone('12345'), 'TS.validPhone');
+    T.eq(TS.slug('Dámský střih & foukaná'), 'damsky-strih-foukana', 'TS.slug');
+    var o = { a: { b: 1 } }; T.ok(TS.set(o, 'a.b', 2) && TS.get(o, 'a.b') === 2 && TS.set(o, 'x.y', 1) === false, 'TS.get / TS.set');
+    /* datum a čas */
+    T.eq(TS.today(), '2026-11-03', 'TS.today (zmrazený čas)');
+    T.eq(TS.nowMin(), 617, 'TS.nowMin');
+    T.eq(TS.addDays('2026-10-31', 1), '2026-11-01', 'TS.addDays přes měsíc');
+    T.eq(TS.addDays('2026-10-24', 2), '2026-10-26', 'TS.addDays přes změnu času');
+    T.eq(TS.diffDays('2026-10-24', '2026-10-26'), 2, 'TS.diffDays přes změnu času');
+    T.eq(TS.wd('2026-11-03'), 2, 'TS.wd úterý');
+    T.eq(TS.weekStart('2026-11-08'), '2026-11-02', 'TS.weekStart neděle → pondělí');
+    T.eq(TS.fmtLong('2026-11-03'), 'úterý 3. listopadu', 'TS.fmtLong');
+    T.eq(TS.fmtShort('2026-11-03'), 'út 3. 11.', 'TS.fmtShort');
+    T.eq(TS.fmtRel('2026-11-04'), 'zítra', 'TS.fmtRel');
+    T.eq([TS.hm(545), TS.hhmm(545), TS.parseHM('9:05'), TS.parseHM('')], ['9:05', '09:05', 545, null], 'TS.hm / hhmm / parseHM');
+    /* kalendář */
+    var f = TS.cal.free({ wins: [[540, 720]], busy: [[600, 660]], dur: 45, after: 15, step: 15, minStart: 560 });
+    T.eq(f, [660, 675], 'TS.cal.free: okno, obsazeno, příprava, minStart');
+    T.eq(TS.cal.free({ wins: [[540, 600]], dur: 30, step: 1 }), [540, 545, 550, 555, 560, 565, 570], 'TS.cal.free: krok minimálně 5 min');
+    T.eq(TS.cal.overlaps(600, 660, [[500, 600], [650, 700], [659, 661]]), [[650, 700], [659, 661]], 'TS.cal.overlaps');
+    var ics = TS.cal.ics({ uid: 'r1', title: 'Střih; test', date: '2026-11-05', start: 600, end: 660, location: 'Brno, Česká 1' });
+    T.ok(ics.indexOf('DTSTART;TZID=Europe/Prague:20261105T100000') > 0, 'TS.cal.ics DTSTART');
+    T.ok(ics.indexOf('SUMMARY:Střih\\; test') > 0, 'TS.cal.ics escapuje středník');
+    T.ok(ics.indexOf('LOCATION:Brno\\, Česká 1') > 0, 'TS.cal.ics escapuje čárku');
+    T.ok(ics.indexOf('UID:r1@') > 0 && ics.split('\r\n').length > 10, 'TS.cal.ics UID a řádky CRLF');
+    T.ok(/dates=20261105T100000\/20261105T110000/.test(TS.cal.gcal({ title: 'x', date: '2026-11-05', start: 600, end: 660 })), 'TS.cal.gcal');
+    var g = TS.cal.grid({ from: 480, to: 600, cols: [{ key: 'a', d: 'út', n: '3.' }], events: [{ col: 'a', start: 500, end: 540, s: 'Jana' }] });
+    T.ok(/k-wk/.test(g) && /Jana/.test(g), 'TS.cal.grid vykreslí událost');
+    /* úložiště ukázky */
+    var D = TS.data('test', 1, function () { return { n: 1, items: [] }; });
+    D.n = 5; TS.save();
+    T.eq(JSON.parse(sessionStorage.getItem('ts-demo:test:v1')).n, 5, 'TS.data + TS.save do sessionStorage');
+    TS.reset(); T.eq(TS.D.n, 1, 'TS.reset vrátí výchozí data');
+    /* e-maily ukázky */
+    var e = TS.mail.add(TS.D, { box: 'k', to: 'a@b.cz', subject: 'S' });
+    T.ok(TS.D.emails[0] === e && e.read === false && e.at === Date.now(), 'TS.mail.add');
+    for (var i = 0; i < 160; i++) TS.mail.add(TS.D, { subject: 'x' + i });
+    T.eq(TS.D.emails.length, 150, 'TS.mail.add drží nejvýš 150 e-mailů');
+    /* modální okno a toast */
+    var btn = document.createElement('button'); btn.id = 'opener'; document.body.appendChild(btn); btn.focus();
+    TS.openModal(TS.mShell('Titulek', 'Podtitulek', '<input id="m-in">', ''));
+    T.ok(TS.modalOpen() && document.activeElement.id === 'm-in', 'TS.openModal otevře a zaměří první pole');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    T.ok(!TS.modalOpen() && document.activeElement === btn, 'Esc zavře modální okno a vrátí fokus');
+    TS.toast('Uloženo');
+    T.ok(/Uloženo/.test(document.getElementById('k-toast-root').textContent), 'TS.toast');
+    /* formuláře */
+    T.ok(/data-bind="x.y"/.test(TS.f.text('i1', 'x.y', 'Jméno', 'A&B')) && /A&amp;B/.test(TS.f.text('i1', 'x.y', 'Jméno', 'A&B')), 'TS.f.text escapuje hodnotu');
+    T.eq(TS.f.times(540, 600, 30), [['09:00', '9:00'], ['09:30', '9:30'], ['10:00', '10:00']], 'TS.f.times');
+    /* ikony */
+    TS.addIcons({ moje: '<path d="M0 0"/>' });
+    T.ok(/M0 0/.test(TS.ic('moje')) && /aria-hidden="true"/.test(TS.ic('cal')), 'TS.ic / TS.addIcons');
+  });
+});
+</script></body></html>

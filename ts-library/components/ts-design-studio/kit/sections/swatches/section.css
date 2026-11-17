@@ -1,0 +1,6 @@
+.sw-i{display:grid;gap:2px;min-width:0;font-size:15px}
+.sw-c{display:block;margin-bottom:8px;border-radius:var(--r)}
+.s-swatches--strip .sw{display:grid;gap:clamp(6px,1vw,12px);grid-template-columns:repeat(auto-fit,minmax(min(46%,120px),1fr))}
+.s-swatches--strip .sw-c{height:clamp(150px,26vw,320px)}
+.s-swatches--grid .sw{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.s-swatches--grid .sw-c{aspect-ratio:1}

@@ -1,0 +1,67 @@
+{
+  "name": "ts-crm-intake",
+  "version": "1.0.0",
+  "kind": "reference",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "Napojení webového formuláře na CRM: poptávka → lead (stav Nový, nepřiřazený), idempotence submission_id, marketingový zdroj (UTM, referrer, click-id bez hodnoty), fronta oznámení, ochrana proti robotům a zahlcení.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/poptavka.php",
+        "to": "src/poptavka.php",
+        "sha256": "d5a1651f57906a70f3639867c25d98b216aafcc5d397d4b92eef2dd2c23b5c99",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/admin/crm-poptavky.php",
+        "to": "src/crm-poptavky.php",
+        "sha256": "f40923357067fbeb7c88831e9198a2d3147b95594338b7f8902fe7abf7082f02",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/admin/crm-lib.php",
+        "to": "src/crm-lib.php",
+        "sha256": "f360de0a7f18037520155ffdb5f1276f1d8a9a856aaf832d52aae5baa9dcd48d",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "clean"
+  },
+  "dependencies": {
+    "ts-auth-php": "^1.0.0",
+    "ts-mailer-php": "^1.0.0"
+  },
+  "entrypoints": {
+    "php": "src/poptavka.php",
+    "lib": "src/crm-poptavky.php",
+    "schema": "src/crm-lib.php"
+  },
+  "lockedFiles": [
+    "src/**/*"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "nic – referenční zdroj; pro použití vytvořit samostatnou komponentu s konfigurací (další etapa)"
+  ],
+  "aiProtected": [
+    "src/** – doslovná kopie, neupravovat"
+  ],
+  "works": [
+    "Běží v produkci tasstudio.eu (migrace CRM 5, poptávkový formulář ve 3 krocích)."
+  ],
+  "missingForProduction": [
+    "Vázané na databázové schéma CRM T&S (leads, lead_inquiries, lead_attribution, lead_notifications) a na admin/lib.php.",
+    "Pro jiný projekt: samostatný adaptér nad ts-auth-php a ts-mailer-php + migrace (další etapa).",
+    "GDPR retence leadů není v kódu definovaná."
+  ],
+  "tests": [],
+  "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+  "api": "api/ts-crm-intake.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

@@ -1,0 +1,55 @@
+{
+  "name": "ts-cms-blocks",
+  "version": "1.0.0",
+  "kind": "reference",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "CMS bloky (logika ukázky Slunečnice): aktuality, jídelníček s alergeny, akce a školní kalendář (svátky, Velikonoce, prázdniny), personál, kroužky s kapacitou, zápis, ICS.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/ukazky/slunecnice/data.js",
+        "to": "src/slunecnice-data.js",
+        "sha256": "2df05c6db2dfab4216126992c2f5ce9f92c37b03be15fd51ba5347cfb253ea70",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "clean"
+  },
+  "dependencies": {
+    "ts-kit-core": "^1.0.0"
+  },
+  "entrypoints": {
+    "js": "src/slunecnice-data.js",
+    "globals": "window.SLUN"
+  },
+  "lockedFiles": [
+    "src/**/*"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "nic – referenční zdroj; pro použití vytvořit samostatnou komponentu s konfigurací (další etapa)"
+  ],
+  "aiProtected": [
+    "src/** – doslovná kopie, neupravovat"
+  ],
+  "works": [
+    "Ukázka Slunečnice na tasstudio.eu včetně administrace."
+  ],
+  "missingForProduction": [
+    "Bez serveru a bez přihlášení – vše v sessionStorage.",
+    "České školní reálie (svátky, prázdniny) natvrdo – zobecnit podle země.",
+    "Zobecnění do samostatných bloků s konfigurací = další etapa."
+  ],
+  "tests": [
+    "tests/cms.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+  "api": "api/ts-cms-blocks.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

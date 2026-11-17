@@ -1,0 +1,142 @@
+{
+  "at": "2026-10-31T01:38:42",
+  "pass": 27,
+  "fail": 0,
+  "checks": [
+    {
+      "ok": true,
+      "test": "A: upozornění „rezervace jen v prohlížeči“ je vidět",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "A: 4 služby salonu z konfigurace",
+      "detail": "4"
+    },
+    {
+      "ok": true,
+      "test": "A: barvení umí jen Klára a Tereza (+ kdokoli)",
+      "detail": "['any', 'klara', 'tereza']"
+    },
+    {
+      "ok": true,
+      "test": "A: rezervace dokončena a uložena",
+      "detail": "{'demo': True, 'services': 4, 'resources': ['any', 'klara', 'tereza'], 'date': '2026-10-31', 't': 540, 'done': True, 'doneText': 'Rezervace je přijatáBarvení a střih · Klárasobota 31. října 9:00Potvrzení by vám v ostrém provozu přišlo e-mailem.Stáhnout do kalendáře (.ics)Přidat do Google KalendářeNo"
+    },
+    {
+      "ok": true,
+      "test": "A: délka podle délky vlasů (165 min + 15 příprava), přidělený stylista",
+      "detail": "{'id': 'rmvvoaep6k47j', 'createdAt': 1793407110378, 'date': '2026-10-31', 'service': 'barveni', 'start': 540, 'variant': 2, 'resource': 'klara', 'name': 'Jana Vlnová', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 165, 'buffer': 15, 'price': 2290}"
+    },
+    {
+      "ok": true,
+      "test": "A: vlastní vzhled (akcent salonu)",
+      "detail": "#b4536f"
+    },
+    {
+      "ok": true,
+      "test": "B: upozornění „rezervace jen v prohlížeči“ je vidět",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "B: výběr konkrétního vozu bez „kdokoli“",
+      "detail": "['octavia', 'tucson', 'id4', 'model3']"
+    },
+    {
+      "ok": true,
+      "test": "B: testovací jízda uložena na vybraný vůz",
+      "detail": "[{'id': 'rmvvoaha8t6te', 'createdAt': 1793407113728, 'date': '2026-10-31', 'service': 'testovaci-jizda', 'start': 540, 'variant': 0, 'resource': 'tucson', 'name': 'Petr Dynamo', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 30, 'buffer': 15, 'pric"
+    },
+    {
+      "ok": true,
+      "test": "B: přidělen prodejce z poolu",
+      "detail": "[{'id': 'rmvvoaha8t6te', 'createdAt': 1793407113728, 'date': '2026-10-31', 'service': 'testovaci-jizda', 'start': 540, 'variant': 0, 'resource': 'tucson', 'name': 'Petr Dynamo', 'email': 'test@example.com', 'phone': '', 'note': '', 'source': 'web', 'status': 'pending', 'dur': 30, 'buffer': 15, 'pric"
+    },
+    {
+      "ok": true,
+      "test": "B: vlastní texty projektu (ui.labels)",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "B: jiný vzhled (tmavý, oranžový akcent)",
+      "detail": "#ff7a1a"
+    },
+    {
+      "ok": true,
+      "test": "oddělená data: každý projekt vlastní úložiště",
+      "detail": "['ts-booking-demo:salon-vlna', 'ts-booking-demo:autosalon-dynamo']"
+    },
+    {
+      "ok": true,
+      "test": "rezervace autosalonu nezměnila data salonu",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "B: třetí souběžná jízda zakázaná (2 prodejci)",
+      "detail": "{'pool': 'pool', 'satWhy': ['nabijeni', 'nabijeni'], 'satOther': True, 'away': 0}"
+    },
+    {
+      "ok": true,
+      "test": "B: oborové rozšíření „nabíjení“ platí jen pro ID.4",
+      "detail": "{'pool': 'pool', 'satWhy': ['nabijeni', 'nabijeni'], 'satOther': True, 'away': 0}"
+    },
+    {
+      "ok": true,
+      "test": "B: vůz mimo provoz (away) není nabízen",
+      "detail": "{'pool': 'pool', 'satWhy': ['nabijeni', 'nabijeni'], 'satOther': True, 'away': 0}"
+    },
+    {
+      "ok": true,
+      "test": "A: přehled rezervací ukazuje jen vlastní data",
+      "detail": "Ukázka: rezervace se ukládá jen v tomto prohlížeči, ne do databáze provozovny. Nikdo ji neuvidí a nikdo vás nebude konta"
+    },
+    {
+      "ok": true,
+      "test": "B: přehled rezervací ukazuje jen vlastní data",
+      "detail": "Ukázka: rezervace se ukládá jen v tomto prohlížeči, ne do databáze provozovny. Nikdo ji neuvidí a nikdo vás nebude konta"
+    },
+    {
+      "ok": true,
+      "test": "A: mobil 390 px bez vodorovného posunu",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "B: mobil 390 px bez vodorovného posunu",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "knihovna: jádro rezervací se testem nezměnilo",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "kadernictvi-vlna: ts.py verify – jádro v projektu beze změny",
+      "detail": "2 komponent, jádro beze změny"
+    },
+    {
+      "ok": true,
+      "test": "autosalon-dynamo: ts.py verify – jádro v projektu beze změny",
+      "detail": "2 komponent, jádro beze změny"
+    },
+    {
+      "ok": true,
+      "test": "oba projekty používají totéž jádro (stejný kontrolní součet jako knihovna)",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "test": "kadernictvi-vlna: vlastní kód projektu neobsahuje kopii rezervační logiky",
+      "detail": "[]"
+    },
+    {
+      "ok": true,
+      "test": "autosalon-dynamo: vlastní kód projektu neobsahuje kopii rezervační logiky",
+      "detail": "[]"
+    }
+  ]
+}

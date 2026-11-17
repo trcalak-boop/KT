@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>ts-i18n-demo – testy</title>
+<script src="../../../tools/testlib.js"></script></head><body><div id="x"><p id="p1">Administrace</p><p id="p2">úterý 3. listopadu</p></div>
+<script>
+/* Překlad do angličtiny (výchozí jazyk bez ?lang=): slovník kitu, vlastní slovník, data, dynamický obsah. */
+try { localStorage.removeItem('ts-lang'); } catch (e) { }
+T.run(function () {
+  return T.scripts([T.lib('components/ts-i18n-demo/core/i18n.js'), T.lib('components/ts-i18n-demo/core/i18n-kit.js')]).then(function () {
+    var I = window.TSI18N;
+    T.eq([I.lang, I.source, I.langs], ['en', 'cs', ['en', 'cs', 'de']], 'jazyk en, zdroj cs');
+    T.eq(I.t('Administrace'), 'Admin', 'slovník kitu');
+    T.eq(I.t('  Administrace '), '  Admin ', 'zachová okrajové mezery');
+    I.add('en', { 'Rezervovat termín': 'Book an appointment', 'Volno od {0}': 'Free from {0}' });
+    T.eq(I.t('Rezervovat termín'), 'Book an appointment', 'vlastní slovník projektu');
+    T.ok(/Tuesday|Tue/.test(I.t('úterý 3. listopadu')), 'datum ve formátu jazyka: ' + I.t('úterý 3. listopadu'));
+    T.eq(I.t('Nepřeložený text xyz'), 'Nepřeložený text xyz', 'chybějící překlad zůstane česky');
+    T.eq(I.t('12345'), I.t('12345'), 'čísla bez chyby');
+    if (I.run) I.run(document.getElementById('x'));
+    return new Promise(function (r) { setTimeout(r, 120); }).then(function () {
+      T.eq(document.getElementById('p1').textContent, 'Admin', 'run přeloží DOM');
+      var n = document.createElement('p'); n.textContent = 'Rezervovat termín'; document.getElementById('x').appendChild(n);
+      return new Promise(function (r) { setTimeout(r, 120); }).then(function () { T.eq(n.textContent, 'Book an appointment', 'přeloží i později doplněný obsah'); });
+    });
+  });
+});
+</script></body></html>

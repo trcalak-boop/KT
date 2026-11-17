@@ -1,0 +1,3 @@
+{"type":"quote","label":"Citát","use":"výrazná věta majitele nebo krédo; jen ze skutečných podkladů","default":"band","variants":{"band":"velký citát přes celou šířku","side":"citát vlevo, text vpravo"},
+"slots":{"author":{"type":"text","max":60,"grounded":true},"quote":{"type":"text","max":120,"grounded":true},"quote_em":{"type":"text","max":80,"grounded":true},"text":{"type":"multiline","max":320}},
+"sample":{"author":"Jana Nováková, majitelka","quote":"Chléb se nedá uspěchat.","quote_em":"Proto vstáváme ve dvě.","text":"Kvas krmíme třikrát denně a těsto necháváme kynout celou noc. Poznáte to na vůni i na tom, jak dlouho vydrží."}}

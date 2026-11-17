@@ -1,0 +1,3 @@
+{{>head}}
+<ul class="nw">{{#items}}<li class="nw-i"><time class="mono muted">{{date}}</time><div><h3>{{#url}}<a href="{{url}}">{{title}}</a>{{/url}}{{^url}}{{title}}{{/url}}</h3>{{#text}}<p class="muted">{{text}}</p>{{/text}}</div></li>{{/items}}</ul>
+{{#more_label}}<div class="actions"><a class="btn btn-2" href="{{more_url}}">{{more_label}}</a></div>{{/more_label}}

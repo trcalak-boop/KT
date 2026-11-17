@@ -1,0 +1,768 @@
+{
+  "id": "salon",
+  "name": "Kadeřnictví a salon krásy",
+  "basedOn": "ukázka Lokna (web/ukazky/lokna.html)",
+  "obor": [
+    "kadeřnictví",
+    "barbershop",
+    "kosmetika",
+    "salon krásy",
+    "nehtové studio",
+    "masáže"
+  ],
+  "description": "Jednostránkový web jako módní časopis: obří logotyp, obsah s čísly stran, ceník podle délky vlasů, rezervace telefonem a e-mailem, vzorník odstínů, tým, recenze, návštěva a tiráž. Tmavý režim tlačítkem.",
+  "render": [
+    "index.html",
+    "assets/styles.css"
+  ],
+  "tokens": {
+    "paper": {
+      "var": "--paper",
+      "type": "color",
+      "value": "#fafafa",
+      "label": "Pozadí (papír)"
+    },
+    "paper2": {
+      "var": "--paper-2",
+      "type": "color",
+      "value": "#f0f0f0",
+      "label": "Pozadí – druhá vrstva"
+    },
+    "blush": {
+      "var": "--blush",
+      "type": "color",
+      "value": "#ebebeb",
+      "label": "Pozadí – třetí vrstva"
+    },
+    "ink": {
+      "var": "--ink",
+      "type": "color",
+      "value": "#0d0d0d",
+      "label": "Text a linky"
+    },
+    "ink2": {
+      "var": "--ink-2",
+      "type": "color",
+      "value": "#2a2a2a",
+      "label": "Text – doplňkový"
+    },
+    "muted": {
+      "var": "--muted",
+      "type": "color",
+      "value": "#6b6b6b",
+      "label": "Text – tlumený"
+    },
+    "hair": {
+      "var": "--hair",
+      "type": "color",
+      "value": "#d2d2d2",
+      "label": "Vlasové linky"
+    },
+    "accent": {
+      "var": "--ac",
+      "type": "color",
+      "value": "#7a1e2c",
+      "label": "Sezónní akcent (světlý režim)"
+    },
+    "accent_dark": {
+      "var": "--ac-dark",
+      "type": "color",
+      "value": "#e05a70",
+      "label": "Sezónní akcent (tmavý režim)"
+    },
+    "art_bg": {
+      "var": "--cv-bg",
+      "type": "color",
+      "value": "#161616",
+      "label": "Pozadí kresby na obálce"
+    },
+    "f_disp": {
+      "var": "--f-disp",
+      "type": "font",
+      "value": "\"Syne\",\"Arial Black\",system-ui,sans-serif",
+      "options": [
+        "\"Syne\",\"Arial Black\",system-ui,sans-serif",
+        "\"DM Serif Display\",\"Didot\",\"Bodoni 72\",Georgia,serif"
+      ],
+      "label": "Písmo nadpisů a logotypu"
+    },
+    "f_body": {
+      "var": "--f-body",
+      "type": "font",
+      "value": "\"Sora\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif",
+      "options": [
+        "\"Sora\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif",
+        "\"Outfit\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif"
+      ],
+      "label": "Písmo textu"
+    }
+  },
+  "slots": {
+    "lang": {
+      "type": "text",
+      "max": 5,
+      "label": "Jazyk stránky (cs, en…)"
+    },
+    "brand": {
+      "type": "text",
+      "max": 40,
+      "label": "Název salonu"
+    },
+    "title": {
+      "type": "text",
+      "max": 70,
+      "label": "Titulek stránky (prohlížeč, vyhledávače)"
+    },
+    "description": {
+      "type": "text",
+      "max": 160,
+      "label": "Popis pro vyhledávače"
+    },
+    "logo_pre": {
+      "type": "text",
+      "max": 10,
+      "label": "Logotyp – začátek"
+    },
+    "logo_accent": {
+      "type": "text",
+      "max": 3,
+      "label": "Logotyp – zvýrazněné písmeno (volitelné)"
+    },
+    "logo_post": {
+      "type": "text",
+      "max": 10,
+      "label": "Logotyp – konec"
+    },
+    "logo_text": {
+      "type": "text",
+      "max": 120,
+      "label": "Logotyp pro čtečky (celý název a popis)"
+    },
+    "issue": {
+      "type": "text",
+      "max": 30,
+      "label": "Záhlaví – vydání (např. Vydání 07)"
+    },
+    "season": {
+      "type": "text",
+      "max": 30,
+      "label": "Záhlaví – období (např. Podzim 2026)"
+    },
+    "where": {
+      "type": "text",
+      "max": 70,
+      "label": "Záhlaví – obor a místo"
+    },
+    "cta_label": {
+      "type": "text",
+      "max": 30,
+      "label": "Text hlavního tlačítka"
+    },
+    "cta_url": {
+      "type": "url",
+      "label": "Odkaz hlavního tlačítka (#rezervace, tel:…, https://…)"
+    },
+    "cover_quote": {
+      "type": "text",
+      "max": 90,
+      "label": "Obálka – citát",
+      "grounded": true
+    },
+    "cover_quote_by": {
+      "type": "text",
+      "max": 50,
+      "label": "Obálka – autor citátu",
+      "grounded": true
+    },
+    "cover_price_title": {
+      "type": "text",
+      "max": 50,
+      "label": "Obálka – ceník, nadpis"
+    },
+    "cover_price_note": {
+      "type": "text",
+      "max": 50,
+      "label": "Obálka – ceník, poznámka"
+    },
+    "cover_shades": {
+      "type": "text",
+      "max": 60,
+      "label": "Obálka – vzorník, nadpis"
+    },
+    "cover_book_title": {
+      "type": "text",
+      "max": 50,
+      "label": "Obálka – rezervace, nadpis"
+    },
+    "cover_book_note": {
+      "type": "text",
+      "max": 60,
+      "label": "Obálka – rezervace, poznámka"
+    },
+    "cover_caption": {
+      "type": "text",
+      "max": 50,
+      "label": "Obálka – popisek kresby"
+    },
+    "cover_strip": {
+      "type": "text",
+      "max": 60,
+      "label": "Obálka – svislý pruh (služby)"
+    },
+    "toc_services": {
+      "type": "text",
+      "max": 50,
+      "label": "Obsah – služby, podtitulek"
+    },
+    "toc_team": {
+      "type": "text",
+      "max": 50,
+      "label": "Obsah – tým, podtitulek"
+    },
+    "hours_short": {
+      "type": "text",
+      "max": 50,
+      "label": "Otevírací doba stručně"
+    },
+    "ed_running": {
+      "type": "text",
+      "max": 60,
+      "label": "Úvodník – záhlaví (obor, místo, rok)"
+    },
+    "ed_title": {
+      "type": "text",
+      "max": 50,
+      "label": "Úvodník – nadpis"
+    },
+    "ed_em": {
+      "type": "text",
+      "max": 40,
+      "label": "Úvodník – zvýrazněný konec nadpisu"
+    },
+    "ed_lead": {
+      "type": "multiline",
+      "max": 320,
+      "label": "Úvodník – odstavec"
+    },
+    "ed_pull": {
+      "type": "text",
+      "max": 80,
+      "label": "Úvodník – citát",
+      "grounded": true
+    },
+    "ed_pull_by": {
+      "type": "text",
+      "max": 50,
+      "label": "Úvodník – autor citátu",
+      "grounded": true
+    },
+    "address_short": {
+      "type": "text",
+      "max": 50,
+      "label": "Adresa stručně"
+    },
+    "price_title": {
+      "type": "text",
+      "max": 30,
+      "label": "Ceník – nadpis"
+    },
+    "price_em": {
+      "type": "text",
+      "max": 30,
+      "label": "Ceník – zvýrazněné slovo"
+    },
+    "price_title_end": {
+      "type": "text",
+      "max": 30,
+      "label": "Ceník – konec nadpisu"
+    },
+    "price_text": {
+      "type": "multiline",
+      "max": 260,
+      "label": "Ceník – úvodní text"
+    },
+    "col_1": {
+      "type": "text",
+      "max": 16,
+      "label": "Ceník – 1. sloupec (např. Krátké)"
+    },
+    "col_2": {
+      "type": "text",
+      "max": 16,
+      "label": "Ceník – 2. sloupec"
+    },
+    "col_3": {
+      "type": "text",
+      "max": 16,
+      "label": "Ceník – 3. sloupec"
+    },
+    "prices": {
+      "type": "list",
+      "items": 8,
+      "label": "Ceník – řádky",
+      "fields": {
+        "name": {
+          "type": "text",
+          "max": 40,
+          "label": ""
+        },
+        "p1": {
+          "type": "text",
+          "max": 16,
+          "label": ""
+        },
+        "p2": {
+          "type": "text",
+          "max": 16,
+          "label": ""
+        },
+        "p3": {
+          "type": "text",
+          "max": 16,
+          "label": ""
+        }
+      }
+    },
+    "book_title": {
+      "type": "text",
+      "max": 30,
+      "label": "Rezervace – nadpis"
+    },
+    "book_em": {
+      "type": "text",
+      "max": 20,
+      "label": "Rezervace – zvýrazněné slovo"
+    },
+    "book_title_end": {
+      "type": "text",
+      "max": 30,
+      "label": "Rezervace – konec nadpisu"
+    },
+    "book_text": {
+      "type": "multiline",
+      "max": 260,
+      "label": "Rezervace – text"
+    },
+    "book_note": {
+      "type": "text",
+      "max": 160,
+      "label": "Rezervace – poznámka pod kontakty"
+    },
+    "shades_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Vzorník – nadpis"
+    },
+    "shades_em": {
+      "type": "text",
+      "max": 30,
+      "label": "Vzorník – zvýrazněné slovo"
+    },
+    "shades_text": {
+      "type": "multiline",
+      "max": 260,
+      "label": "Vzorník – text"
+    },
+    "shades": {
+      "type": "list",
+      "items": 8,
+      "label": "Vzorník – odstíny",
+      "fields": {
+        "code": {
+          "type": "text",
+          "max": 8,
+          "label": ""
+        },
+        "name": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        },
+        "top": {
+          "type": "color"
+        },
+        "bottom": {
+          "type": "color"
+        },
+        "light_text": {
+          "type": "text",
+          "max": 3,
+          "label": "Světlý text na tmavém odstínu (ano = cokoli, ne = prázdné)"
+        }
+      }
+    },
+    "team_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Tým – nadpis"
+    },
+    "team_em": {
+      "type": "text",
+      "max": 30,
+      "label": "Tým – zvýrazněný konec"
+    },
+    "team_text": {
+      "type": "multiline",
+      "max": 260,
+      "label": "Tým – text"
+    },
+    "team": {
+      "type": "list",
+      "items": 4,
+      "label": "Tým",
+      "fields": {
+        "role": {
+          "type": "text",
+          "max": 50,
+          "label": ""
+        },
+        "name": {
+          "type": "text",
+          "max": 40,
+          "label": "",
+          "grounded": true
+        },
+        "quote": {
+          "type": "text",
+          "max": 100,
+          "label": "",
+          "grounded": true
+        },
+        "bio": {
+          "type": "text",
+          "max": 220,
+          "label": ""
+        },
+        "days": {
+          "type": "text",
+          "max": 50,
+          "label": ""
+        }
+      }
+    },
+    "quote_big": {
+      "type": "text",
+      "max": 140,
+      "label": "Recenze – velký citát",
+      "grounded": true
+    },
+    "reviews": {
+      "type": "list",
+      "items": 3,
+      "label": "Recenze",
+      "fields": {
+        "text": {
+          "type": "text",
+          "max": 220,
+          "label": "",
+          "grounded": true
+        },
+        "by": {
+          "type": "text",
+          "max": 40,
+          "label": "",
+          "grounded": true
+        }
+      }
+    },
+    "area": {
+      "type": "text",
+      "max": 30,
+      "label": "Návštěva – čtvrť / místo"
+    },
+    "address": {
+      "type": "text",
+      "max": 80,
+      "label": "Adresa celá"
+    },
+    "transport": {
+      "type": "text",
+      "max": 160,
+      "label": "Jak k nám (doprava, volitelné)"
+    },
+    "map_url": {
+      "type": "url",
+      "label": "Odkaz na mapu (volitelné)"
+    },
+    "hours": {
+      "type": "list",
+      "items": 7,
+      "label": "Otevírací doba",
+      "fields": {
+        "days": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        },
+        "time": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        }
+      }
+    },
+    "phone": {
+      "type": "phone",
+      "label": "Telefon"
+    },
+    "phone_href": {
+      "type": "url",
+      "label": "Telefon jako odkaz (tel:+420…)"
+    },
+    "email": {
+      "type": "email",
+      "label": "E-mail"
+    },
+    "instagram": {
+      "type": "text",
+      "max": 40,
+      "label": "Instagram (volitelné)"
+    },
+    "company": {
+      "type": "text",
+      "max": 100,
+      "label": "Patička – provozovatel (© …, IČO)"
+    }
+  },
+  "contrast": [
+    [
+      "ink",
+      "paper"
+    ],
+    [
+      "muted",
+      "paper"
+    ],
+    [
+      "ink2",
+      "paper2"
+    ],
+    [
+      "accent",
+      "paper"
+    ]
+  ],
+  "content": {
+    "lang": "cs",
+    "brand": "Lokna hair studio",
+    "title": "Lokna hair studio",
+    "description": "Butikové kadeřnictví na Vinohradech. Střih, barva a péče bez spěchu, vždy s konzultací. Cena podle délky vlasů.",
+    "logo_pre": "L",
+    "logo_accent": "O",
+    "logo_post": "KNA",
+    "logo_text": "Lokna hair studio – butikové kadeřnictví na Vinohradech",
+    "issue": "Vydání 07",
+    "season": "Podzim 2026",
+    "where": "Hair studio · Mánesova 28 · Vinohrady",
+    "cta_label": "Rezervovat termín",
+    "cta_url": "#rezervace",
+    "cover_quote": "„Dobrá barva odrůstá tak, že si toho nikdo nevšimne.“",
+    "cover_quote_by": "Tereza Malá, zakladatelka",
+    "cover_price_title": "Cena podle délky vašich vlasů",
+    "cover_price_note": "Dámský střih od 790 Kč",
+    "cover_shades": "Osm odstínů, které letos milujeme",
+    "cover_book_title": "Volné termíny každý týden",
+    "cover_book_note": "Telefonem, e-mailem nebo osobně",
+    "cover_caption": "Na obálce: 7.43 Karamelová",
+    "cover_strip": "Balayage · Keratin · Střih · Barva",
+    "toc_services": "střih, barva, péče, účesy",
+    "toc_team": "Tereza, Klára, Denisa",
+    "hours_short": "Út–Pá 9–20, Sobota 9–15",
+    "ed_running": "Hair studio · Vinohrady · od roku 2019",
+    "ed_title": "Vlasy, ve kterých jste",
+    "ed_em": "sama sebou.",
+    "ed_lead": "Butikové kadeřnictví pro ženy, které chtějí účes podle svých vlasů, ne podle posledního trendu. Střih, barva a péče bez spěchu, vždy s konzultací.",
+    "ed_pull": "„Nejdřív si povídáme, pak stříháme.“",
+    "ed_pull_by": "Tereza Malá, zakladatelka",
+    "address_short": "Mánesova 28, Praha 2",
+    "price_title": "Cena podle",
+    "price_em": "vašich",
+    "price_title_end": "vlasů",
+    "price_text": "Cena se řídí délkou vašich vlasů a vždy v ní je mytí, masáž hlavy a foukaná. Konzultace barvy je zdarma.",
+    "col_1": "Krátké",
+    "col_2": "Polodlouhé",
+    "col_3": "Dlouhé",
+    "prices": [
+      {
+        "name": "Dámský střih",
+        "p1": "790 Kč",
+        "p2": "890 Kč",
+        "p3": "990 Kč"
+      },
+      {
+        "name": "Barvení odrostu",
+        "p1": "1 190 Kč",
+        "p2": "1 290 Kč",
+        "p3": "1 390 Kč"
+      },
+      {
+        "name": "Celobarva",
+        "p1": "1 390 Kč",
+        "p2": "1 690 Kč",
+        "p3": "1 990 Kč"
+      },
+      {
+        "name": "Balayage / airtouch",
+        "p1": "2 990 Kč",
+        "p2": "3 590 Kč",
+        "p3": "4 290 Kč"
+      },
+      {
+        "name": "Foukaná a styling",
+        "p1": "490 Kč",
+        "p2": "590 Kč",
+        "p3": "690 Kč"
+      }
+    ],
+    "book_title": "Rezervujte si",
+    "book_em": "svůj",
+    "book_title_end": "termín",
+    "book_text": "Zavolejte nebo napište, s jakou službou a jak dlouhými vlasy přijdete. Termín potvrdíme ještě týž den.",
+    "book_note": "Termín můžete zrušit zdarma do 24 hodin předem.",
+    "shades_title": "Odstíny, které u nás",
+    "shades_em": "milujete",
+    "shades_text": "Osm odstínů, které mícháme nejčastěji. Na konzultaci vám každý ukážeme na prameni vlasů.",
+    "shades": [
+      {
+        "code": "10.1",
+        "name": "Platinová blond",
+        "top": "#f2ebdd",
+        "bottom": "#cfc4b0",
+        "light_text": ""
+      },
+      {
+        "code": "9.3",
+        "name": "Zlatá blond",
+        "top": "#efd49a",
+        "bottom": "#c9a160",
+        "light_text": ""
+      },
+      {
+        "code": "8.34",
+        "name": "Medová měď",
+        "top": "#e0a86a",
+        "bottom": "#b36b35",
+        "light_text": "ano"
+      },
+      {
+        "code": "7.43",
+        "name": "Karamelová",
+        "top": "#c98f5a",
+        "bottom": "#8a5a3c",
+        "light_text": "ano"
+      },
+      {
+        "code": "6.66",
+        "name": "Třešňová",
+        "top": "#a8374a",
+        "bottom": "#5e1a28",
+        "light_text": "ano"
+      },
+      {
+        "code": "5.0",
+        "name": "Oříšková hnědá",
+        "top": "#7a5238",
+        "bottom": "#4a2f1f",
+        "light_text": "ano"
+      },
+      {
+        "code": "4.15",
+        "name": "Čokoládová",
+        "top": "#5a3a2e",
+        "bottom": "#2e1c17",
+        "light_text": "ano"
+      },
+      {
+        "code": "1.0",
+        "name": "Černá",
+        "top": "#2b2426",
+        "bottom": "#0e0b0c",
+        "light_text": "ano"
+      }
+    ],
+    "team_title": "Tři stylistky,",
+    "team_em": "tři rukopisy",
+    "team_text": "Každá z nás má svou specializaci. Objednat se můžete ke konkrétní stylistce, nebo nechte výběr na nás.",
+    "team": [
+      {
+        "role": "Zakladatelka · barvy & balayage",
+        "name": "Tereza Malá",
+        "quote": "„Dobrá barva odrůstá tak, že si toho nikdo nevšimne.“",
+        "bio": "14 let u křesla, školení v Londýně a Miláně. Specialistka na přirozené přechody a opravy barev.",
+        "days": "V salonu: út–so"
+      },
+      {
+        "role": "Střihy · krátké vlasy",
+        "name": "Klára Nováková",
+        "quote": "„Střih je dobrý, když ho doma zvládnete bez žehličky.“",
+        "bio": "Bob, pixie a mikado. Stříhá tak, aby účes držel tvar i po šesti týdnech a doma ho zvládla foukaná za pět minut.",
+        "days": "V salonu: út–pá"
+      },
+      {
+        "role": "Účesy · péče & regenerace",
+        "name": "Denisa Vlková",
+        "quote": "„Zkouška účesu vám vezme půlku svatební nervozity.“",
+        "bio": "Svatební a společenské účesy, keratinové narovnání a obnova vlasových vazeb. Ke svatebnímu účesu vždy zkouška předem.",
+        "days": "V salonu: st–so"
+      }
+    ],
+    "quote_big": "Poprvé za deset let odcházím s barvou, která vypadá, jako bych se s ní narodila.“",
+    "reviews": [
+      {
+        "text": "Klára mi ostříhala bob, který drží i ráno po probuzení. Konečně nemusím každý den žehlit.",
+        "by": "Markéta, Vinohrady"
+      },
+      {
+        "text": "Svatební účes vydržel od obřadu do tří do rána. A zkouška týden předem mi vzala všechnu nervozitu.",
+        "by": "Anna, Žižkov"
+      }
+    ],
+    "area": "Vinohrady",
+    "address": "Mánesova 28, 120 00 Praha 2",
+    "transport": "Tramvaj 11 a 13, zastávka Vinohradská tržnice, odtud 3 minuty pěšky.",
+    "map_url": "",
+    "hours": [
+      {
+        "days": "Pondělí",
+        "time": "zavřeno"
+      },
+      {
+        "days": "Út – Pá",
+        "time": "9:00 – 20:00"
+      },
+      {
+        "days": "Sobota",
+        "time": "9:00 – 15:00"
+      },
+      {
+        "days": "Neděle",
+        "time": "zavřeno"
+      }
+    ],
+    "phone": "+420 603 000 888",
+    "phone_href": "tel:+420603000888",
+    "email": "ahoj@lokna-studio.cz",
+    "instagram": "@lokna.studio",
+    "company": "© 2026 Lokna hair studio · Tereza Malá, IČO 09876543"
+  },
+  "licenses": [
+    "assets/fonts/Syne-OFL.txt",
+    "assets/fonts/Sora-OFL.txt",
+    "assets/fonts/DM_Serif_Display-OFL.txt",
+    "assets/fonts/Outfit-OFL.txt"
+  ],
+  "cssHints": [
+    ".logotype",
+    ".word",
+    ".cover-art",
+    ".ed-h",
+    ".pr-intro h2",
+    ".quick h2",
+    ".spread-head h2",
+    ".team-head h2",
+    ".q-big",
+    ".btn",
+    ".bands",
+    ".member h3"
+  ]
+}

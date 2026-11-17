@@ -1,0 +1,246 @@
+{
+  "name": "ts-ref-lokna",
+  "version": "1.0.0",
+  "kind": "reference",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "Úplná referenční šablona salonu Lokna (web + administrace + e-maily + doklady): HTML stránky, web.js, admin.js, data.js, styl. Vzor bohatého UI nad rezervační logikou.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "web/ukazky/kit/i18n-kit.js",
+        "to": "src/ukazky/kit/i18n-kit.js",
+        "sha256": "2e10d225f9bba08ee99c006cbc8e2c82b9108d2941e5de18467e61f5361e1b10",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/kit/i18n.js",
+        "to": "src/ukazky/kit/i18n.js",
+        "sha256": "4ac0ee32807247af76a16ec22588dd56a370f89e8f3dd5b1801d2b67d49aa14d",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/kit/kit.css",
+        "to": "src/ukazky/kit/kit.css",
+        "sha256": "3d9f2ca53d236ede13eb23ab494f8aa0135a7e88a83e0f359f9f8a421f89ace5",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/kit/kit.js",
+        "to": "src/ukazky/kit/kit.js",
+        "sha256": "560e5dfae131f8908bf67fb6f9b731635af01d4165ad6046117bb9050680b70a",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna-kontakt.html",
+        "to": "src/ukazky/lokna-kontakt.html",
+        "sha256": "f80d1ca8d9d314d7d78a75054a965d49f08be916bb5cd32cec026d02ca1f9fa1",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna-odstiny.html",
+        "to": "src/ukazky/lokna-odstiny.html",
+        "sha256": "6d724e29e6c8423fe169b8ac82b08eaa85b359e06239e9c8d1511989448360f1",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna-rezervace.html",
+        "to": "src/ukazky/lokna-rezervace.html",
+        "sha256": "cc910d2fa8a958a18c88f970bdf8961049cd5da62aac29bea804edd52cd697d6",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna-sluzby.html",
+        "to": "src/ukazky/lokna-sluzby.html",
+        "sha256": "ae17ea2b99c04e96f073a5e4bb473817f9f71f1c1a5221203c4338c2033dc576",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna-sprava.html",
+        "to": "src/ukazky/lokna-sprava.html",
+        "sha256": "ebed88bcecd86074d6fa035900c64c9678832d4cd6331148365c3f5a04b34d61",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna-tym.html",
+        "to": "src/ukazky/lokna-tym.html",
+        "sha256": "751a1e1c6127497b7032f817532699c393e19a3cc3fc30978e286b2413e7b446",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna.html",
+        "to": "src/ukazky/lokna.html",
+        "sha256": "b34d56d5492ffce0526e1db8620a8b343d571ef95600731bc096e28cd1c7afd9",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna/admin.js",
+        "to": "src/ukazky/lokna/admin.js",
+        "sha256": "c128480a0625309aa02b4adec4894925beb26cac6e77400ee3bd70a1a8c4bfd5",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna/data.js",
+        "to": "src/ukazky/lokna/data.js",
+        "sha256": "890bc9f96b75e4f7a8f2becb9df7883547159b75d7c358eb40920b97de786e55",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna/i18n-data.js",
+        "to": "src/ukazky/lokna/i18n-data.js",
+        "sha256": "a8ced84ebbc3c8c4be451e72c239964ff040591b448c8bb6c5cb0e67965f82c9",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna/style.css",
+        "to": "src/ukazky/lokna/style.css",
+        "sha256": "0466fba37387dc81bf274803161102ed750e5ab132ddb7b1250981c6451eabef",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna/vlasy.js",
+        "to": "src/ukazky/lokna/vlasy.js",
+        "sha256": "9d5e870c195085df762736addae3d2692627dd5a52f7e6b5145fb094186a9790",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/ukazky/lokna/web.js",
+        "to": "src/ukazky/lokna/web.js",
+        "sha256": "00391297f37634a78dfc9123503a45ee276e7ebe0346c41b8d7af4560ecc79d3",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/dm-serif-display-italic.woff2",
+        "to": "src/assets/fonts/dm-serif-display-italic.woff2",
+        "sha256": "815fc75e0094cba9baa2ed78bdf4e1608ee97e25e2410ccd8b206e554c2d3afe",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/dm-serif-display.woff2",
+        "to": "src/assets/fonts/dm-serif-display.woff2",
+        "sha256": "635c2257b69455ba479e20e13df735e6a34345111726dcdcb166a35deef9a074",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/lokna-sora-latin-ext.woff2",
+        "to": "src/assets/fonts/lokna-sora-latin-ext.woff2",
+        "sha256": "df4fca18912e29202b16286ab514798de8357c416b5e1f2dd31703994bec7a78",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/lokna-sora-latin.woff2",
+        "to": "src/assets/fonts/lokna-sora-latin.woff2",
+        "sha256": "d2909123a6a8ed2f928055f002c32f63ee93496b470c1a344873f955111fca53",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/outfit.woff2",
+        "to": "src/assets/fonts/outfit.woff2",
+        "sha256": "ec7f47b526a59d7974f61b629fada0e2eadf34b06f9730dadac110a856a3eb5f",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/syne-latin-ext.woff2",
+        "to": "src/assets/fonts/syne-latin-ext.woff2",
+        "sha256": "df1f8bf36d5a8a9b3c2ee2523c6ca3ac1403c5fee14e0501c2ed904094b74166",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/syne-latin.woff2",
+        "to": "src/assets/fonts/syne-latin.woff2",
+        "sha256": "c8b272fbe4c7c9408ec538ae09cdd50e4cef206b33f500fae671111b13e486ba",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/lokna.css",
+        "to": "src/assets/fonts/lokna.css",
+        "sha256": "eb3e45c039364f8d15f7663f88a6170bc20fe9182d98fccd0a6d27cef6e8768c",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/pdf/outfit-400.ttf",
+        "to": "src/assets/fonts/pdf/outfit-400.ttf",
+        "sha256": "3298f80c96d40aac70c9612188f517e3f523012b10b110c023a7f9e7d9b0a4b6",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/pdf/outfit-600.ttf",
+        "to": "src/assets/fonts/pdf/outfit-600.ttf",
+        "sha256": "a6d0927b0114a50611873200e895c59065e4ef33363bd1a19f976d06f2745a83",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/pdf/dm-serif-400.ttf",
+        "to": "src/assets/fonts/pdf/dm-serif-400.ttf",
+        "sha256": "83aa1cf4d9783931926a620583df3b68d5f557f114dc3f3cba72f373a4199f62",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/licence/Sora-OFL.txt",
+        "to": "src/assets/fonts/licence/Sora-OFL.txt",
+        "sha256": "ba0b9729c9428ba79a0459ab8ec575791b51509dbec213e383d0316d37fec299",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/licence/Syne-OFL.txt",
+        "to": "src/assets/fonts/licence/Syne-OFL.txt",
+        "sha256": "cc43cdce6f91c57989af8459341c276655e34224e954fa69c2ad700831a742d8",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/licence/Outfit-OFL.txt",
+        "to": "src/assets/fonts/licence/Outfit-OFL.txt",
+        "sha256": "1945b62cd76da9a3051a1660dde72afaa64ffc2666d30e7a78356d651653ba2f",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/fonts/licence/DM_Serif_Display-OFL.txt",
+        "to": "src/assets/fonts/licence/DM_Serif_Display-OFL.txt",
+        "sha256": "f7100d73cd8fb9b036990c3ad8ae8c04ec87fdc2219dbdd84ed29ff88e8b7652",
+        "mode": "verbatim"
+      },
+      {
+        "from": "web/assets/js/jspdf.umd.min.js",
+        "to": "src/assets/js/jspdf.umd.min.js",
+        "sha256": "e6551fcdc32f09d6853b2c5126d18d01d9447e0da618a41a11ebeee0f6c20d54",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "dirty: web/ukazky/kit/i18n.js, web/ukazky/lokna-kontakt.html, web/ukazky/lokna-odstiny.html, web/ukazky/lokna-rezervace.html, web/ukazky/lokna-sluzby.html, web/ukazky/lokna-sprava.html, web/ukazky/lokna-tym.html, web/ukazky/lokna.html"
+  },
+  "dependencies": {
+    "ts-kit-core": "^1.0.0"
+  },
+  "entrypoints": {
+    "html": "src/ukazky/lokna-rezervace.html",
+    "admin": "src/ukazky/lokna-sprava.html"
+  },
+  "lockedFiles": [
+    "src/**/*"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "nic – referenční zdroj; pro použití vytvořit samostatnou komponentu s konfigurací (další etapa)"
+  ],
+  "aiProtected": [
+    "src/** – doslovná kopie, neupravovat"
+  ],
+  "works": [
+    "Ukázka Lokna na tasstudio.eu (web, rezervace po stylistkách, kalendář, doklady PDF, ICS feed)."
+  ],
+  "missingForProduction": [
+    "Logika rezervací v src/ je originál ukázky – v nových projektech používat ts-booking-core + ts-booking-widget, ne kopii této logiky.",
+    "Odkazy na hlavní web tasstudio.eu, fiktivní značka, sessionStorage."
+  ],
+  "tests": [
+    "tests/lokna.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+  "api": "api/ts-booking-core.md",
+  "license": "Interní – T&S Studio (vlastní kód); písma OFL"
+}

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="p-index">
+<a class="skip" href="#main">Přeskočit na obsah</a>
+<div class="alerts" role="region" aria-label="Aktuální upozornění">{{#alerts}}<div class="alertbar"><div class="wrap"><strong class="ab-tag">{{tag}}</strong><span><b>{{title}}</b> <span class="ab-more">{{text}}</span></span><a href="#hodiny">{{link}}</a></div></div>{{/alerts}}</div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top" aria-current="page"><span class="mk"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="6" fill="#0C3A47"/><text x="29" y="48" text-anchor="middle" font-family="Atkinson Hyperlegible Next,Atkinson Hyperlegible,sans-serif" font-weight="800" font-size="44" fill="#FFFFFF">{{logo_letter}}</text><circle cx="50" cy="15" r="6.5" fill="#34C49A"/></svg></span><span class="lt"><b>{{brand}}</b><span>{{subtitle}}</span></span></a>
+    <nav class="menu" id="menu" aria-label="Hlavní menu"><a href="#hodiny"><span class="n" aria-hidden="true">01</span><span class="t">Ordinační hodiny</span></a><a href="#vyridit"><span class="n" aria-hidden="true">02</span><span class="t">Co vyřídit</span></a><a href="#tym"><span class="n" aria-hidden="true">03</span><span class="t">Tým</span></a><a href="#pacienti"><span class="n" aria-hidden="true">04</span><span class="t">Noví pacienti</span></a><a href="#kontakt"><span class="n" aria-hidden="true">05</span><span class="t">Kontakt</span></a></nav>
+    <div class="tools">
+      <button class="mode-btn" type="button" data-mode-btn aria-label="Přepnout režim"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button class="aplus" id="aplus" type="button" aria-pressed="false" title="Zvětšit písmo" aria-label="Zvětšit písmo">A+</button>
+      <a href="{{cta_url}}" class="btn">{{cta_label}}</a>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="board" id="top" aria-label="Ordinace">
+  <div class="wrap board-grid">
+    <div class="board-main">
+      <p class="mono-l">{{board_kicker}}</p>
+      <h1>{{board_title1}}<br>{{board_title2}}</h1>
+      <p class="board-note">{{board_text}}</p>
+      <p class="board-nurse"><span class="mono-l">{{nurse_label}}</span><a href="{{phone_href}}">{{phone}}</a></p>
+    </div>
+    <div class="board-side">
+      <div class="nextday"><span class="mono-l">{{side1_label}}</span><span class="big">{{side1_big}}</span><span class="sub">{{side1_sub}}</span></div>
+      <a class="freeslot" href="#hodiny"><span class="mono-l">{{side2_label}}</span><span class="big">{{side2_big}}</span><span class="go">{{side2_link}} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
+    </div>
+  </div>
+</section>
+
+<section class="intro" aria-label="O ordinaci">
+  <div class="wrap intro-grid">
+    <div class="intro-text">
+      <p class="intro-lead">{{intro_text}}</p>
+      <div class="intro-cta"><a href="{{phone_href}}" class="btn">{{intro_btn1}} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></a><a href="mailto:{{email}}" class="btn btn--out">{{intro_btn2}}</a></div>
+    </div>
+    <ul class="checks">{{#checks}}<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>{{text}}</li>{{/checks}}</ul>
+  </div>
+</section>
+
+<section class="sec" id="hodiny" aria-labelledby="hTitle">
+  <div class="wrap">
+    <div class="shead"><h2 id="hTitle"><span class="no" aria-hidden="true">01</span>{{hours_title}}</h2><p>{{hours_text}}</p></div>
+    <div class="tbl-wrap">
+      <table>
+        <caption class="sr">{{hours_title}}</caption>
+        <thead><tr><th scope="col">{{col_day}}</th><th scope="col">{{col_hours}}</th><th scope="col">{{col_extra}}</th><th scope="col">{{col_note}}</th></tr></thead>
+        <tbody>{{#hours}}<tr><td>{{day}}</td><td><span class="hp">{{hours}}</span>{{#hours2}}<span class="hp">{{hours2}}</span>{{/hours2}}</td><td>{{extra}}</td><td><span class="tag">{{note}}</span></td></tr>{{/hours}}</tbody>
+      </table>
+    </div>
+    {{#notice}}<p class="week-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><span>{{notice}}</span></p>{{/notice}}
+  </div>
+</section>
+
+<section class="sec sec--cont" id="vyridit" aria-labelledby="qTitle">
+  <div class="wrap">
+    <div class="shead shead--flush"><h2 id="qTitle">{{paths_title}}</h2><p>{{paths_text}}</p></div>
+    <nav class="paths" aria-label="Rychlé cesty">{{#paths}}<a class="path" href="#kontakt"><span class="no">•</span><span class="pt">{{title}}</span><span class="pd">{{text}}</span><span class="pa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>{{/paths}}</nav>
+  </div>
+</section>
+
+<section class="sec sec--cont">
+  <div class="wrap duo">
+    <div id="tym">
+      <span class="over">{{team_kicker}}</span>
+      <h2>{{team_title}}</h2>
+      <div class="mini-team">{{#team}}<div class="mt"><span class="avatar avatar--sm av0">{{initials}}</span><div><b>{{name}}</b><span>{{role}}</span></div></div>{{/team}}</div>
+    </div>
+    <div id="pacienti">
+      <span class="over">{{np_kicker}}</span>
+      <h2>{{np_title}}</h2>
+      <p>{{np_text}}</p>
+      <ol class="mini-steps">{{#np_steps}}<li><span><b>{{bold}}</b> {{text}}</span></li>{{/np_steps}}</ol>
+      <a class="btn" href="{{phone_href}}">{{np_btn}}</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec--cont sec--visit">
+  <div class="wrap visit">
+    <div class="visit-addr">
+      <span class="over">{{visit_kicker}}</span>
+      <h2>{{address}}</h2>
+      <p>{{floor}}</p>
+      {{#map_url}}<a class="lnk" href="{{map_url}}">Mapa a doprava</a>{{/map_url}}
+    </div>
+    <div class="emergency"><span class="num">{{sos_number}}</span><p><b>{{sos_title}}</b> {{sos_text}}</p></div>
+  </div>
+</section>
+</main>
+
+<footer class="site" id="kontakt">
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <a class="logo" href="#top"><span class="mk"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="6" fill="#0C3A47"/><text x="29" y="48" text-anchor="middle" font-family="Atkinson Hyperlegible Next,Atkinson Hyperlegible,sans-serif" font-weight="800" font-size="44" fill="#FFFFFF">{{logo_letter}}</text><circle cx="50" cy="15" r="6.5" fill="#34C49A"/></svg></span><span class="lt"><b>{{brand}}</b><span>{{subtitle}}</span></span></a>
+      <p>{{foot_address}}</p>
+      <p class="foot-sos"><b>{{sos_number}}</b> {{sos_title}}</p>
+    </div>
+    <div>
+      <h2>Na stránce</h2>
+      <ul><li><a href="#hodiny">{{hours_title}}</a></li><li><a href="#vyridit">{{paths_title}}</a></li><li><a href="#pacienti">{{np_title}}</a></li></ul>
+    </div>
+    <div>
+      <h2>Kontakt</h2>
+      <ul><li><a href="{{phone_href}}">{{phone}}</a></li><li><a href="mailto:{{email}}">{{email}}</a></li></ul>
+    </div>
+  </div>
+  <div class="wrap"><div class="foot-legal"><span>{{legal}}</span></div></div>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

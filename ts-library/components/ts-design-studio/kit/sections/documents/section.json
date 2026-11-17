@@ -1,0 +1,3 @@
+{"type":"documents","label":"Dokumenty","use":"formuláře, přihlášky, výroční zprávy a odkazy ke stažení","default":"list","head":true,"variants":{"list":"řádky se šipkou","grid":"karty ve sloupcích"},
+"slots":{"items":{"type":"list","items":12,"fields":{"title":{"type":"text","max":80},"meta":{"type":"text","max":30},"url":{"type":"url"}}}},
+"sample":{"kicker":"Ke stažení","title":"Pro školy a firmy","items":[{"title":"Ceník pro pravidelné odběry","meta":"PDF · 1 strana","url":"#kontakt"},{"title":"Seznam alergenů","meta":"PDF · 2 strany","url":"#kontakt"}]}}

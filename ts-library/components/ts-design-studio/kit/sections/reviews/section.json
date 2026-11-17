@@ -1,0 +1,3 @@
+{"type":"reviews","label":"Reference a recenze","use":"jen skutečné ohlasy z podkladů, jinak sekci nepoužívat","default":"cards","head":true,"variants":{"cards":"karty s ohlasy","single":"jeden velký ohlas"},
+"slots":{"items":{"type":"list","items":6,"fields":{"text":{"type":"text","max":260,"grounded":true},"author":{"type":"text","max":50,"grounded":true},"detail":{"type":"text","max":60,"grounded":true}}}},
+"sample":{"kicker":"Ohlasy","title":"Co říkají zákazníci","items":[{"text":"Nejlepší žitný chléb ve městě. Vydrží čerstvý celý týden.","author":"Eva K.","detail":"zákaznice od roku 2021"},{"text":"Objednávám každý pátek a ještě nikdy mě nezklamali.","author":"Martin S.","detail":"Veveří"}]}}

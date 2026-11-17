@@ -1,0 +1,73 @@
+{
+  "at": "2026-11-07T10:10:33",
+  "pass": 1263,
+  "fail": 0,
+  "files": [
+    {
+      "file": "components/ts-design-studio/tests/ai_test.php",
+      "pass": 61,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/api_test.php",
+      "pass": 63,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/delivery_test.php",
+      "pass": 62,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/kit_test.php",
+      "pass": 319,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/planner_test.php",
+      "pass": 104,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/studio_test.php",
+      "pass": 92,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/upload_test.php",
+      "pass": 100,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/client_page_test.py",
+      "pass": 22,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/cloudflare_test.py",
+      "pass": 4,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/kit_browser_test.py",
+      "pass": 376,
+      "fail": 0,
+      "log": []
+    },
+    {
+      "file": "components/ts-design-studio/tests/ui_test.py",
+      "pass": 60,
+      "fail": 0,
+      "log": []
+    }
+  ]
+}

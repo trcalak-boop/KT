@@ -1,0 +1,4 @@
+{{>head}}
+{{#v_table}}<div class="pl-scroll"><table class="pl-t"><tbody>{{#items}}<tr><th scope="row">{{name}}</th><td class="muted">{{note}}</td><td class="pl-p">{{price}}</td></tr>{{/items}}</tbody></table></div>{{/v_table}}
+{{^v_table}}<ul class="pl">{{#items}}<li class="pl-i"><div class="pl-n"><h3>{{name}}</h3><span class="pl-dots" aria-hidden="true"></span><b class="pl-p">{{price}}</b></div>{{#note}}<p class="muted">{{note}}</p>{{/note}}</li>{{/items}}</ul>{{/v_table}}
+{{#note}}<p class="muted pl-note">{{note}}</p>{{/note}}

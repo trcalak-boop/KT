@@ -1,0 +1,12 @@
+<!doctype html><html lang="cs"><head><meta charset="utf-8"><title>ts-ref-lokna – kontrola</title><script src="../../../tools/testlib.js"></script></head><body>
+<script>
+/* Referenční šablona: kopie v knihovně je shodná s originálem (hash v module.json) a její logika se dá načíst; rezervační výsledky = ts-booking-core. */
+T.freeze('2026-11-04T09:00:00');
+T.run(function () {
+  return T.scripts([T.lib('components/ts-ref-lokna/src/ukazky/kit/kit.js'), T.lib('components/ts-ref-lokna/src/ukazky/lokna/data.js'), T.lib('components/ts-booking-core/core/booking-core.js'), T.lib('components/ts-booking-core/tests/adapters.js')]).then(function () {
+    var L = window.LOKNA, D = L.defaults(), X = TSBookingAdapters.fromLokna(D, L), E = TSBooking.create(X.config, X.state), d = window.TS.addDays(window.TS.today(), 2);
+    T.ok(D.team.length === 3 && D.bookings.length > 50, 'data šablony');
+    T.eq(E.slots(d, 'damsky', { variant: 1, resource: 'any' }).map(function (x) { return [x.t, x.resources]; }), L.slots(D, d, 'damsky', 1, [], 'any').map(function (x) { return [x.t, x.sts]; }), 'šablona a ts-booking-core dávají stejné volné časy');
+  });
+});
+</script></body></html>

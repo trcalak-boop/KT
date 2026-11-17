@@ -1,0 +1,5 @@
+.s-notice{padding-block:10px}
+.nt{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;font-size:15px}
+.nt a{font-weight:700;color:var(--c-link);margin-left:auto;padding-block:6px;text-underline-offset:3px}
+.s-notice--alert{padding-block:18px;--c-bg:var(--accent);--c-ink:var(--on-accent);--c-link:var(--on-accent);font-size:17px}
+.s-notice--alert .nt{font-size:17px}

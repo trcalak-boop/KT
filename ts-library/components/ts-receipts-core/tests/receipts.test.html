@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>ts-receipts-core – testy</title>
+<script src="../../../tools/testlib.js"></script></head><body>
+<script>
+/* Rozdílově proti L.rcCalc (Lokna) a jednotkově: číselné řady, DPH po řádcích, PDF s písmem (jsPDF ze zdrojového projektu). */
+T.freeze('2026-11-04T09:00:00');
+T.run(function () {
+  var W = T.src('tas-web') + '/web/';
+  return T.scripts([W + 'ukazky/kit/kit.js', W + 'ukazky/lokna/data.js', T.lib('components/ts-receipts-core/core/receipts.js')]).then(function () {
+    var R = window.TSReceipts, L = window.LOKNA;
+    var items = [[{ name: 'Střih', qty: 1, price: 890 }], [{ name: 'Barva', qty: '1', price: '1 790' }, { name: 'Šampon', qty: 2, price: '420,5' }], [{ name: 'X', qty: 0, price: 99.99 }, { name: 'Y', qty: 3, price: 33.335 }]];
+    var discs = [null, { type: 'pct', v: 10 }, { type: 'pct', v: 150 }, { type: 'amount', v: 100 }, { type: 'amount', v: 99999 }, { type: 'pct', v: '7,5' }, { type: 'amount', v: 0 }];
+    var n = 0;
+    items.forEach(function (it, i) { discs.forEach(function (d, j) { [[false, 21], [true, 21], [true, 12]].forEach(function (v) {
+      T.eq(R.calc(it, d, v[0], v[1]), L.rcCalc(it, d, v[0], v[1]), 'calc shodné s Lokna ' + i + '/' + j + '/' + v); n++;
+    }); }); });
+    T.info(n + ' kombinací položek, slev a DPH');
+    T.eq(R.yearNumber('2026-11-04', ['2026-0007', '2025-0042', 'x'], 3, '2026-11-04'), '2026-0008', 'roční řada: navazuje na nejvyšší číslo');
+    T.eq(R.yearNumber('2026-11-04', [], 12, '2026-11-04'), '2026-0013', 'roční řada: počítadlo');
+    T.eq(R.yearNumber('2027-01-02', ['2026-0099'], 12, '2026-12-31'), '2027-0001', 'roční řada: nový rok');
+    T.eq(R.nextNumber({ prefix: 'FV', pad: 5, existing: ['FV00041', 'FV00003'] }), 'FV00042', 'řada faktur s prefixem');
+    var lines = [{ total: 1210 }, { total: -121 }, { total: 99 }];
+    T.eq(R.vatByLine(lines, 21), { base: 981.82, vat: 206.18, total: 1188 }, 'DPH po řádcích');
+    T.eq(lines[0], { total: 1210, base: 1000, vat: 210 }, 'DPH řádku');
+    R.pdf.jspdf = W + 'assets/js/jspdf.umd.min.js'; R.pdf.fonts = W + 'assets/fonts/pdf/';
+    return R.pdf.load([['outfit-400.ttf', 'Outfit', 'normal']]).then(function (make) {
+      var doc = make(); doc.setFont('Outfit', 'normal'); doc.text('Doklad č. 2026-0008 – Příliš žluťoučký kůň', 56, 80);
+      var out = doc.output('arraybuffer');
+      T.ok(out.byteLength > 5000 && new TextDecoder().decode(new Uint8Array(out).slice(0, 5)) === '%PDF-', 'PDF s českým písmem (' + out.byteLength + ' B)');
+      return R.pdf.load([['outfit-400.ttf', 'Outfit', 'normal']]).then(function (m2) { T.ok(m2 === make, 'písma se načtou jen jednou (mezipaměť)'); });
+    });
+  });
+});
+</script></body></html>

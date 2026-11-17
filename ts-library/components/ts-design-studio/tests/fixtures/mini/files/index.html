@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="cs">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{brand}}</title>
+<link rel="stylesheet" href="assets/styles.css"></head>
+<body>
+<header><a class="brand" href="index.html">{{brand}}</a></header>
+<main>
+<h1>{{title}}</h1>
+{{#lead}}<p class="lead">{{lead}}</p>{{/lead}}
+<ul class="services">{{#services}}<li><b>{{name}}</b> {{desc}}</li>{{/services}}</ul>
+{{^services}}<p>Žádné služby.</p>{{/services}}
+<a class="btn" href="{{cta_url}}">Kontakt</a>
+</main>
+<footer>{{email}} · {{phone}}</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+{
+  "name": "ts-booking-server",
+  "version": "1.1.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Serverová část rezervací (PHP 8, bez composeru): PHP port jádra shodný s JS, databáze SQLite/MySQL s migracemi, transakční založení s idempotencí, veřejné API bez osobních údajů, správa s přihlášením a rolemi, e-maily přes frontu, zrušení odkazem, audit a GDPR.",
+  "runtime": [
+    "php"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "(nový kód; algoritmy portované z ts-booking-core 1.0.0)",
+        "to": "core/TsBookingEngine.php",
+        "sha256": "8ee43ad9d100de1f292a7c795b7eb07f2e001d9ab029b97cbeb14fd3e788e59a",
+        "mode": "new"
+      },
+      {
+        "from": "(nový kód)",
+        "to": "core/TsBookingApi.php",
+        "sha256": "d1b2e3702d379af328b18813242175d76879eb9db7824f52fb0ab41fde606401",
+        "mode": "new"
+      }
+    ]
+  },
+  "dependencies": {
+    "ts-booking-core": "^1.2.0",
+    "ts-auth-php": "^1.0.0",
+    "ts-mailer-php": "^1.1.0"
+  },
+  "entrypoints": {
+    "php": "core/bootstrap.php",
+    "api": "ts_booking_api(settings)->serve()",
+    "classes": "TsBookingEngine, TsBookingStore, TsBookingApi, TsBookingNotifier",
+    "cli": "bin/create-user.php, bin/cron.php, bin/migrate.php"
+  },
+  "configSchema": "../ts-booking-core/config/schema.json",
+  "lockedFiles": [
+    "core/*.php",
+    "core/.htaccess",
+    "migrations/*.sql",
+    "migrations/.htaccess",
+    "bin/*.php",
+    "bin/.htaccess",
+    "config/*.php",
+    "config/.htaccess"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "serverová konfigurace projektu: kopie vendor/ts/ts-booking-server/config/server.example.php uložená MIMO webroot (např. private/booking-server.php)",
+    "vstupní bod api.php (jen cesty)",
+    "konfigurace oboru (JSON z ts-booking-core)",
+    "texty e-mailů přes notify.texts",
+    "rozšíření (extensions) v serverové konfiguraci"
+  ],
+  "aiProtected": [
+    "core/* – výpočet termínů, transakce, idempotence, autentizace, CSRF, oprávnění",
+    "migrations/* – změna = nová migrace + rollback",
+    "bezpečnostní ochrany formuláře (hp, openedMs, rateLimit, allowedOrigins)"
+  ],
+  "works": [
+    "Rozdílové testy PHP vs. JS jádro: přes 14 000 dotazů na datech Lokna, Motoria, Kořen ve 3 časových scénářích bez rozdílu.",
+    "53 testů API a databáze (idempotence, obsazeno, ochrany, zrušení odkazem, e-maily, přihlášení, CSRF, role, stavy, blokace, GDPR export a anonymizace, retence, kapacita).",
+    "HTTP integrační test přes php -S včetně souběžných požadavků na stejný termín a průchodu webem v Chromu.",
+    "Jednorázový webový instalátor TsBookingInstaller (kontrola prostředí, databáze, SMTP bez přihlášení, zkušební e-mail, první administrátor, zámek) – 14 testů.",
+    "ts_booking_harden: HTTPS povinné, skrytí chyb, zúžení open_basedir na webroot + neveřejná data (ověřeno: zápis/čtení mimo nejde, SQLite mimo nejde) – 8 testů."
+  ],
+  "missingForProduction": [
+    "Test na hostingu Active24: PHP verze a rozšíření, zápis mimo webroot (open_basedir), cookies relace pod HTTPS, .htaccess ochrany složek, cron.",
+    "Zapnuté HTTPS na doméně (přesměrování v .htaccess je na tasstudio.eu vypnuté).",
+    "SMTP přístupy a SPF/DKIM pro doménu odesílatele (bez nich mail() hostingu, doručení nepotvrzeno).",
+    "Právní texty provozovny (informace o zpracování údajů, obchodní podmínky storna) a retenční lhůta schválená provozovatelem.",
+    "Bezpečnostní revize kódu druhou osobou; testy Safari/Firefox; zátěžový test SQLite při souběhu.",
+    "Správa uživatelů jen přes bin/create-user.php (bez obnovy hesla v UI)."
+  ],
+  "tests": [
+    "tests/server_test.php",
+    "tests/differential_test.py",
+    "tests/http_test.py",
+    "tests/installer_test.php",
+    "tests/harden_test.php"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/booking/SKILL.md",
+  "api": "api/ts-booking-server.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

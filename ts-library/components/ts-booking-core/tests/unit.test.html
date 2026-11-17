@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>ts-booking-core – jednotkové testy</title>
+<script src="../../../tools/testlib.js"></script>
+</head><body>
+<script>
+/* Jednotkové testy obecného API (bez dat ukázek). Čas: středa 4. 11. 2026 8:00. */
+T.freeze('2026-11-04T08:00:00');
+T.run(function () {
+  return T.scripts([T.lib('components/ts-booking-core/core/booking-core.js'), T.lib('components/ts-booking-core/adapters/store-demo-local.js')]).then(function () {
+    var B = window.TSBooking;
+    function preset(n) { return fetch(T.lib('components/ts-booking-core/config/presets/' + n + '.json')).then(function (r) { return r.json(); }).catch(function () { return null; }); }
+    var week = [0, 1, 2, 3, 4, 5, 6].map(function (d) { return { open: d >= 1 && d <= 5, from: 540, to: 1020 }; });
+    var cfg = { mode: 'resources', step: 30, leadMin: 0, maxDays: 14, hours: week,
+      services: [{ id: 'a', durations: [60], prices: [500], buffer: 0 }, { id: 'b', durations: [30, 45], prices: [300, 400], buffer: 15 }],
+      addons: [{ id: 'x', services: ['b'], durations: [10, 20], prices: [50, 80] }],
+      resources: [{ id: 'r1', services: '*' }, { id: 'r2', services: ['a'], hours: week.map(function (h, d) { return { open: d === 3, from: 720, to: 1020 }; }), away: [{ from: '2026-11-11', to: '2026-11-11' }] }] };
+
+    /* validace */
+    T.eq(B.validate(cfg), [], 'validate: platná konfigurace');
+    T.ok(B.validate({ mode: 'x', hours: [], services: [{}] }).length >= 3, 'validate: chyby se nahlásí');
+    T.ok(B.validate({ mode: 'capacity', hours: week, services: [{ id: 's', durations: [60] }] }).some(function (e) { return /capacity/.test(e); }), 'validate: capacity bez units');
+
+    var S = { bookings: [], blocks: [] }, E = B.create(cfg, S);
+    T.eq(E.calc('b', 1, ['x']), { dur: 65, price: 480, buffer: 15 }, 'calc: varianta + doplněk + příprava');
+    T.eq(E.calc('b', 9).dur, 45, 'calc: varianta se omezí na poslední');
+    T.eq(E.calc('zzz').dur, 0, 'calc: neznámá služba');
+    T.eq(E.dayHours('2026-11-07'), { open: false }, 'dayHours: sobota zavřeno');
+    T.eq(E.window(E.resource('r2'), '2026-11-04'), [720, 1020], 'window: průnik provozovny a zdroje');
+    T.eq(E.window(E.resource('r2'), '2026-11-11'), null, 'window: nepřítomnost');
+    T.eq(E.freeTimes('2026-11-04', 'r1', 'a'), [540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960], 'freeTimes: prázdný den, krok 30, služba 60 min');
+    T.eq(E.slots('2026-11-04', 'a', { resource: 'any' }).find(function (x) { return x.t === 720; }).resources, ['r1', 'r2'], 'slots: oba zdroje ve 12:00');
+    T.eq(E.slots('2026-11-04', 'b', { resource: 'r2' }), [], 'slots: zdroj službu neumí');
+    T.eq(E.slots('2026-11-30', 'a', { resource: 'any' }), [], 'slots: mimo maxDays');
+    T.eq(E.freeTimes('2026-11-04', 'r1', 'a').indexOf(480), -1, 'předstih: dnes nic před 8:00');
+
+    /* založení rezervace a kolize */
+    var p = E.prepareBooking({ date: '2026-11-04', service: 'b', variant: 1, addons: ['x'], start: 600, resource: 'any', name: 'Jana' });
+    T.ok(p.ok && p.booking.resource === 'r1' && p.booking.dur === 65 && p.booking.buffer === 15 && p.booking.status === 'pending' && p.booking.name === 'Jana', 'prepareBooking: doplní zdroj, délku a stav');
+    S.bookings.push(Object.assign({ id: 'b1' }, p.booking));
+    T.eq(E.prepareBooking({ date: '2026-11-04', service: 'a', start: 630, resource: 'r1' }), { ok: false, error: 'taken' }, 'prepareBooking: obsazený termín');
+    T.eq(E.freeTimes('2026-11-04', 'r1', 'a').filter(function (t) { return t >= 540 && t <= 720; }), [540, 690, 720], 'busy: rezervace 10:00 (65 min + 15 příprava) blokuje do 11:20');
+    T.ok(E.prepareBooking({ date: '2026-11-04', service: 'a', start: 630, resource: 'r1', except: 'b1' }).ok, 'prepareBooking: except (úprava vlastní rezervace)');
+    T.eq(E.prepareBooking({ date: '2026-11-07', service: 'a', start: 600 }), { ok: false, error: 'closed' }, 'prepareBooking: zavřeno');
+    T.eq(E.prepareBooking({ date: '2026-11-04', service: 'nic', start: 600 }), { ok: false, error: 'service' }, 'prepareBooking: neznámá služba');
+    var cf = E.conflicts('2026-11-04', 630, 60, 0, 'r1');
+    T.eq([cf.items.length, cf.items[0].type, cf.items[0].id, cf.inHours], [1, 'booking', 'b1', true], 'conflicts: najde kolizi');
+    S.blocks.push({ date: '2026-11-05', resource: 'all', from: 540, to: 1020, reason: 'inventura' });
+    T.eq(E.dayHours('2026-11-05'), { open: false }, 'blokace přes celý den zavře den');
+    T.eq(E.dayState('2026-11-05', 'a', { resource: 'any' }).s, 'closed', 'dayState: closed');
+    T.eq(E.dayState('2026-11-03', 'a', { resource: 'any' }).s, 'past', 'dayState: past');
+    T.eq(E.pickResource('2026-11-04', ['r1', 'r2']), 'r2', 'pickResource: méně vytížený');
+
+    /* rozšíření (oborové pravidlo bez zásahu do jádra) */
+    var noLunch = { name: 'bez-obeda', check: function (x) { return x.t < 780 && x.t + x.dur > 720 ? 'obed' : ''; } };
+    var E2 = B.create(cfg, { bookings: [], blocks: [] }, { extensions: [noLunch] });
+    T.eq(E2.scan('2026-11-06', 'r1', 'a').filter(function (s) { return s.why === 'obed'; }).map(function (s) { return s.t; }), [690, 720, 750], 'rozšíření: vlastní důvod nedostupnosti');
+    T.eq(E2.prepareBooking({ date: '2026-11-06', service: 'a', start: 720, resource: 'r1' }), { ok: false, error: 'obed' }, 'rozšíření: prepareBooking vrátí důvod');
+
+    /* pool (autosalon) */
+    var Ep = B.create({ mode: 'resources', step: 30, hours: week, services: [{ id: 'j', durations: [30], buffer: 15 }], resources: [{ id: 'v1', services: '*' }, { id: 'v2', services: '*' }], pool: { members: ['p1'] }, leadScope: 'today-only' }, { bookings: [{ id: 'd1', date: '2026-11-04', resource: 'v1', service: 'j', start: 600, dur: 30, buffer: 15, status: 'confirmed', poolMember: 'p1' }] });
+    T.eq(Ep.scan('2026-11-04', 'v2', 'j').find(function (s) { return s.t === 600; }).why, 'pool', 'pool: jediný prodejce je obsazený');
+    T.eq(Ep.pickPoolMember('2026-11-04', 600, 30), '', 'pool: nikdo volný');
+    T.eq(Ep.pickPoolMember('2026-11-04', 660, 30), 'p1', 'pool: volný prodejce');
+    var pp = Ep.prepareBooking({ date: '2026-11-04', service: 'j', start: 660, resource: 'v2' });
+    T.ok(pp.ok && pp.booking.poolMember === 'p1', 'pool: prepareBooking přiřadí prodejce');
+
+    /* capacity (restaurace) */
+    var Ec = B.create({ mode: 'capacity', step: 30, hours: week, services: [{ id: 's', durations: [120] }], capacity: { units: 10, lastBeforeCloseMin: 60, todayLeadMin: 60 } }, { bookings: [{ id: 'c1', date: '2026-11-05', service: 's', start: 600, units: 8, status: 'confirmed' }] });
+    var ct = Ec.capacityTimes('2026-11-05', 3, 's');
+    T.eq(ct.filter(function (x) { return !x.ok; }).map(function (x) { return x.t; }), [540, 570, 600, 630, 660, 690], 'capacity: 8 z 10 míst obsazeno 10:00–12:00');
+    T.eq(ct[ct.length - 1].t, 960, 'capacity: poslední začátek hodinu před zavřením');
+    T.eq(Ec.prepareBooking({ date: '2026-11-05', service: 's', start: 600, units: 3 }), { ok: false, error: 'capacity' }, 'capacity: plno');
+    T.ok(Ec.prepareBooking({ date: '2026-11-05', service: 's', start: 600, units: 2 }).booking.units === 2, 'capacity: 2 místa ještě jdou');
+    T.ok(Ec.capacityTimes('2026-11-04', 1, 's')[0].ok, 'capacity: dnes 9:00 jde (teď 8:00 + 60 min)');
+    var Ec2 = B.create({ mode: 'capacity', step: 30, hours: week, services: [{ id: 's', durations: [120] }], capacity: { units: 10, todayLeadMin: 90 } }, { bookings: [] });
+    T.eq(Ec2.capacityTimes('2026-11-04', 1, 's').slice(0, 3).map(function (x) { return x.ok; }), [false, true, true], 'capacity: dnes předstih 90 min');
+
+    /* rezervace bez id (veřejná dostupnost ze serveru) se počítají jako obsazené */
+    var En = B.create(cfg, { bookings: [{ date: '2026-11-04', resource: 'r1', service: 'a', start: 600, dur: 60, status: 'confirmed' }], blocks: [] });
+    T.ok(En.freeTimes('2026-11-04', 'r1', 'a').indexOf(600) < 0 && En.freeTimes('2026-11-04', 'r1', 'a').indexOf(570) < 0, 'rezervace bez id blokuje čas (bez except)');
+    T.eq(En.conflicts('2026-11-04', 600, 30, 0, 'r1').items.length, 1, 'conflicts vidí rezervaci bez id');
+    var Ecn = B.create({ mode: 'capacity', step: 30, hours: week, services: [{ id: 's', durations: [120] }], capacity: { units: 4 } }, { bookings: [{ date: '2026-11-05', service: 's', start: 600, units: 4, status: 'confirmed' }] });
+    T.ok(!Ecn.capacityTimes('2026-11-05', 1, 's').find(function (x) { return x.t === 600; }).ok, 'kapacita vidí rezervaci bez id');
+
+    /* ICS a Google Kalendář */
+    var ics = E.ics({ uid: 'x1', title: 'Střih', date: '2026-11-04', start: 600, end: 660 });
+    T.ok(ics.indexOf('UID:x1@booking.local') > 0 && ics.indexOf('TRIGGER:-PT2H') > 0 && ics.indexOf('DTSTART;TZID=Europe/Prague:20261104T100000') > 0, 'ics: výchozí nastavení');
+    T.ok(B.ics({ title: 'a', date: '2026-11-04', start: 600, end: 630 }, { alarmMin: 0, uidDomain: 'salon.cz' }).indexOf('VALARM') < 0, 'ics: bez připomínky');
+    T.ok(/ctz=Europe%2FPrague/.test(E.gcal({ title: 'a', date: '2026-11-04', start: 600, end: 630 })), 'gcal');
+
+    /* demo úložiště */
+    localStorage.removeItem('ts-booking-demo:unit');
+    var st = B.stores.demoLocal('unit', { bookings: [{ id: 's1', date: '2026-11-04', status: 'confirmed' }] });
+    T.ok(st.demo === true, 'store: označené jako demo');
+    return st.add({ date: '2026-11-04', start: 600 }, 'klic-1').then(function (r1) {
+      return st.add({ date: '2026-11-04', start: 600 }, 'klic-1').then(function (r2) {
+        T.ok(r1.ok && r2.duplicate && r1.booking.id === r2.booking.id && st.state.bookings.length === 2, 'store: idempotence (dvojklik nevytvoří druhou rezervaci)');
+        var again = B.stores.demoLocal('unit', null);
+        T.eq(again.state.bookings.length, 2, 'store: data přežijí znovunačtení');
+        return st.update(r1.booking.id, { status: 'cancelled' });
+      });
+    }).then(function (u) {
+      T.ok(u.ok && u.booking.status === 'cancelled', 'store: update');
+      return st.reset();
+    }).then(function (s) {
+      T.eq(s.bookings.length, 1, 'store: reset na výchozí data');
+      return Promise.all(['kadernictvi', 'autosalon', 'restaurace', 'ordinace'].map(preset));
+    }).then(function (ps) {
+      ps.forEach(function (p, i) { if (p) T.eq(B.validate(p), [], 'předvolba ' + i + ' je platná'); else T.info('předvolby nejdou načíst přes file:// fetch – ověřuje je tools/ts.py validate'); });
+    });
+  });
+});
+</script></body></html>

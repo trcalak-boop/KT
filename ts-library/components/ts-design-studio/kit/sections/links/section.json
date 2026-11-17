@@ -1,0 +1,3 @@
+{"type":"links","label":"Rozcestník","use":"co potřebujete vyřídit, kategorie, rychlé cesty","default":"rows","head":true,"variants":{"rows":"velké řádky se šipkou","tiles":"dlaždice s názvem a počtem"},
+"slots":{"items":{"type":"list","items":10,"fields":{"title":{"type":"text","max":50},"text":{"type":"text","max":140},"meta":{"type":"text","max":24},"url":{"type":"url"}}}},
+"sample":{"kicker":"Rychle","title":"Co hledáte?","items":[{"title":"Objednat chléb","text":"Na zítřek, do 18:00.","meta":"","url":"#kontakt"},{"title":"Pečivo na akci","text":"Svatby, školky, firemní snídaně.","meta":"","url":"#kontakt"},{"title":"Kurz pečení","text":"Termíny na podzim.","meta":"","url":"#kontakt"}]}}

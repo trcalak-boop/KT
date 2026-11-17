@@ -1,0 +1,8 @@
+/* ts-booking-widget – vzhled projektu. Patří projektu, aktualizace knihovny ho nepřepíše.
+   Načtěte po vendor/ts/ts-booking-widget/core/booking-widget.css. Přepisujte jen proměnné --tsb-*
+   (případně doplňte vlastní pravidla s vyšší specifičností, ale nesahejte do core/). */
+.tsb{
+  --tsb-bg:transparent; --tsb-surface:#fff; --tsb-ink:#17171a; --tsb-muted:#5f5f68; --tsb-line:#dedee3;
+  --tsb-accent:#2f5bea; --tsb-accent-ink:#fff; --tsb-accent-soft:#e8edfd; --tsb-free:#1f7a4d; --tsb-full:#b42318; --tsb-warn-bg:#fbf0d9; --tsb-warn-ink:#6b4504;
+  --tsb-font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --tsb-font-head:var(--tsb-font); --tsb-r:12px; --tsb-r-btn:999px; --tsb-gap:14px;
+}

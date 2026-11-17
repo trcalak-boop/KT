@@ -1,0 +1,56 @@
+/* ts-booking-widget – struktura a chování prvků. Barvy, písma a zaoblení jen z proměnných --tsb-*
+   (výchozí hodnoty níže; projekt je přepisuje v ts-theme/ts-booking-widget/tokens.css). Neupravovat. */
+.tsb{
+  --tsb-bg:transparent; --tsb-surface:#fff; --tsb-ink:#17171a; --tsb-muted:#5f5f68; --tsb-line:#dedee3;
+  --tsb-accent:#2f5bea; --tsb-accent-ink:#fff; --tsb-accent-soft:#e8edfd; --tsb-free:#1f7a4d; --tsb-full:#b42318; --tsb-warn-bg:#fbf0d9; --tsb-warn-ink:#6b4504;
+  --tsb-font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --tsb-font-head:var(--tsb-font); --tsb-r:12px; --tsb-r-btn:999px; --tsb-gap:14px;
+  font-family:var(--tsb-font); color:var(--tsb-ink); background:var(--tsb-bg); display:grid; gap:var(--tsb-gap); min-width:0;
+}
+.tsb *,.tsb *::before,.tsb *::after{box-sizing:border-box}
+.tsb h3,.tsb legend{font-family:var(--tsb-font-head); font-weight:600; font-size:1.05rem; margin:0 0 10px; padding:0}
+.tsb-step{border:0; margin:0; padding:0; min-width:0}
+.tsb-demo{margin:0; padding:10px 14px; border-radius:var(--tsb-r); background:var(--tsb-warn-bg); color:var(--tsb-warn-ink); font-size:.9rem; line-height:1.4}
+.tsb-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px}
+.tsb-card,.tsb-chip,.tsb-day,.tsb-time{font:inherit; color:inherit; background:var(--tsb-surface); border:1px solid var(--tsb-line); cursor:pointer; transition:border-color .15s,background .15s}
+.tsb-card{display:grid; gap:4px; text-align:left; padding:14px; border-radius:var(--tsb-r)}
+.tsb-card span{color:var(--tsb-muted); font-size:.9rem}
+.tsb-chips,.tsb-times{display:flex; flex-wrap:wrap; gap:8px}
+.tsb-chip{padding:9px 14px; border-radius:var(--tsb-r-btn)}
+.tsb-days{display:grid; grid-auto-flow:column; grid-auto-columns:minmax(70px,1fr); gap:8px; overflow-x:auto; padding-bottom:4px}
+.tsb-day{display:grid; gap:2px; justify-items:center; padding:10px 6px; border-radius:var(--tsb-r)}
+.tsb-day span,.tsb-day small{font-size:.78rem; color:var(--tsb-muted)}
+.tsb-day b{white-space:nowrap; font-size:.95rem}
+.tsb-day.tsb-free small{color:var(--tsb-free)}
+.tsb-day:disabled{opacity:.45; cursor:not-allowed}
+.tsb-time{padding:9px 0; min-width:72px; border-radius:var(--tsb-r)}
+.tsb [aria-pressed="true"]{border-color:var(--tsb-accent); background:var(--tsb-accent-soft); box-shadow:inset 0 0 0 1px var(--tsb-accent)}
+.tsb button:focus-visible,.tsb a:focus-visible,.tsb input:focus-visible,.tsb textarea:focus-visible{outline:2px solid var(--tsb-accent); outline-offset:2px}
+.tsb-form{display:grid; gap:6px; max-width:520px}
+.tsb-form label{font-size:.9rem; margin-top:6px}
+.tsb-form input:not([type=checkbox]),.tsb-form textarea{font:inherit; color:inherit; background:var(--tsb-surface); border:1px solid var(--tsb-line); border-radius:calc(var(--tsb-r) * .7); padding:10px 12px; width:100%}
+.tsb-check{display:flex; gap:8px; align-items:flex-start}
+.tsb-btn{font:inherit; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:11px 20px; border-radius:var(--tsb-r-btn); border:1px solid var(--tsb-accent); background:var(--tsb-accent); color:var(--tsb-accent-ink); cursor:pointer; text-decoration:none; margin-top:8px}
+.tsb-btn.tsb-sec{background:transparent; color:var(--tsb-accent)}
+.tsb-btn.tsb-ghost{background:transparent; color:var(--tsb-muted); border-color:var(--tsb-line)}
+.tsb-btn.tsb-sm{padding:6px 12px; font-size:.85rem; margin:0}
+.tsb-row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.tsb-between{justify-content:space-between}
+.tsb-muted{color:var(--tsb-muted); margin:0}
+.tsb-err{color:var(--tsb-full); margin:6px 0 0}
+.tsb-done{padding:18px; border:1px solid var(--tsb-line); border-radius:var(--tsb-r); background:var(--tsb-surface)}
+.tsb-done p{margin:0 0 10px}
+.tsb-count{font-size:.85rem; color:var(--tsb-muted)}
+.tsb-table{width:100%; border-collapse:collapse; font-size:.92rem}
+.tsb-table th,.tsb-table td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--tsb-line); vertical-align:top}
+.tsb-act{white-space:nowrap}
+.tsb-act .tsb-btn{margin:0 6px 4px 0}
+.tsb-live{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+@media (max-width:560px){ .tsb-table thead{display:none} .tsb-table tr{display:grid; grid-template-columns:auto 1fr; gap:2px 10px; padding:8px 0; border-bottom:1px solid var(--tsb-line)} .tsb-table td{border:0; padding:0} }
+.tsb-link{font:inherit; color:var(--tsb-accent); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline}
+.tsb-login{max-width:360px}
+.tsb-blocks-sec{margin-top:22px}
+.tsb-block-form{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-top:12px}
+.tsb-block-form label{display:grid; gap:4px; font-size:.85rem}
+.tsb-block-form input,.tsb-block-form select{font:inherit; color:inherit; background:var(--tsb-surface); border:1px solid var(--tsb-line); border-radius:calc(var(--tsb-r) * .6); padding:8px 10px}
+.tsb-block-form .tsb-grow{flex:1 1 180px}
+.tsb-block-form .tsb-btn{margin:0}

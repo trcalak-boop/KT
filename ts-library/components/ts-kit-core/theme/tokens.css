@@ -1,0 +1,16 @@
+/* ts-kit-core – vzhled projektu. Soubor patří projektu: přepište hodnoty proměnných --k-* (barvy, písma, zaoblení).
+   Načtěte ho AŽ PO vendor/ts/ts-kit-core/core/kit.css. Aktualizace knihovny tento soubor nikdy nepřepíše.
+   Výchozí hodnoty níže jsou shodné s core/kit.css. Tmavý režim: :root[data-theme="dark"] { … } */
+:root{
+  --k-bg:#F5F5F3; --k-surface:#FFFFFF; --k-surface-2:#EEEEEB; --k-ink:#18181B; --k-ink-2:#52525B; --k-ink-3:#7A7A82;
+  --k-line:#E1E1DD; --k-line-2:#CDCDC7; --k-accent:#2F5BEA; --k-accent-ink:#FFFFFF; --k-accent-soft:#E7ECFD;
+  --k-ok:#1F7A4D; --k-ok-soft:#E1F2E8; --k-warn:#8A5A06; --k-warn-soft:#FBF0D9; --k-bad:#B42318; --k-bad-soft:#FBE4E1;
+  --k-chrome:#141416; --k-chrome-ink:#F2F2F0; --k-chrome-2:#2A2A2E;
+  --k-font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --k-font-disp:var(--k-font); --k-disp-weight:600; --k-disp-style:normal; --k-disp-track:-.01em;
+  --k-r:12px; --k-r-lg:16px; --k-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 30px rgba(0,0,0,.07); --k-shadow-lg:0 24px 60px rgba(0,0,0,.22);
+  --k-scrim:rgba(10,10,12,.5); --k-btn-r:999px;
+}
+
+:root[data-theme="dark"]{
+  /* --k-bg:#121214; --k-surface:#1A1A1D; --k-ink:#F2F2F0; … */
+}

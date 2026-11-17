@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>ts-booking-server – generátor rozdílových scénářů (JS)</title></head><body>
+<script>
+/* Spouští tests/differential_test.py: načte originální data ukázek + JS jádro, vytvoří scénáře a očekávané výsledky JS jádra.
+   Výsledek: window.__DIFF = { clock, cases: [{ name, config, state, queries: [[fn, args]], expected: [...] }] } */
+(function () {
+  var q = new URLSearchParams(location.search), CAS = q.get('cas') || '2026-11-03T10:17:00', SRC = q.get('tas-web'), LIB = q.get('lib');
+  var Real = Date, fixed = new Real(CAS).getTime();
+  function D() { if (!(this instanceof D)) return new Real(fixed).toString(); var a = [].slice.call(arguments); return a.length ? new (Function.prototype.bind.apply(Real, [null].concat(a)))() : new Real(fixed); }
+  D.now = function () { return fixed; }; D.UTC = Real.UTC; D.parse = Real.parse; D.prototype = Real.prototype; window.Date = D;
+  function load(u) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = u; s.onload = ok; s.onerror = function () { no(new Error(u)); }; document.head.appendChild(s); }); }
+  var W = SRC + '/web/ukazky/';
+  [W + 'kit/kit.js', W + 'lokna/data.js', W + 'motoria/data.js', W + 'koren/data.js', LIB + '/components/ts-booking-core/core/booking-core.js', LIB + '/components/ts-booking-core/tests/adapters.js']
+    .reduce(function (p, u) { return p.then(function () { return load(u); }); }, Promise.resolve()).then(function () {
+    var B = TSBooking, AD = TSBookingAdapters, TS = window.TS, today = TS.today(), cases = [];
+    function days(a, b) { var o = []; for (var i = a; i <= b; i++) o.push(TS.addDays(today, i)); return o; }
+    function run(name, X, queries, ext) {
+      var E = B.create(X.config, X.state, ext ? { extensions: ext.fns } : {}), exp = queries.map(function (qq) { return E[qq[0]].apply(E, qq[1]); });
+      cases.push({ name: name, config: X.config, state: X.state, queries: queries, expected: exp, extension: ext ? ext.name : null });
+    }
+    /* Lokna */
+    var L = LOKNA, DL = L.defaults();
+    DL.blocks.push({ id: 'k1', st: DL.team[0].id, date: TS.addDays(today, 1), from: 600, to: 690, reason: 'školení' }, { id: 'k2', st: 'all', date: TS.addDays(today, 3), from: 0, to: 1440, reason: 'inventura' });
+    DL.team[1].away = (DL.team[1].away || []).concat([{ from: TS.addDays(today, 7), to: TS.addDays(today, 9) }]);
+    var XL = AD.fromLokna(DL, L), qs = [], svcs = XL.config.services.map(function (s) { return s.id; }), sts = ['any'].concat(DL.team.map(function (s) { return s.id; }));
+    days(-1, DL.rules.maxDays + 1).forEach(function (d, i) {
+      svcs.forEach(function (sv, j) { if ((i + j) % 3) return; [0, 2].forEach(function (len) { sts.forEach(function (st) { qs.push(['slots', [d, sv, { variant: len, resource: st }]]); }); }); qs.push(['slots', [d, sv, { variant: 1, resource: 'any', admin: true }]]); qs.push(['dayState', [d, sv, { resource: 'any' }]]); });
+      DL.team.forEach(function (s) { qs.push(['scan', [d, s.id, svcs[i % svcs.length], { variant: i % 3 }]]); });
+    });
+    svcs.forEach(function (sv) { qs.push(['nextFree', [sv, { resource: 'any' }, 6]]); [0, 1, 2].forEach(function (v) { qs.push(['calc', [sv, v, XL.config.addons.filter(function (x) { return x.services.indexOf(sv) >= 0; }).map(function (x) { return x.id; })]]); }); });
+    XL.state.bookings.forEach(function (b, i) { qs.push(['conflicts', [b.date, b.start, b.dur, b.buffer, b.resource, null]]); if (i % 4 === 0) qs.push(['slots', [b.date, b.service, { resource: b.resource, except: b.id }]]); });
+    days(0, 30).forEach(function (d, i) { qs.push(['pickResource', [d, DL.team.map(function (s) { return s.id; })]]); qs.push(['prepareBooking', [{ date: d, service: svcs[i % svcs.length], start: 540 + (i % 20) * 30, variant: i % 3, resource: 'any', name: 'X' }]]); });
+    run('lokna', XL, qs);
+    /* Lokna s pauzou a rozšířením (oběd) */
+    var XL2 = AD.fromLokna(DL, L); XL2.config.gap = 10; XL2.config.step = 5;
+    run('lokna-gap-rozsireni', XL2, days(0, 20).map(function (d, i) { return ['slots', [d, svcs[i % svcs.length], { variant: 1, resource: 'any' }]]; }), { name: 'obed', fns: [{ name: 'obed', check: function (c) { return c.t < 780 && c.t + c.dur > 720 ? 'obed' : ''; } }] });
+    /* Motoria */
+    var M = MOTORIA, DM = M.defaults();
+    DM.blocks = (DM.blocks || []).concat([{ id: 'b1', car: DM.cars[0].id, date: TS.addDays(today, 1), from: 600, to: 720 }, { id: 'b2', date: TS.addDays(today, 2), from: 840, to: 900 }]);
+    var XM = AD.fromMotoria(DM, M), qm = [];
+    days(-1, DM.drive.ahead + 2).forEach(function (d) { DM.cars.forEach(function (c, i) { if (i % 2) return; qm.push(['scan', [d, c.id, 'testovaci-jizda', {}]]); qm.push(['scan', [d, c.id, 'testovaci-jizda', { admin: true }]]); }); });
+    XM.state.bookings.forEach(function (b) { qm.push(['pickPoolMember', [b.date, b.start, b.dur, b.id]]); qm.push(['pickPoolMember', [b.date, b.start, b.dur, null]]); qm.push(['prepareBooking', [{ date: b.date, service: 'testovaci-jizda', start: b.start, resource: b.resource }]]); });
+    run('motoria', XM, qm);
+    /* Kořen */
+    var K = KOREN, DK = K.defaults(), XK = AD.fromKoren(DK, K), qk = [];
+    days(-1, 35).concat([today.slice(0, 4) + '-12-24', today.slice(0, 4) + '-12-31']).forEach(function (d) { [1, 4, 8].forEach(function (g) { qk.push(['capacityTimes', [d, g, 'stul', null]]); qk.push(['capacityTimes', [d, g, 'degustace', null]]); }); });
+    XK.state.bookings.forEach(function (b) { qk.push(['capacityTimes', [b.date, b.units, b.service, b.id]]); qk.push(['prepareBooking', [{ date: b.date, service: b.service, start: b.start, units: b.units + 30 }]]); qk.push(['prepareBooking', [{ date: b.date, service: b.service, start: b.start, units: 2, resource: 'any' }]]); });
+    run('koren', XK, qk);
+    window.__DIFF = { clock: { today: today, nowMin: TS.nowMin() }, cas: CAS, cases: cases,
+      validate: [XL.config, XM.config, XK.config, { mode: 'x', hours: [], services: [{}] }, { mode: 'capacity', hours: XK.config.hours, services: [{ id: 's', durations: [60] }] }].map(function (c) { return [c, B.validate(c)]; }) };
+  }).catch(function (e) { window.__DIFF = { error: String(e && e.stack || e) }; });
+})();
+</script></body></html>

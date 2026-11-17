@@ -1,0 +1,23 @@
+{
+  "id": "mini", "name": "Mini (test)", "obor": ["test"],
+  "render": ["index.html", "assets/styles.css"],
+  "tokens": {
+    "bg": {"var": "--bg", "type": "color", "value": "#ffffff", "label": "Pozadí"},
+    "ink": {"var": "--ink", "type": "color", "value": "#111111", "label": "Text"},
+    "accent": {"var": "--accent", "type": "color", "value": "#c00000", "label": "Akcent"},
+    "font": {"var": "--f", "type": "font", "value": "\"Mini Sans\",system-ui", "options": ["\"Mini Sans\",system-ui", "Georgia,serif"], "label": "Písmo"}
+  },
+  "slots": {
+    "brand": {"type": "text", "max": 40, "label": "Název"},
+    "title": {"type": "text", "max": 120, "label": "Nadpis"},
+    "lead": {"type": "multiline", "max": 400, "label": "Úvod"},
+    "cta_url": {"type": "url", "label": "Odkaz tlačítka"},
+    "email": {"type": "email", "label": "E-mail"},
+    "phone": {"type": "phone", "label": "Telefon"},
+    "tone": {"type": "color", "label": "Barva štítku"},
+    "services": {"type": "list", "items": 4, "label": "Služby", "fields": {"name": {"type": "text", "max": 60}, "desc": {"type": "text", "max": 160}}}
+  },
+  "contrast": [["ink", "bg"], ["bg", "accent"]],
+  "content": {"brand": "Mini", "title": "Ahoj světe", "lead": "Úvodní text.", "cta_url": "kontakt.html", "email": "info@mini.test", "phone": "+420 600 000 000",
+              "services": [{"name": "Jedna", "desc": "První služba"}, {"name": "Dva", "desc": "Druhá služba"}]}
+}

@@ -1,0 +1,13 @@
+# Widget AI asistenta (JS a CSS) – veřejný, načítají ho stránky webu.
+<IfModule mod_authz_core.c>
+  Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Allow from all
+</IfModule>
+<FilesMatch "\.(?!(js|css)$)[^.]+$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>

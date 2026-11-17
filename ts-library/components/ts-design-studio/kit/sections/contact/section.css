@@ -1,0 +1,10 @@
+.co{display:grid;gap:clamp(20px,4vw,56px);grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start}
+.co .head{margin-bottom:0}
+.co-b{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0}
+.co-big{font-size:calc(var(--h-scale) * clamp(21px,2.6vw,34px));text-decoration:none;overflow-wrap:anywhere;padding-block:2px;text-transform:none}
+.co-big:hover{text-decoration:underline;text-underline-offset:4px}
+.co-a{font-weight:600;margin-top:10px}
+.co-h{display:flex;justify-content:space-between;gap:16px;padding-block:8px;border-top:1px solid var(--c-line)}
+.s-contact--band .co{grid-template-columns:1fr}
+.s-contact--band .co-big{font-size:calc(var(--h-scale) * clamp(26px,5vw,64px))}
+.s-contact--band .co-h{max-width:520px}

@@ -1,0 +1,810 @@
+{
+  "id": "autosalon",
+  "name": "Autosalon a prodej vozů",
+  "basedOn": "ukázka Motoria (web/ukazky/motoria.html)",
+  "obor": [
+    "autosalon",
+    "autobazar",
+    "prodej vozů",
+    "prodej aut",
+    "ojeté vozy",
+    "auto",
+    "autoservis",
+    "pneuservis",
+    "motocykl"
+  ],
+  "description": "Jednostránkový web prodejce vozů v „nočním“ stylu: hero s vozem týdne, přednosti, vozy skladem s parametry a cenou, kategorie, financování po krocích, služby, recenze, testovací jízda a kontakt. Výchozí tmavý režim, světlý tlačítkem.",
+  "render": [
+    "index.html",
+    "assets/styles.css"
+  ],
+  "tokens": {
+    "night": {
+      "var": "--night",
+      "type": "color",
+      "value": "#15171a",
+      "label": "Noční pás (hlavička, hero, patička)"
+    },
+    "night2": {
+      "var": "--night-2",
+      "type": "color",
+      "value": "#1d2024",
+      "label": "Noční pás – druhý odstín"
+    },
+    "steel": {
+      "var": "--steel",
+      "type": "color",
+      "value": "#262a30",
+      "label": "Ocel (rámečky, hover)"
+    },
+    "accent": {
+      "var": "--orange",
+      "type": "color",
+      "value": "#ffb000",
+      "label": "Akcent (tlačítka, štítky)"
+    },
+    "accent2": {
+      "var": "--orange-2",
+      "type": "color",
+      "value": "#ffc233",
+      "label": "Akcent – světlejší (hover)"
+    },
+    "page_dark": {
+      "var": "--t-page",
+      "type": "color",
+      "value": "#15171a",
+      "label": "Pozadí stránky (tmavý režim – výchozí)"
+    },
+    "card_dark": {
+      "var": "--t-card",
+      "type": "color",
+      "value": "#1d2024",
+      "label": "Karty (tmavý režim)"
+    },
+    "chrome": {
+      "var": "--chrome",
+      "type": "color",
+      "value": "#eef0f2",
+      "label": "Pozadí stránky (světlý režim)"
+    },
+    "ink": {
+      "var": "--ink",
+      "type": "color",
+      "value": "#15171a",
+      "label": "Text (světlý režim)"
+    },
+    "muted": {
+      "var": "--muted",
+      "type": "color",
+      "value": "#5e646c",
+      "label": "Text tlumený (světlý režim)"
+    },
+    "f_disp": {
+      "var": "--f-disp",
+      "type": "font",
+      "value": "\"Saira\",\"Arial Narrow\",\"Helvetica Neue\",Arial,sans-serif",
+      "options": [
+        "\"Saira\",\"Arial Narrow\",\"Helvetica Neue\",Arial,sans-serif",
+        "\"Arial Narrow\",\"Helvetica Neue\",Arial,sans-serif"
+      ],
+      "label": "Písmo nadpisů"
+    },
+    "f_body": {
+      "var": "--f-body",
+      "type": "font",
+      "value": "\"Saira\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif",
+      "options": [
+        "\"Saira\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif",
+        "system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif"
+      ],
+      "label": "Písmo textu"
+    }
+  },
+  "slots": {
+    "lang": {
+      "type": "text",
+      "max": 5,
+      "label": "Jazyk stránky (cs, en…)"
+    },
+    "brand": {
+      "type": "text",
+      "max": 40,
+      "label": "Název prodejce"
+    },
+    "title": {
+      "type": "text",
+      "max": 70,
+      "label": "Titulek stránky (prohlížeč, vyhledávače)"
+    },
+    "description": {
+      "type": "text",
+      "max": 160,
+      "label": "Popis pro vyhledávače"
+    },
+    "logo_pre": {
+      "type": "text",
+      "max": 8,
+      "label": "Logotyp – před kolem"
+    },
+    "logo_post": {
+      "type": "text",
+      "max": 10,
+      "label": "Logotyp – za kolem"
+    },
+    "logo_tag1": {
+      "type": "text",
+      "max": 14,
+      "label": "Logotyp – drobný text, 1. řádek"
+    },
+    "logo_tag2": {
+      "type": "text",
+      "max": 14,
+      "label": "Logotyp – drobný text, 2. řádek"
+    },
+    "open_text": {
+      "type": "text",
+      "max": 70,
+      "label": "Lišta nahoře – otevírací doba"
+    },
+    "address": {
+      "type": "text",
+      "max": 70,
+      "label": "Adresa"
+    },
+    "phone": {
+      "type": "phone",
+      "label": "Telefon"
+    },
+    "phone_href": {
+      "type": "url",
+      "label": "Telefon jako odkaz (tel:+420…)"
+    },
+    "email": {
+      "type": "email",
+      "label": "E-mail"
+    },
+    "cta_label": {
+      "type": "text",
+      "max": 24,
+      "label": "Hlavní tlačítko (např. Testovací jízda)"
+    },
+    "cta_url": {
+      "type": "url",
+      "label": "Odkaz hlavního tlačítka"
+    },
+    "hero_tag": {
+      "type": "text",
+      "max": 50,
+      "label": "Hero – štítek"
+    },
+    "hero_title": {
+      "type": "text",
+      "max": 24,
+      "label": "Hero – nadpis, 1. část"
+    },
+    "hero_em": {
+      "type": "text",
+      "max": 24,
+      "label": "Hero – nadpis, zvýrazněná část"
+    },
+    "hero_lead": {
+      "type": "multiline",
+      "max": 280,
+      "label": "Hero – úvodní text"
+    },
+    "hero_btn1": {
+      "type": "text",
+      "max": 26,
+      "label": "Hero – tlačítko 1"
+    },
+    "hero_btn2": {
+      "type": "text",
+      "max": 26,
+      "label": "Hero – tlačítko 2"
+    },
+    "gauges": {
+      "type": "list",
+      "items": 3,
+      "label": "Hero – čísla (fakta)",
+      "fields": {
+        "value": {
+          "type": "text",
+          "max": 10,
+          "label": ""
+        },
+        "label": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        }
+      }
+    },
+    "hero_car_label": {
+      "type": "text",
+      "max": 50,
+      "label": "Hero – štítek vozu (např. Vůz týdne · …)"
+    },
+    "hero_car_price": {
+      "type": "text",
+      "max": 24,
+      "label": "Hero – cena vozu"
+    },
+    "hero_car_note": {
+      "type": "text",
+      "max": 40,
+      "label": "Hero – poznámka k ceně"
+    },
+    "hero_car_color": {
+      "type": "color",
+      "label": "Hero – barva vozu"
+    },
+    "usp": {
+      "type": "list",
+      "items": 4,
+      "label": "Přednosti (4)",
+      "fields": {
+        "title": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        },
+        "text": {
+          "type": "text",
+          "max": 60,
+          "label": ""
+        }
+      }
+    },
+    "cars_tag": {
+      "type": "text",
+      "max": 40,
+      "label": "Vozy – štítek"
+    },
+    "cars_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Vozy – nadpis"
+    },
+    "cars_text": {
+      "type": "multiline",
+      "max": 220,
+      "label": "Vozy – text"
+    },
+    "cars": {
+      "type": "list",
+      "items": 6,
+      "label": "Vozy skladem (ukázka)",
+      "fields": {
+        "badge": {
+          "type": "text",
+          "max": 18,
+          "label": ""
+        },
+        "name": {
+          "type": "text",
+          "max": 40,
+          "label": ""
+        },
+        "sub": {
+          "type": "text",
+          "max": 50,
+          "label": ""
+        },
+        "year": {
+          "type": "text",
+          "max": 6,
+          "label": ""
+        },
+        "km": {
+          "type": "text",
+          "max": 16,
+          "label": ""
+        },
+        "power": {
+          "type": "text",
+          "max": 12,
+          "label": ""
+        },
+        "fuel": {
+          "type": "text",
+          "max": 18,
+          "label": ""
+        },
+        "price": {
+          "type": "text",
+          "max": 20,
+          "label": ""
+        },
+        "note": {
+          "type": "text",
+          "max": 60,
+          "label": ""
+        },
+        "color": {
+          "type": "color"
+        }
+      }
+    },
+    "cars_more": {
+      "type": "text",
+      "max": 40,
+      "label": "Vozy – tlačítko pod nabídkou"
+    },
+    "cats_tag": {
+      "type": "text",
+      "max": 40,
+      "label": "Kategorie – štítek"
+    },
+    "cats_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Kategorie – nadpis"
+    },
+    "cats_text": {
+      "type": "multiline",
+      "max": 200,
+      "label": "Kategorie – text"
+    },
+    "cats": {
+      "type": "list",
+      "items": 8,
+      "label": "Kategorie vozů",
+      "fields": {
+        "label": {
+          "type": "text",
+          "max": 26,
+          "label": ""
+        },
+        "count": {
+          "type": "text",
+          "max": 16,
+          "label": ""
+        }
+      }
+    },
+    "fin_tag": {
+      "type": "text",
+      "max": 30,
+      "label": "Financování – štítek"
+    },
+    "fin_title": {
+      "type": "text",
+      "max": 30,
+      "label": "Financování – nadpis"
+    },
+    "fin_em": {
+      "type": "text",
+      "max": 20,
+      "label": "Financování – zvýrazněná část (např. částka)"
+    },
+    "fin_title_end": {
+      "type": "text",
+      "max": 20,
+      "label": "Financování – konec nadpisu"
+    },
+    "fin_text": {
+      "type": "multiline",
+      "max": 260,
+      "label": "Financování – text"
+    },
+    "fin_btn1": {
+      "type": "text",
+      "max": 26,
+      "label": "Financování – tlačítko 1"
+    },
+    "fin_btn2": {
+      "type": "text",
+      "max": 26,
+      "label": "Financování – tlačítko 2"
+    },
+    "fin_steps": {
+      "type": "list",
+      "items": 3,
+      "label": "Financování – kroky",
+      "fields": {
+        "title": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        },
+        "text": {
+          "type": "text",
+          "max": 70,
+          "label": ""
+        }
+      }
+    },
+    "svc_tag": {
+      "type": "text",
+      "max": 30,
+      "label": "Služby – štítek"
+    },
+    "svc_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Služby – nadpis"
+    },
+    "svc_text": {
+      "type": "multiline",
+      "max": 200,
+      "label": "Služby – text"
+    },
+    "services": {
+      "type": "list",
+      "items": 3,
+      "label": "Služby",
+      "fields": {
+        "title": {
+          "type": "text",
+          "max": 30,
+          "label": ""
+        },
+        "text": {
+          "type": "text",
+          "max": 200,
+          "label": ""
+        },
+        "link": {
+          "type": "text",
+          "max": 36,
+          "label": ""
+        }
+      }
+    },
+    "rating": {
+      "type": "text",
+      "max": 4,
+      "label": "Hodnocení (např. 4,9)",
+      "grounded": true
+    },
+    "rating_note": {
+      "type": "text",
+      "max": 80,
+      "label": "Hodnocení – odkud a kolik",
+      "grounded": true
+    },
+    "reviews": {
+      "type": "list",
+      "items": 3,
+      "label": "Recenze zákazníků",
+      "fields": {
+        "text": {
+          "type": "text",
+          "max": 220,
+          "label": "",
+          "grounded": true
+        },
+        "name": {
+          "type": "text",
+          "max": 40,
+          "label": "",
+          "grounded": true
+        },
+        "initials": {
+          "type": "text",
+          "max": 3,
+          "label": ""
+        },
+        "car": {
+          "type": "text",
+          "max": 40,
+          "label": "",
+          "grounded": true
+        }
+      }
+    },
+    "drive_tag": {
+      "type": "text",
+      "max": 30,
+      "label": "Závěr – štítek"
+    },
+    "drive_title": {
+      "type": "text",
+      "max": 30,
+      "label": "Závěr – nadpis"
+    },
+    "drive_text": {
+      "type": "multiline",
+      "max": 200,
+      "label": "Závěr – text"
+    },
+    "drive_note": {
+      "type": "text",
+      "max": 60,
+      "label": "Závěr – poznámka pod tlačítkem (volitelné)"
+    },
+    "foot_text": {
+      "type": "multiline",
+      "max": 200,
+      "label": "Patička – krátký popis"
+    },
+    "hours_line": {
+      "type": "text",
+      "max": 60,
+      "label": "Patička – otevírací doba"
+    },
+    "company": {
+      "type": "text",
+      "max": 100,
+      "label": "Patička – provozovatel (© …, IČO)"
+    }
+  },
+  "contrast": [
+    [
+      "ink",
+      "chrome"
+    ],
+    [
+      "muted",
+      "chrome"
+    ],
+    [
+      "accent",
+      "night"
+    ],
+    [
+      "accent",
+      "page_dark"
+    ]
+  ],
+  "content": {
+    "lang": "cs",
+    "brand": "Motoria",
+    "title": "Motoria – prověřené vozy Brno",
+    "description": "Prověřené ojeté vozy s garancí původu, zárukou 24 měsíců a financováním na počkání. Showroom Vídeňská 88, Brno.",
+    "logo_pre": "M",
+    "logo_post": "TORIA",
+    "logo_tag1": "Prověřené",
+    "logo_tag2": "vozy",
+    "open_text": "Po–Pá 8:00–18:00 · So 9:00–13:00",
+    "address": "Vídeňská 88, 619 00 Brno",
+    "phone": "+420 541 000 222",
+    "phone_href": "tel:+420541000222",
+    "email": "prodej@motoria-brno.cz",
+    "cta_label": "Testovací jízda",
+    "cta_url": "#jizda",
+    "hero_tag": "Prověřené vozy s garancí původu",
+    "hero_title": "Jezděte",
+    "hero_em": "s jistotou",
+    "hero_lead": "Každý vůz u nás prochází důkladnou technickou kontrolou a ověřením historie. Garantujeme najeté kilometry, dáváme záruku 24 měsíců a financování vyřídíme na počkání.",
+    "hero_btn1": "Prohlédnout vozy",
+    "hero_btn2": "Spočítat splátky",
+    "gauges": [
+      {
+        "value": "20",
+        "label": "vozů skladem"
+      },
+      {
+        "value": "100 %",
+        "label": "vozů prověřeno"
+      },
+      {
+        "value": "24",
+        "label": "měsíců záruka"
+      }
+    ],
+    "hero_car_label": "Vůz týdne · BMW 330e M Sport",
+    "hero_car_price": "899 900 Kč",
+    "hero_car_note": "od 14 563 Kč/měs.",
+    "hero_car_color": "#1f5fb8",
+    "usp": [
+      {
+        "title": "Ověřená historie",
+        "text": "Garance najetých km a původu vozu"
+      },
+      {
+        "title": "Záruka 24 měsíců",
+        "text": "Na motor, převodovku i elektroniku"
+      },
+      {
+        "title": "Výkup protiúčtem",
+        "text": "Starý vůz započteme do ceny"
+      },
+      {
+        "title": "Financování ihned",
+        "text": "Schválení úvěru do 30 minut"
+      }
+    ],
+    "cars_tag": "Vybrali jsme pro vás",
+    "cars_title": "Vozy skladem",
+    "cars_text": "Všechny vozy si můžete prohlédnout a vyzkoušet v našem showroomu v Brně. Cena je konečná včetně DPH a přepisu.",
+    "cars": [
+      {
+        "badge": "Vůz týdne",
+        "name": "BMW 330e M Sport",
+        "sub": "Plug-in hybrid, Portimao modrá",
+        "year": "2022",
+        "km": "41 900 km",
+        "power": "215 kW",
+        "fuel": "Plug-in hybrid",
+        "price": "899 900 Kč",
+        "note": "bez DPH 743 719 Kč",
+        "color": "#1f5fb8"
+      },
+      {
+        "badge": "Top stav",
+        "name": "Škoda Superb Combi L&K",
+        "sub": "2.0 TDI 4×4, stříbrná Brilliant",
+        "year": "2022",
+        "km": "68 400 km",
+        "power": "147 kW",
+        "fuel": "Diesel",
+        "price": "689 900 Kč",
+        "note": "bez DPH 570 165 Kč",
+        "color": "#c9ced6"
+      },
+      {
+        "badge": "Elektro",
+        "name": "Hyundai Ioniq 5 AWD",
+        "sub": "Long Range 77 kWh, Gravity Gold",
+        "year": "2023",
+        "km": "22 100 km",
+        "power": "239 kW",
+        "fuel": "Elektro",
+        "price": "979 900 Kč",
+        "note": "",
+        "color": "#b8a580"
+      },
+      {
+        "badge": "Záruka výrobce",
+        "name": "Toyota RAV4 Hybrid AWD",
+        "sub": "2.5 Hybrid Executive, Emotional Red",
+        "year": "2022",
+        "km": "49 800 km",
+        "power": "163 kW",
+        "fuel": "Hybrid",
+        "price": "829 900 Kč",
+        "note": "",
+        "color": "#b81f2a"
+      },
+      {
+        "badge": "Zlevněno",
+        "name": "Škoda Octavia RS",
+        "sub": "2.0 TSI, zelená Mamba",
+        "year": "2020",
+        "km": "76 300 km",
+        "power": "180 kW",
+        "fuel": "Benzín",
+        "price": "519 900 Kč",
+        "note": "původně 539 900 Kč",
+        "color": "#3f9a3a"
+      },
+      {
+        "badge": "Novinka",
+        "name": "Kia Ceed GT-Line",
+        "sub": "1.5 T-GDi, Orange Fusion",
+        "year": "2023",
+        "km": "18 900 km",
+        "power": "118 kW",
+        "fuel": "Benzín",
+        "price": "449 900 Kč",
+        "note": "",
+        "color": "#e8701e"
+      }
+    ],
+    "cars_more": "Celá nabídka vozů",
+    "cats_tag": "Rychlé hledání",
+    "cats_title": "Co hledáte?",
+    "cats_text": "Vyberte typ vozu, rádi vám ukážeme vše, co máme skladem.",
+    "cats": [
+      {
+        "label": "SUV",
+        "count": "8 vozů"
+      },
+      {
+        "label": "Kombi",
+        "count": "5 vozů"
+      },
+      {
+        "label": "Elektro a hybridy",
+        "count": "8 vozů"
+      },
+      {
+        "label": "Do 500 000 Kč",
+        "count": "6 vozů"
+      },
+      {
+        "label": "Pohon 4×4",
+        "count": "10 vozů"
+      },
+      {
+        "label": "S automatem",
+        "count": "17 vozů"
+      },
+      {
+        "label": "Pro firmy s DPH",
+        "count": "6 vozů"
+      },
+      {
+        "label": "7 míst",
+        "count": "1 vůz"
+      }
+    ],
+    "fin_tag": "Financování",
+    "fin_title": "Splátky od",
+    "fin_em": "5 800 Kč",
+    "fin_title_end": "měsíčně",
+    "fin_text": "Úvěr i leasing vyřídíme přímo v showroomu, schválení obvykle do 30 minut. Orientační sazba 7,9 % p. a., bez poplatku za předčasné splacení.",
+    "fin_btn1": "Spočítat splátky",
+    "fin_btn2": "Ocenit můj vůz",
+    "fin_steps": [
+      {
+        "title": "Vyberete vůz",
+        "text": "Online nebo v showroomu, rádi poradíme."
+      },
+      {
+        "title": "Spočítáme splátky",
+        "text": "Úvěr, leasing, s akontací i bez ní."
+      },
+      {
+        "title": "Odjedete",
+        "text": "Smlouva, pojištění a přepis na počkání."
+      }
+    ],
+    "svc_tag": "Služby",
+    "svc_title": "Víc než prodej",
+    "svc_text": "Postaráme se o auto před koupí i po ní. Všechno pod jednou střechou ve Vídeňské ulici.",
+    "services": [
+      {
+        "title": "Výkup vozů",
+        "text": "Přijeďte s autem a do 30 minut máte cenovou nabídku. Peníze posíláme ještě týž den, nebo je započteme do nového vozu.",
+        "link": "Nabídka do 30 minut →"
+      },
+      {
+        "title": "Servis",
+        "text": "Servis všech značek, pneuservis a příprava na STK. Náhradní vůz zdarma po dobu opravy.",
+        "link": "Náhradní vůz zdarma →"
+      },
+      {
+        "title": "Přepis a pojištění",
+        "text": "Přepis na registru, povinné ručení i havarijní pojištění vyřídíme za vás. Odjíždíte s hotovými papíry.",
+        "link": "Vše na počkání →"
+      }
+    ],
+    "rating": "4,9",
+    "rating_note": "Průměr z 312 hodnocení zákazníků za rok 2026",
+    "reviews": [
+      {
+        "text": "Superb jsme si vybrali doma na webu, spočítali splátky a v sobotu jen podepsali. Celé to zabralo hodinu i s přepisem.",
+        "name": "Martin Kučera",
+        "initials": "MK",
+        "car": "Škoda Superb Combi"
+      },
+      {
+        "text": "Starou Octavii vykoupili za férovou cenu a rovnou ji započítali. Oceňuji, že mi ukázali kompletní servisní historii.",
+        "name": "Lucie Dvořáková",
+        "initials": "LD",
+        "car": "Toyota RAV4 Hybrid"
+      },
+      {
+        "text": "Testovací jízdu jsem si objednal přes web na úterý v 17:00, auto bylo připravené a natankované. Takhle to má vypadat.",
+        "name": "Petr Svoboda",
+        "initials": "PS",
+        "car": "BMW 330e"
+      }
+    ],
+    "drive_tag": "Testovací jízda",
+    "drive_title": "Vyzkoušejte si ho",
+    "drive_text": "Zavolejte nebo napište, který vůz vás zajímá. Připravíme ho natankovaný a čas vám potvrdíme.",
+    "drive_note": "",
+    "foot_text": "Prověřené ojeté vozy s garancí původu, zárukou 24 měsíců a financováním na počkání.",
+    "hours_line": "Po–Pá 8:00–18:00 · So 9:00–13:00",
+    "company": "© 2026 Motoria s.r.o. · Vídeňská 88, 619 00 Brno · IČO 87654321"
+  },
+  "licenses": [
+    "assets/fonts/Saira-OFL.txt",
+    "assets/fonts/Red_Hat_Mono-OFL.txt"
+  ],
+  "cssHints": [
+    ".logo",
+    ".hero h1",
+    ".hero-lead",
+    ".head h2",
+    ".btn",
+    ".car-card",
+    ".price",
+    ".big-h",
+    ".tag",
+    ".stage"
+  ]
+}

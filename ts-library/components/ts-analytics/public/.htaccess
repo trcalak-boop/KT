@@ -1,0 +1,13 @@
+# Měřicí skript (JS) a styl přehledu (CSS) – načítají je stránky webu a administrace; data jdou jen přes vstupní bod sběru.
+<IfModule mod_authz_core.c>
+  Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Allow from all
+</IfModule>
+<FilesMatch "\.(?!(js|css)$)[^.]+$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>

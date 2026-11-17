@@ -1,0 +1,13 @@
+<!doctype html><html lang="cs"><head><meta charset="utf-8"><title>ts-cms-blocks – kontrola</title><script src="../../../tools/testlib.js"></script></head><body>
+<script>
+T.freeze('2026-11-04T09:00:00');
+T.run(function () {
+  return T.scripts([T.lib('components/ts-kit-core/core/kit.js'), T.lib('components/ts-cms-blocks/src/slunecnice-data.js')]).then(function () {
+    var S = window.SLUN, D = S.defaults();
+    T.ok(/2027-03-2[68]/.test(String(S.easter(2027))) || String(S.easter(2027)).indexOf('2027') >= 0, 'Velikonoce 2027: ' + S.easter(2027));
+    T.ok(S.isSchoolDay(D, '2026-11-04') && !S.isSchoolDay(D, '2026-11-07'), 'školní den / víkend');
+    T.ok(S.upcoming(D, '2026-11-04').length > 0, 'nadcházející akce');
+    T.ok(/BEGIN:VCALENDAR/.test(S.ics(D, S.upcoming(D, '2026-11-04', 2))), 'export akcí do ICS');
+  });
+});
+</script></body></html>

@@ -1,0 +1,56 @@
+{
+  "name": "ts-i18n-build",
+  "version": "1.0.0",
+  "kind": "tool",
+  "status": "demo",
+  "maturity": "extracted",
+  "summary": "Generátor vícejazyčného statického webu (Python): stránky z anglických textů + slovníky i18n/web/<jazyk>.json, hreflang, kanonické adresy, sitemap, registr 18 jazyků (jazyky.json) s RTL.",
+  "runtime": [
+    "python"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "files": [
+      {
+        "from": "skripty/web/build.py",
+        "to": "src/build.py",
+        "sha256": "9ac209de0c5067ab6f78edf2ffa5ee58ce86fe9bd9781f7abbbda4dafc8e1734",
+        "mode": "verbatim"
+      },
+      {
+        "from": "i18n/jazyky.json",
+        "to": "src/jazyky.json",
+        "sha256": "18e2de58a9b9a4b09d77e51e79177c791a65f070b08c2e2370a06b8fa79ab90a",
+        "mode": "verbatim"
+      }
+    ],
+    "workingTree": "dirty: skripty/web/build.py, i18n/jazyky.json"
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "py": "src/build.py",
+    "registry": "src/jazyky.json"
+  },
+  "lockedFiles": [
+    "src/**/*"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "nic – referenční zdroj; pro použití vytvořit samostatnou komponentu s konfigurací (další etapa)"
+  ],
+  "aiProtected": [
+    "src/** – doslovná kopie, neupravovat"
+  ],
+  "works": [
+    "Generuje hlavní web tasstudio.eu v 18 jazycích (en + 17)."
+  ],
+  "missingForProduction": [
+    "Skript je psaný pro strukturu webu tasstudio.eu (cesty, šablony v kódu) – pro jiný projekt nutné oddělit konfiguraci (další etapa).",
+    "Překlady kromě cs/en neověřil rodilý mluvčí."
+  ],
+  "tests": [],
+  "skill": "claude-plugin/ts-studio/skills/i18n/SKILL.md",
+  "api": "api/ts-i18n.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}

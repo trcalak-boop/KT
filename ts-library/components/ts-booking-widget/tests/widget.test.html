@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>ts-booking-widget – testy</title>
+<script src="../../../tools/testlib.js"></script>
+<link rel="stylesheet" href="../core/booking-widget.css">
+</head><body><div id="w1"></div><div id="w2"></div><div id="a1"></div>
+<script>
+/* Testy UI: průchod rezervací (salon i restaurace), validace, dvojí odeslání, demo upozornění, přehled rezervací. */
+T.freeze('2026-11-04T08:00:00');
+T.run(function () {
+  return T.scripts(['core/booking-core.js', 'adapters/store-demo-local.js'].map(function (f) { return T.lib('components/ts-booking-core/' + f); }).concat([T.lib('components/ts-booking-widget/core/booking-widget.js')])).then(function () {
+    return Promise.all(['kadernictvi', 'restaurace'].map(function (n) { return fetch(T.lib('components/ts-booking-core/config/presets/' + n + '.json')).then(function (r) { return r.json(); }); }));
+  }).then(function (ps) {
+    var salon = ps[0], rest = ps[1], W = window.TSBookingWidget, B = window.TSBooking, $ = function (s, r) { return (r || document).querySelector(s); };
+    localStorage.clear();
+    var store = B.stores.demoLocal('test-salon', { bookings: [] }), booked = [];
+    return W.mount('#w1', { config: salon, store: store, ui: { lang: 'cs', resourceLabel: 'Stylistka', location: 'Salon' }, onBooked: function (b, dup) { booked.push([b, dup]); } }).then(function (w) {
+      var el = $('#w1');
+      T.ok(/ukládá jen v tomto prohlížeči/.test($('.tsb-demo', el).textContent), 'demo upozornění je vidět');
+      T.eq(el.querySelectorAll('[data-svc]').length, 3, 'nabídka služeb z konfigurace');
+      $('[data-svc="damsky-strih"]', el).click();
+      T.eq($('[data-svc="damsky-strih"]', el).getAttribute('aria-pressed'), 'true', 'výběr služby (aria-pressed)');
+      T.eq(el.querySelectorAll('[data-variant]').length, 3, 'varianty (délka vlasů)');
+      $('[data-variant="2"]', el).click();
+      T.ok(el.querySelectorAll('[data-res]').length === 3, 'výběr stylistky včetně „Kdokoli volný“');
+      var day = $('.tsb-day.tsb-free', el); T.ok(!!day, 'existuje volný den');
+      T.ok($('.tsb-day[data-date="2026-11-08"]', el).disabled, 'neděle je zavřená');
+      day.click();
+      var tb = el.querySelectorAll('.tsb-time'); T.ok(tb.length > 3, 'volné časy ' + tb.length);
+      var t0 = +tb[0].dataset.t, date = day.dataset.date;
+      T.eq(t0, w.engine().slots(date, 'damsky-strih', { variant: 2, resource: 'any' })[0].t, 'časy pochází z jádra');
+      tb[0].click();
+      $('.tsb-form', el).dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      T.ok(/Vyplňte/.test($('.tsb-err', el).textContent), 'validace povinných polí');
+      var f = $('.tsb-form', el); f.elements.name.value = 'Jana Testová'; f.elements.email.value = 'jana@example.com'; f.elements.consent.checked = true;
+      f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      return new Promise(function (r) { setTimeout(r, 50); }).then(function () {
+        T.eq(store.state.bookings.length, 1, 'dvojí odeslání vytvoří jednu rezervaci');
+        var b = store.state.bookings[0];
+        T.ok(b.date === date && b.start === t0 && b.dur === 75 && b.status === 'pending' && b.name === 'Jana Testová' && !!b.resource, 'rezervace má údaje z jádra (délka 75 min, stylistka)');
+        T.ok(/přijatá/.test($('.tsb-done', el).textContent) && /calendar\.google\.com/.test($('.tsb-done a', el).href), 'potvrzení + odkaz do kalendáře');
+        T.eq(booked.length, 1, 'onBooked');
+        T.ok(w.engine().slots(date, 'damsky-strih', { variant: 2, resource: b.resource }).every(function (x) { return x.t >= t0 + 75 || x.t + 75 <= t0; }), 'obsazený čas zmizí z nabídky stejné stylistky');
+        return W.mountAdmin('#a1', { config: salon, store: store, ui: { resourceLabel: 'Stylistka' } });
+      });
+    }).then(function () {
+      var a = $('#a1');
+      T.ok(/Jana Testová/.test(a.textContent) && /Čeká na potvrzení/.test(a.textContent), 'přehled rezervací');
+      $('[data-status="confirmed"]', a).click();
+      return new Promise(function (r) { setTimeout(r, 30); });
+    }).then(function () {
+      T.eq(store.state.bookings[0].status, 'confirmed', 'potvrzení v přehledu');
+      /* správa blokovaných termínů */
+      var a = $('#a1'), bf = $('.tsb-block-form', a);
+      T.ok(!!bf && $('select[name="resource"]', bf).options.length === 3, 'formulář blokace: celá provozovna + 2 stylistky');
+      bf.elements.date.value = '2026-11-06'; bf.elements.from.value = '12:00'; bf.elements.to.value = '11:00';
+      bf.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      return new Promise(function (r) { setTimeout(r, 40); }).then(function () {
+        T.ok(/později/.test($('#a1 .tsb-err').textContent) && store.state.blocks.length === 0, 'blokace: „do“ před „od“ se odmítne');
+        var f2 = $('#a1 .tsb-block-form'); f2.elements.date.value = '2026-11-06'; f2.elements.from.value = '09:00'; f2.elements.to.value = '20:00'; f2.elements.reason.value = 'školení';
+        f2.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        return new Promise(function (r) { setTimeout(r, 40); });
+      }).then(function () {
+        T.ok(store.state.blocks.length === 1 && store.state.blocks[0].from === 540 && store.state.blocks[0].resource === 'all' && /školení/.test($('#a1 .tsb-blocks').textContent), 'blokace uložena a zobrazena');
+        T.eq(B.create(salon, store.state).slots('2026-11-06', 'damsky-strih', { resource: 'any' }).length, 0, 'zablokovaný den nemá volné časy');
+        $('#a1 [data-block-del]').click();
+        return new Promise(function (r) { setTimeout(r, 40); });
+      }).then(function () {
+        T.ok(store.state.blocks.length === 0 && B.create(salon, store.state).slots('2026-11-06', 'damsky-strih', { resource: 'any' }).length > 0, 'zrušení blokace vrátí volné časy');
+      });
+    }).then(function () {
+      var rs = B.stores.demoLocal('test-rest', { bookings: [] });
+      return W.mount('#w2', { config: rest, store: rs, ui: { lang: 'en', unitsDefault: 4 } }).then(function () {
+        var el = $('#w2');
+        T.ok(/stored only in this browser/.test(el.textContent) && el.querySelectorAll('[data-units]').length === 8, 'restaurace: počet osob, angličtina');
+        $('[data-svc="stul"]', el).click(); $('.tsb-day.tsb-free', el).click(); $('.tsb-time', el).click();
+        var f = $('.tsb-form', el); f.elements.name.value = 'Tom'; f.elements.email.value = 'tom@example.com'; f.elements.consent.checked = true;
+        f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        return new Promise(function (r) { setTimeout(r, 30); }).then(function () {
+          T.ok(rs.state.bookings.length === 1 && rs.state.bookings[0].units === 4 && !rs.state.bookings[0].resource, 'restaurace: rezervace na 4 osoby (kapacita)');
+          T.eq(store.state.bookings.length, 1, 'dvě instalace mají oddělená data');
+        });
+      });
+    });
+  });
+});
+</script></body></html>

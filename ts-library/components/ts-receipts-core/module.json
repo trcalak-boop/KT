@@ -1,0 +1,75 @@
+{
+  "name": "ts-receipts-core",
+  "version": "1.0.0",
+  "kind": "js-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "Výpočty dokladů a faktur (položky, sleva, DPH ze ceny vč. DPH, rozpad DPH po řádcích), číselné řady bez opakování čísel, líné načtení jsPDF a písem pro PDF v prohlížeči.",
+  "runtime": [
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "web/ukazky/lokna/data.js",
+        "to": "core/receipts.js",
+        "sha256": "890bc9f96b75e4f7a8f2becb9df7883547159b75d7c358eb40920b97de786e55",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/ukazky/lokna/admin.js",
+        "to": "core/receipts.js",
+        "sha256": "c128480a0625309aa02b4adec4894925beb26cac6e77400ee3bd70a1a8c4bfd5",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/ukazky/vrstva/data.js",
+        "to": "core/receipts.js",
+        "sha256": "a4c4fe2c292a7fb3870a90c6252c569382029372d2449eb1f5ca7d006ca1cb90",
+        "mode": "adapted"
+      },
+      {
+        "from": "web/ukazky/kit/kit.js",
+        "to": "core/receipts.js",
+        "sha256": "560e5dfae131f8908bf67fb6f9b731635af01d4165ad6046117bb9050680b70a",
+        "mode": "adapted"
+      }
+    ]
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "js": "core/receipts.js",
+    "globals": "window.TSReceipts",
+    "thirdParty": "jsPDF 4.2.1 (MIT) – načítá se z cesty TSReceipts.pdf.jspdf, není součástí komponenty"
+  },
+  "lockedFiles": [
+    "core/*.js"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "rozvržení dokladu (HTML/PDF) v projektu",
+    "prefix a formát číselné řady",
+    "písma projektu (OFL)"
+  ],
+  "aiProtected": [
+    "core/receipts.js – zaokrouhlení, DPH, číslování"
+  ],
+  "works": [
+    "Rozdílově shodné s L.rcCalc ukázky Lokna (63 kombinací položek, slev a DPH).",
+    "Číselné řady (roční, s prefixem), rozpad DPH po řádcích, PDF s českým písmem přes jsPDF."
+  ],
+  "missingForProduction": [
+    "Číslování musí v produkci hlídat server v transakci (souběh dvou pokladen).",
+    "Daňové náležitosti dokladů a faktur ověřit s účetní (zjednodušený daňový doklad, EET/účetní software).",
+    "Šablony rozvržení dokladu/faktury nejsou obecné – jsou v ts-ref-lokna a ts-shop-core."
+  ],
+  "tests": [
+    "tests/receipts.test.html"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/library/SKILL.md",
+  "api": "api/ts-receipts-core.md",
+  "license": "Interní – T&S Studio (vlastní kód); jsPDF MIT (externí)"
+}

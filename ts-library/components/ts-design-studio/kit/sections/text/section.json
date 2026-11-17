@@ -1,0 +1,3 @@
+{"type":"text","label":"Text","use":"o nás, příběh, delší vysvětlení","default":"columns","head":true,"variants":{"columns":"nadpis vlevo, text vpravo","lead":"první odstavec velký, ostatní pod ním"},
+"slots":{"paragraphs":{"type":"list","items":6,"fields":{"text":{"type":"multiline","max":700}}},"cta_label":{"type":"text","max":28},"cta_url":{"type":"url"}},
+"sample":{"kicker":"O nás","title":"Začalo to jedním bochníkem","paragraphs":[{"text":"V roce 2017 jsme si pronajali starou pekárnu na Veveří a začali péct to, co nám chybělo: obyčejný poctivý chléb."},{"text":"Dnes pečeme šest druhů chleba a pár sladkostí. Víc nestíháme a víc ani nechceme."}],"cta_label":"Přijďte se podívat","cta_url":"#kontakt"}}

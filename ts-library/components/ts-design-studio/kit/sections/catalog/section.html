@@ -1,0 +1,6 @@
+{{>head}}
+<ul class="ca">{{#items}}<li class="ca-i">{{#badge}}<span class="ca-b">{{badge}}</span>{{/badge}}{{#art}}<div class="art ca-a" aria-hidden="true"><!--art:{{art}}--></div>{{/art}}
+<div class="ca-x"><h3>{{#url}}<a href="{{url}}">{{name}}</a>{{/url}}{{^url}}{{name}}{{/url}}</h3>{{#desc}}<p class="muted">{{desc}}</p>{{/desc}}
+{{#specs}}<p class="ca-s"><span class="mono muted">{{label}}</span> {{value}}</p>{{/specs}}</div>
+<p class="ca-p"><b class="disp">{{price}}</b>{{#price_note}} <span class="muted">{{price_note}}</span>{{/price_note}}</p></li>{{/items}}</ul>
+{{#more_label}}<div class="actions"><a class="btn btn-2" href="{{more_url}}">{{more_label}}</a></div>{{/more_label}}

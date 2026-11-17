@@ -1,0 +1,149 @@
+{
+  "name": "ts-design-studio",
+  "version": "0.13.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "AI Design Studio (jen administrace): weby ze šablon, verze, kontroly, diff, náhled, ZIP; AI ze zadání a úpravy v konverzaci; rozhraní editoru; schválení a doručení klientovi (neveřejný odkaz přes bránu, e-mail s potvrzením, odvolání, role).",
+  "runtime": [
+    "php",
+    "browser"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "2ff9868",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "(nový kód; plán docs/ai/08-design-studio-plan.md)",
+        "to": "core/TsDesignStudio.php",
+        "mode": "new",
+        "sha256": "29cb95d63e09c73b62d0e5bc1cfcc173c4f7b76874153efd64c6cbb2af51674a"
+      },
+      {
+        "from": "web/ukazky/koren.html + koren/style.css (převod tools/sablona_restaurace.py)",
+        "to": "templates/restaurace/template.json",
+        "mode": "new",
+        "sha256": "76a5a89de9a2bc1e1c680e9d818effe907852e380951c9f26c4d2abc0ddd6dcf"
+      },
+      {
+        "from": "web/ukazky/lokna.html + lokna/style.css (převod tools/sablona_salon.py)",
+        "to": "templates/salon/template.json",
+        "mode": "new",
+        "sha256": "98a773d5bdced51ea6d1f37b186ea33c0455691d4568ed02b3dc2289522265f6"
+      },
+      {
+        "from": "web/ukazky/motoria.html + motoria/style.css (převod tools/sablona_autosalon.py)",
+        "to": "templates/autosalon/template.json",
+        "mode": "new",
+        "sha256": "42f0221461a07e5d5ca646418cf6970ad188b0364d2d5f4297266a74ed04887b"
+      },
+      {
+        "from": "web/ukazky/ordinace.html + ordinace/style.css (převod tools/sablona_ordinace.py)",
+        "to": "templates/ordinace/template.json",
+        "mode": "new",
+        "sha256": "82dc90572d2ffa70f0510dfc7e402c0c2cf1351f08903c8a01956575016d3b2e"
+      },
+      {
+        "from": "web/ukazky/salon-salvej.html (převod tools/sablona_kosmetika.py)",
+        "to": "templates/kosmetika/template.json",
+        "mode": "new",
+        "sha256": "7eccdd635c730f2592de47c8ae36d64038171b80ccc76c3f46c3acdce36a8c23"
+      },
+      {
+        "from": "(nový kód; plán docs/ai/11-studio-generativni-plan.md, etapa 6.7a; díly podle šablon restaurace, salon, autosalon, ordinace, kosmetika a ukázek Slunečnice a Vrstva)",
+        "to": "core/TsStudioKit.php",
+        "mode": "new",
+        "sha256": "e9a11465ad9beb6be062d9a3bc72d09b733f5bb84b4d06bce9b8951958e92384"
+      },
+      {
+        "from": "(nový kód; plán docs/ai/11-studio-generativni-plan.md, etapa 6.7b)",
+        "to": "core/TsStudioPlanner.php",
+        "mode": "new",
+        "sha256": "d1febcaeee26deb5d5125161f0a641fa8619781de78b6ca9ecba765335d00f7d"
+      },
+      {
+        "from": "(nový kód; plán docs/ai/12-navrhy-v-crm-plan.md, etapa 7.1)",
+        "to": "core/TsStudioUpload.php",
+        "mode": "new",
+        "sha256": "3a0eb69bb1142091ea1e83e27ea2743a1573e4d04c737af48d7e4c6774cb2f0c"
+      }
+    ]
+  },
+  "dependencies": {
+    "ts-mailer-php": "^1.1.0"
+  },
+  "entrypoints": {
+    "php": "core/bootstrap.php",
+    "api": "ts_design_studio(settings) → TsDesignStudio; HTTP: (new TsStudioApi($studio, {uid, jobsDir, allowedOrigins}))->serve()",
+    "classes": "TsDesignStudio (+ TsStudioDeliveryOps), TsStudioTemplate, TsStudioChecks, TsStudioDiff, TsStudioZip, TsStudioStore, TsStudioApi, TsStudioPreviewGate, TsStudioRoles, TsStudioAi, TsStudioModel (TsStudioCloudflareModel, TsStudioFakeModel); výjimky TsStudioDenied, TsStudioChecksFailed, TsStudioModelError",
+    "templates": "templates/<id>/template.json + files/ (restaurace, salon)",
+    "ai": "aiCreate(brief, uid, {source, lead_ref, audit_ref}), aiEdit(pid, uid, pokyn), messages(), usage(); TsStudioAi::briefFromLead / briefFromAudit",
+    "ui": "public/ts-studio.js + public/ts-studio.css (<div id=\"ts-studio\"> + TS_STUDIO_CONFIG = { api })",
+    "gate": "(new TsStudioPreviewGate($studio, {failDir, contact}))->serve() na samostatném originu (např. nahledy.…), .htaccess přesměruje vše na index.php",
+    "kit": "TsDesignStudio::kitCreate(zadání, uid, projekt, 1–3 směry), aiEdit u projektu ze stavebnice; TsStudioKit, TsStudioPlanner (bez rozhraní v administraci, etapa 6.7c)",
+    "upload": "TsDesignStudio::uploadDesign, addFeedback, feedbackOf, feedbackUnsynced, setFeedbackDone; TsStudioInspect (přehled bez AI); TsStudioClientPage (stránka klienta v bráně). Rozhraní v CRM: etapa 7.2."
+  },
+  "lockedFiles": [
+    "config/.htaccess",
+    "core/*.php",
+    "core/.htaccess",
+    "migrations/*.sql",
+    "migrations/.htaccess",
+    "public/*.css",
+    "public/*.js",
+    "public/.htaccess",
+    "templates/**/*",
+    "templates/.htaccess",
+    "kit/**/*",
+    "kit/.htaccess"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "serverová konfigurace projektu MIMO webroot (databáze, funkce can() s rolemi, časové pásmo)",
+    "vstupní bod API (jen cesty, číslo uživatele, povolené původy) a jeho ochrana přihlášením; stránka administrace (rámeček kolem <div id=\"ts-studio\">)",
+    "nové šablony: jen přes převodní skript v tools/ a s testem v tests/studio_test.php (výchozí obsah projde schématem i kontrolami)"
+  ],
+  "aiProtected": [
+    "core/TsStudioChecks.php – kontroly blokující přijetí verze",
+    "core/TsStudioTemplate.php – escapování výstupu (žádný raw výstup), čištění obsahu a tokenů",
+    "core/TsStudioAi.php – pravidlo „fakta nevymýšlet“, doplnění chybějících slotů jako [doplnit] (nikdy fakta ze vzoru), vrstva CSS bez úniku z bloku",
+    "core/TsStudioDelivery.php a TsStudioPreviewGate.php – schválení nic neodesílá, odeslání jen se samostatným potvrzením a idempotencí, token jen jako otisk + HMAC, brána bez cookies a bez indexace",
+    "core/TsDesignStudio.php – verze jen jako nové záznamy, přijetí jen bez chyb, CSP náhledu, oprávnění",
+    "migrations/* – změna = nová migrace + rollback"
+  ],
+  "works": [
+    "74 testů bez sítě: šablonovací jazyk (vše escapované), čištění obsahu a tokenů (délky, adresy, e-mail, telefon, barvy), diff, kontroly HTML/CSS/JS a kontrastu, ZIP, verze (kandidát/přijatá/zamítnutá, návrat, úprava souborů), náhled s CSP, oprávnění, záznam akcí.",
+    "54 testů AI vrstvy s falešným modelem: čtení JSON (i s textem okolo, useknutý), tokeny a písma, osnova stránky, zdroje zadání (lead, audit s označením práv), návrh bez faktů ze vzoru a s escapováním, ztmavení barev s nízkým kontrastem, ukotvení citátů/recenzí/jmen v zadání, dnešní datum a pravidla CSS v pokynech, výběr šablony modelem, opakování, chyby a denní strop, oprávnění, úpravy obsahu/tokenů/CSS v jedné verzi, cizí zdroj v CSS zablokuje přijetí, konverzace a spotřeba.",
+    "4 testy adaptéru Cloudflare proti napodobenině API: přetížení → opakování, záložní model s vlastním ceníkem, vyčerpaná kvóta bez opakování; 7 testů rozlišení chyb (4006 kvóta, 3040 přetížení, 429, 403, 5xx, 400).",
+    "61 testů doručení a brány (včetně anonymizace po 24 měsících) (včetně skutečného TsMailer v testovacím režimu): příprava jen po interním schválení a pro přijatou verzi, neaktivní odkaz do odeslání, e-mail jen s opsanou adresou a klíčem idempotence (dvojí klik = jeden e-mail), vložené hlavičky odstraněny, ruční cesta a stažení zaznamenané, selhání SMTP, expirace, odvolání, role, brána (CSP, noindex, robots, průchod adresáři, binární soubory, blokace hádání tokenu bez IP v datech, jiný tajný klíč).",
+    "63 testů HTTP API (doručení, role, CSRF, vypínač, lead z CRM): ochrana POST (původ, JSON, velikost), šablony, ruční projekt, verze a soubory, úprava obsahu a kódu, kontroly blokují přijetí, rozdíl, návrat, stav, náhled, export ZIP, úlohy AI jen pro stejného uživatele, strop a vypnutá AI hned, role jen pro prohlížení.",
+    "42 kroků rozhraní v Chromu (včetně doručení: schválení, příprava, e-mail, potvrzovací okno, odkaz přes bránu, odvolání, role designer): seznam, projekt ze šablony, náhled v sandboxu ve 3 šířkách, formulář obsahu a barev, přijetí, kód, rozdíl, kontroly, cizí skript zablokuje přijetí, zamítnutí, návrat, export, stav, návrh s AI z formuláře (lead), úprava v konverzaci, mobil.",
+    "Šablony restaurace (Kořen), salon (Lokna) a autosalon (Motoria) a ordinace (Ordinace) a kosmetika (Šalvěj): výchozí obsah projde schématem a kontrolami bez nálezu; vizuálně porovnané s ukázkou na počítači i mobilu, bez vodorovného posuvníku.",
+    "Stavebnice sekcí (etapa 6.7a): 21 typů, 46 variant, 15 rodin písem. Testy bez sítě: schéma, kontroly kvality, escapování, tokeny a oprava kontrastu, do projektu jen použité sekce a písma. Chrome: všechny varianty ve všech tónech, 4 vizuální styly, světlý i tmavý režim, počítač i telefon (přetékání, kontrast, rozdělená slova); celé weby škola a e-shop.",
+    "Návrh na míru (etapa 6.7b): 104 testů s falešným modelem: prompt, tolerance k odpovědi, fakta jen ze zadání včetně čísel, kostra webu, sanitizér vrstvy CSS, odlišnost, tři směry, připomínky, export, náhled, brána, strop a chyby modelu.",
+    "Administrace návrhu na míru (etapa 6.7c): 17 kontrol v Chromu: tři směry vedle sebe v sandboxu, výběr směru, editor plánu (tokeny, údaje, sekce, rozvržení, přidání, přesun, seznamy), připomínka, kód, mobil.",
+    "Nahraný návrh (etapa 7.1): 89 testů bez sítě (ZIP a jeho ochrany, přehled barev, písem a struktury, verze, doručení, brána, připomínky, schválení, upozornění, přenos do CRM, retence) a 22 kontrol v Chromu (sandbox návrhu, písma, obrázky, podstránky, formulář bez JavaScriptu, telefon, tmavý režim)."
+  ],
+  "missingForProduction": [
+    "Produkce (6.5b): nasazení do administrace tasstudio.eu (přihlášení a role z CRM, CSRF), data /private/studio, brána nahledy.tasstudio.eu na produkčních datech, SMTP bez redirectTo.",
+    "Další šablony (6.6).",
+    "Návrh na míru zatím neběžel se skutečným modelem (Gemma): kvalita plánů, spotřeba a časový limit tří dotazů na hostingu jsou neověřené; fotografie klienta zatím nejsou podporované.",
+    "Nahraný návrh zatím nemá rozhraní v CRM (7.2) a na hostingu neověřené: paměť PHP při ZIPu do 40 MB."
+  ],
+  "tests": [
+    "tests/ai_test.php",
+    "tests/api_test.php",
+    "tests/cloudflare_test.py",
+    "tests/delivery_test.php",
+    "tests/studio_test.php",
+    "tests/ui_test.py",
+    "tests/kit_test.php",
+    "tests/kit_browser_test.py",
+    "tests/planner_test.php",
+    "tests/upload_test.php",
+    "tests/client_page_test.py"
+  ],
+  "api": "api/ts-design-studio.md",
+  "license": "Interní – T&S Studio (vlastní kód); písma v šablonách OFL (licence v templates/*/files/assets/fonts/)"
+}

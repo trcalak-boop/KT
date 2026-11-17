@@ -1,0 +1,540 @@
+{
+  "id": "kosmetika",
+  "name": "Kosmetický salon",
+  "basedOn": "ukázka Šalvěj (web/ukazky/salon-salvej.html)",
+  "obor": [
+    "kosmetika",
+    "kosmetický",
+    "kosmetička",
+    "pleť",
+    "obočí",
+    "řasy",
+    "nehty",
+    "manikúra",
+    "pedikúra",
+    "wellness",
+    "masáže",
+    "beauty",
+    "spa",
+    "lash"
+  ],
+  "description": "Jednostránkový web kosmetického salonu v duchu herbáře: centrovaná značka, úvod s ilustrací lahviček se značkou salonu, etiketa s otevírací dobou, služby jako číslované receptury s délkou a cenou, rezervace telefonem a e-mailem, adresa a otevírací doba. Tmavý režim podle zařízení.",
+  "render": [
+    "index.html",
+    "assets/styles.css"
+  ],
+  "tokens": {
+    "ground": {
+      "var": "--t-ground",
+      "type": "color",
+      "value": "#f6f6f3",
+      "label": "Pozadí (světlý režim)"
+    },
+    "paper": {
+      "var": "--t-paper",
+      "type": "color",
+      "value": "#ffffff",
+      "label": "Papír (etikety, karty)"
+    },
+    "ink": {
+      "var": "--t-ink",
+      "type": "color",
+      "value": "#1f2421",
+      "label": "Text a linky"
+    },
+    "ink2": {
+      "var": "--t-ink2",
+      "type": "color",
+      "value": "#4a554e",
+      "label": "Text – doplňkový"
+    },
+    "leaf": {
+      "var": "--t-leaf",
+      "type": "color",
+      "value": "#5f7363",
+      "label": "Šalvějová (stonky, linky)"
+    },
+    "bloom": {
+      "var": "--t-bloom",
+      "type": "color",
+      "value": "#5e4b8b",
+      "label": "Akcent – květ (tlačítka, štítky)"
+    },
+    "bloom_dark": {
+      "var": "--t-bloom-d",
+      "type": "color",
+      "value": "#b9a6ea",
+      "label": "Akcent v tmavém režimu"
+    },
+    "f_display": {
+      "var": "--f-display",
+      "type": "font",
+      "value": "\"Marcellus\",\"Didot\",Georgia,serif",
+      "options": [
+        "\"Marcellus\",\"Didot\",Georgia,serif",
+        "\"Bodoni Moda\",\"Bodoni 72\",\"Didot\",Georgia,serif"
+      ],
+      "label": "Písmo nadpisů a značky"
+    },
+    "f_body": {
+      "var": "--f-body",
+      "type": "font",
+      "value": "\"Albert Sans\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif",
+      "options": [
+        "\"Albert Sans\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif",
+        "\"Figtree\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif"
+      ],
+      "label": "Písmo textu"
+    }
+  },
+  "slots": {
+    "lang": {
+      "type": "text",
+      "max": 5,
+      "label": "Jazyk stránky (cs, en…)"
+    },
+    "brand": {
+      "type": "text",
+      "max": 40,
+      "label": "Název salonu"
+    },
+    "mark": {
+      "type": "text",
+      "max": 14,
+      "label": "Slovní značka (velkými písmeny, krátká)"
+    },
+    "mark_sub": {
+      "type": "text",
+      "max": 40,
+      "label": "Pod značkou (obor · město)"
+    },
+    "title": {
+      "type": "text",
+      "max": 70,
+      "label": "Titulek stránky (prohlížeč, vyhledávače)"
+    },
+    "description": {
+      "type": "text",
+      "max": 160,
+      "label": "Popis pro vyhledávače"
+    },
+    "nav1": {
+      "type": "text",
+      "max": 24,
+      "label": "Menu – služby"
+    },
+    "nav2": {
+      "type": "text",
+      "max": 24,
+      "label": "Menu – rezervace"
+    },
+    "nav3": {
+      "type": "text",
+      "max": 24,
+      "label": "Menu – kontakt"
+    },
+    "hero_kicker": {
+      "type": "text",
+      "max": 60,
+      "label": "Úvod – řádek nad nadpisem"
+    },
+    "hero_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Úvod – nadpis"
+    },
+    "hero_text": {
+      "type": "multiline",
+      "max": 220,
+      "label": "Úvod – text"
+    },
+    "hero_btn": {
+      "type": "text",
+      "max": 24,
+      "label": "Úvod – hlavní tlačítko"
+    },
+    "hero_link": {
+      "type": "text",
+      "max": 24,
+      "label": "Úvod – odkaz vedle tlačítka"
+    },
+    "ledger_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Etiketa v úvodu – nadpis"
+    },
+    "ledger": {
+      "type": "list",
+      "items": 4,
+      "label": "Etiketa v úvodu – řádky",
+      "fields": {
+        "left": {
+          "type": "text",
+          "max": 24,
+          "label": ""
+        },
+        "mid": {
+          "type": "text",
+          "max": 14,
+          "label": ""
+        },
+        "right": {
+          "type": "text",
+          "max": 20,
+          "label": ""
+        }
+      }
+    },
+    "ledger_note": {
+      "type": "text",
+      "max": 90,
+      "label": "Etiketa v úvodu – poznámka"
+    },
+    "products": {
+      "type": "list",
+      "items": 3,
+      "label": "Ilustrace – názvy produktů na lahvičkách (3)",
+      "fields": {
+        "name": {
+          "type": "text",
+          "max": 22,
+          "label": ""
+        },
+        "sub": {
+          "type": "text",
+          "max": 24,
+          "label": ""
+        }
+      }
+    },
+    "caption_left": {
+      "type": "text",
+      "max": 60,
+      "label": "Ilustrace – popisek vlevo"
+    },
+    "caption_right": {
+      "type": "text",
+      "max": 40,
+      "label": "Ilustrace – popisek vpravo"
+    },
+    "svc_kicker": {
+      "type": "text",
+      "max": 30,
+      "label": "Služby – štítek"
+    },
+    "svc_title": {
+      "type": "text",
+      "max": 50,
+      "label": "Služby – nadpis"
+    },
+    "svc_text": {
+      "type": "multiline",
+      "max": 240,
+      "label": "Služby – text"
+    },
+    "svc_word": {
+      "type": "text",
+      "max": 14,
+      "label": "Služby – slovo před číslem (např. Receptura)"
+    },
+    "services": {
+      "type": "list",
+      "items": 9,
+      "label": "Služby a ceník",
+      "fields": {
+        "num": {
+          "type": "text",
+          "max": 4,
+          "label": ""
+        },
+        "minutes": {
+          "type": "text",
+          "max": 10,
+          "label": ""
+        },
+        "name": {
+          "type": "text",
+          "max": 40,
+          "label": ""
+        },
+        "text": {
+          "type": "text",
+          "max": 110,
+          "label": ""
+        },
+        "price": {
+          "type": "text",
+          "max": 16,
+          "label": ""
+        }
+      }
+    },
+    "book_kicker": {
+      "type": "text",
+      "max": 30,
+      "label": "Rezervace – štítek"
+    },
+    "book_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Rezervace – nadpis"
+    },
+    "book_text": {
+      "type": "multiline",
+      "max": 220,
+      "label": "Rezervace – text"
+    },
+    "book_phone_label": {
+      "type": "text",
+      "max": 30,
+      "label": "Rezervace – tlačítko telefon"
+    },
+    "book_mail_label": {
+      "type": "text",
+      "max": 30,
+      "label": "Rezervace – tlačítko e-mail"
+    },
+    "visit_kicker": {
+      "type": "text",
+      "max": 30,
+      "label": "Návštěva – štítek"
+    },
+    "visit_title": {
+      "type": "text",
+      "max": 40,
+      "label": "Návštěva – nadpis"
+    },
+    "address1": {
+      "type": "text",
+      "max": 50,
+      "label": "Adresa – 1. řádek"
+    },
+    "address2": {
+      "type": "text",
+      "max": 60,
+      "label": "Adresa – 2. řádek"
+    },
+    "phone": {
+      "type": "phone",
+      "label": "Telefon"
+    },
+    "phone_href": {
+      "type": "url",
+      "label": "Telefon jako odkaz (tel:+420…)"
+    },
+    "email": {
+      "type": "email",
+      "label": "E-mail"
+    },
+    "hours": {
+      "type": "list",
+      "items": 7,
+      "label": "Otevírací doba",
+      "fields": {
+        "day": {
+          "type": "text",
+          "max": 14,
+          "label": ""
+        },
+        "time": {
+          "type": "text",
+          "max": 20,
+          "label": ""
+        }
+      }
+    },
+    "hours_note": {
+      "type": "text",
+      "max": 80,
+      "label": "Otevírací doba – poznámka (volitelné)"
+    },
+    "company": {
+      "type": "text",
+      "max": 100,
+      "label": "Patička – provozovatel (© …)"
+    }
+  },
+  "contrast": [
+    [
+      "ink",
+      "ground"
+    ],
+    [
+      "ink2",
+      "ground"
+    ],
+    [
+      "bloom",
+      "ground"
+    ],
+    [
+      "ink",
+      "paper"
+    ]
+  ],
+  "content": {
+    "lang": "cs",
+    "brand": "Salon Šalvěj",
+    "mark": "Šalvěj",
+    "mark_sub": "kosmetický salon · Brno",
+    "title": "Salon Šalvěj – kosmetický salon Brno",
+    "description": "Ošetření pleti, obočí a řas v klidném salonu v Brně. Ceník služeb a rezervace termínu.",
+    "nav1": "Receptury a ceník",
+    "nav2": "Rezervace",
+    "nav3": "Kde nás najdete",
+    "hero_kicker": "Kosmetický salon · Lipová 14, 602 00 Brno",
+    "hero_title": "Hodina jen pro vaši pleť",
+    "hero_text": "Ošetření pleti, obočí a řas v klidném salonu. Termín domluvíte telefonem nebo e-mailem, potvrdíme ho ještě týž den.",
+    "hero_btn": "Vybrat termín",
+    "hero_link": "Ceník služeb",
+    "ledger_title": "Otevřeno tento týden",
+    "ledger": [
+      {
+        "left": "pondělí–úterý",
+        "mid": "9:00–18:00",
+        "right": "Rezervovat"
+      },
+      {
+        "left": "středa",
+        "mid": "10:00–19:00",
+        "right": "Rezervovat"
+      },
+      {
+        "left": "čtvrtek–pátek",
+        "mid": "9:00–18:00",
+        "right": "Rezervovat"
+      },
+      {
+        "left": "sobota",
+        "mid": "9:00–13:00",
+        "right": "Rezervovat"
+      }
+    ],
+    "ledger_note": "Polední pauza po–pá 12:30–13:00.",
+    "products": [
+      {
+        "name": "Sérum se šalvějí",
+        "sub": "Receptura 03 · 30 ml"
+      },
+      {
+        "name": "Tonikum se šalvějí",
+        "sub": "Receptura 02 · 150 ml"
+      },
+      {
+        "name": "Pleťový krém",
+        "sub": "Receptura 05 · 50 ml"
+      }
+    ],
+    "caption_left": "Salvia officinalis · zklidňuje, čistí, tonizuje",
+    "caption_right": "Vlastní receptury salonu",
+    "svc_kicker": "Služby a ceník",
+    "svc_title": "Ošetření sepsaná jako receptury",
+    "svc_word": "Receptura",
+    "svc_text": "Každá receptura má číslo, délku a cenu. U každé služby počítáme s jejím skutečným trváním, takže vám nabídneme jen čas, který opravdu vyjde.",
+    "services": [
+      {
+        "num": "01",
+        "minutes": "60 min",
+        "name": "Kosmetické ošetření pleti",
+        "text": "Čištění, peeling, maska a masáž podle typu pleti.",
+        "price": "1 290 Kč"
+      },
+      {
+        "num": "02",
+        "minutes": "90 min",
+        "name": "Hloubkové čištění pleti",
+        "text": "Ultrazvuková špachtle, extrakce a zklidňující maska.",
+        "price": "1 690 Kč"
+      },
+      {
+        "num": "03",
+        "minutes": "45 min",
+        "name": "Masáž obličeje",
+        "text": "Liftingová masáž, která uvolní napětí a prokrví pleť.",
+        "price": "790 Kč"
+      },
+      {
+        "num": "04",
+        "minutes": "45 min",
+        "name": "Laminace obočí",
+        "text": "Zvýraznění a fixace tvaru obočí na 6 až 8 týdnů.",
+        "price": "850 Kč"
+      },
+      {
+        "num": "05",
+        "minutes": "60 min",
+        "name": "Lash lifting",
+        "text": "Natočení a výživa vlastních řas, včetně barvení.",
+        "price": "990 Kč"
+      },
+      {
+        "num": "06",
+        "minutes": "30 min",
+        "name": "Úprava a barvení obočí",
+        "text": "Tvarování pinzetou a barvení podle typu obočí.",
+        "price": "390 Kč"
+      }
+    ],
+    "book_kicker": "02 · Rezervace",
+    "book_title": "Rezervace termínu",
+    "book_text": "Zavolejte nebo napište, o jaké ošetření máte zájem. Termín vám potvrdíme ještě týž den.",
+    "book_phone_label": "Zavolat",
+    "book_mail_label": "Napsat e-mail",
+    "visit_kicker": "03 · Návštěva",
+    "visit_title": "Kde nás najdete",
+    "address1": "Salon Šalvěj",
+    "address2": "Lipová 14, 602 00 Brno",
+    "phone": "+420 777 123 456",
+    "phone_href": "tel:+420777123456",
+    "email": "rezervace@salon-salvej.cz",
+    "hours": [
+      {
+        "day": "pondělí",
+        "time": "9:00–18:00"
+      },
+      {
+        "day": "úterý",
+        "time": "9:00–18:00"
+      },
+      {
+        "day": "středa",
+        "time": "10:00–19:00"
+      },
+      {
+        "day": "čtvrtek",
+        "time": "9:00–18:00"
+      },
+      {
+        "day": "pátek",
+        "time": "9:00–15:00"
+      },
+      {
+        "day": "sobota",
+        "time": "9:00–13:00"
+      },
+      {
+        "day": "neděle",
+        "time": "zavřeno"
+      }
+    ],
+    "hours_note": "Polední pauza po–pá 12:30–13:00",
+    "company": "© 2026 Salon Šalvěj"
+  },
+  "licenses": [
+    "assets/fonts/Marcellus-OFL.txt",
+    "assets/fonts/Albert_Sans-OFL.txt",
+    "assets/fonts/Azeret_Mono-OFL.txt",
+    "assets/fonts/Bodoni_Moda-OFL.txt",
+    "assets/fonts/Figtree-OFL.txt"
+  ],
+  "cssHints": [
+    ".hb-mark",
+    ".sv-hero h1",
+    ".hb-lede",
+    ".sv-forms h2",
+    ".hb-label h3",
+    ".web .btn",
+    ".hb-chapter h2",
+    ".sv-vis"
+  ]
+}

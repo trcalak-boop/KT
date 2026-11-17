@@ -1,0 +1,3 @@
+{"type":"faq","label":"Časté otázky","use":"odpovědi na opakované dotazy; jen z podkladů","default":"accordion","head":true,"variants":{"accordion":"rozbalovací otázky","columns":"otázky a odpovědi ve dvou sloupcích"},
+"slots":{"items":{"type":"list","items":10,"fields":{"q":{"type":"text","max":120},"a":{"type":"multiline","max":500}}}},
+"sample":{"kicker":"Než se zeptáte","title":"Časté otázky","items":[{"q":"Do kdy můžu objednat?","a":"Na druhý den do 18:00, telefonem nebo e-mailem."},{"q":"Pečete bezlepkově?","a":"Bohužel ne, v dílně pracujeme s moukou celý den."},{"q":"Dá se chléb zamrazit?","a":"Ano, nakrájený a dobře zabalený vydrží měsíc."}]}}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="p-index" id="top">
+<a class="skip" href="#main">Přeskočit na obsah</a>
+<div class="frame">
+<aside class="rail" aria-label="{{brand}}">
+  <a class="brand" href="#top">{{brand}}</a>
+  <nav aria-label="Hlavní menu"><a href="#top" aria-current="page">Dnes</a><a href="#puvod">Původ</a><a href="#nabidka">Nabídka</a><a href="#navsteva">Návštěva</a></nav>
+  <div class="rb"><a class="btn" href="{{cta_url}}">{{cta_label}}</a><div class="row"><small>{{lang}}</small><button class="mode-btn" type="button" data-mode-btn aria-label="Přepnout režim"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button></div></div>
+</aside>
+<div class="main">
+<header class="mbar"><a class="brand" href="#top">{{brand}}</a><div class="r"><button class="mode-btn" type="button" data-mode-btn aria-label="Přepnout režim"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button></div>
+  <nav id="nav" aria-label="Menu"><a href="#top" aria-current="page">Dnes</a><a href="#puvod">Původ</a><a href="#nabidka">Nabídka</a><a href="#navsteva">Návštěva</a></nav></header>
+<main id="main">
+<section class="hero strata">
+  <div>
+    {{#status_text}}<span class="status"><i></i><span>{{status_text}}</span></span>{{/status_text}}
+    <h1>{{hero_title}}<em>{{hero_em}}</em></h1>
+    <p class="hero-lead">{{hero_lead}}</p>
+    <a class="ticket-mini" href="{{cta_url}}"><div><span>{{reserve_title}}</span><b>{{cta_label}}</b></div><strong>Stůl</strong></a>
+  </div>
+  <div class="hv"><svg class="beet" viewBox="0 0 400 470" aria-hidden="true">
+  <path class="body" d="M200 170c-80 0-130 60-130 130s60 120 130 120 130-50 130-120-50-130-130-130z"/>
+  <path class="wax grow" style="--l:220;--d:.5s" d="M120 270c30-20 60-20 80-4M140 330c40-10 80-6 120 10M150 380c30 6 60 6 90-4"/>
+  <path class="grow" style="--l:260;--d:.1s" d="M200 170c-20-60-10-110 24-150M200 170c40-50 90-64 140-56M200 170c-50-40-100-44-140-20"/>
+  <path class="wax grow" style="--l:200;--d:.8s" d="M224 20c-30 20-40 50-30 90M340 114c-36 4-70 24-100 54M60 150c34-8 70 2 110 22"/>
+  <path class="grow" style="--l:60;--d:1.2s" d="M200 420c0 20-6 30-14 40"/>
+</svg>{{#hero_caption}}<span class="cap">{{hero_caption}}</span>{{/hero_caption}}</div>
+</section>
+
+<section class="sec soil" id="puvod">
+  <div class="sh"><span class="label">{{origin_label}}</span><h2>{{origin_title}}</h2></div>
+  <div class="layers">
+    {{#suppliers}}<div class="ly"><span class="km">{{km}}</span><b>{{name}}</b><span>{{what}}</span></div>
+    {{/suppliers}}
+  </div>
+</section>
+
+<section class="sec teasers-sec" id="nabidka">
+  <div class="sh"><span class="label">{{table_label}}</span><h2>{{table_title}}</h2></div>
+  <div class="teasers">
+    <div class="teaser"><span class="label">Stálý lístek</span><h2>{{menu_title}}</h2><ul class="t-dishes">{{#dishes}}<li><span>{{name}}</span><b>{{price}}</b></li>{{/dishes}}</ul></div>
+    <div class="teaser"><span class="label">Degustační menu</span><h2>{{tasting_title}}</h2><p class="tz-price">{{tasting_price}}</p><p class="t-days">{{tasting_days}}</p></div>
+    <a class="teaser" href="{{cta_url}}"><span class="label">Rezervace</span><h2>{{reserve_title}}</h2><p class="t-free">{{reserve_text}}</p><span class="t-more">{{cta_label}}</span></a>
+  </div>
+</section>
+
+<section class="band">
+  <div><span class="label">{{quote_label}}</span><h2>{{quote_1}}<br><em>{{quote_2}}</em></h2></div>
+  <div><p class="band-text">{{quote_text}}</p></div>
+</section>
+
+<section class="sec" id="navsteva">
+  <div class="visit">
+    <div><span class="label">Otevírací doba</span><dl class="hours">{{#hours}}<dt>{{days}}</dt><dd>{{time}}</dd>{{/hours}}</dl>{{#hours_note}}<p class="closure">{{hours_note}}</p>{{/hours_note}}</div>
+    <div><span class="label">Kde nás najdete</span><div class="addr"><b>{{street}}, {{city}}</b><span><a href="{{phone_href}}">{{phone}}</a></span><span><a href="mailto:{{email}}">{{email}}</a></span></div>
+      <div class="hero-cta"><a class="btn" href="{{cta_url}}">{{cta_label}}</a>{{#map_url}}<a class="btn btn--ghost" href="{{map_url}}">Jak k nám</a>{{/map_url}}</div></div>
+  </div>
+</section>
+</main>
+<footer class="site">
+  <a class="brand" href="#top">{{brand}}</a>
+  <p>{{street}}, {{city}} · {{phone}} · {{email}}</p>
+  <nav aria-label="Patička"><a href="#top" aria-current="page">Dnes</a><a href="#puvod">Původ</a><a href="#nabidka">Nabídka</a><a href="#navsteva">Návštěva</a></nav>
+  <p>{{company}}</p>
+</footer>
+</div>
+</div>
+<a class="btn mbook" href="{{cta_url}}">{{cta_label}}</a>
+<script src="assets/app.js"></script>
+</body>
+</html>

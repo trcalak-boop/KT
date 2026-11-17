@@ -1,0 +1,7 @@
+<div class="hero-in">
+<div class="hero-text">{{#kicker}}<p class="kicker">{{kicker}}</p>{{/kicker}}<h1>{{title}}{{#title_em}} <em>{{title_em}}</em>{{/title_em}}</h1>{{#lead}}<p class="lead">{{lead}}</p>{{/lead}}
+<div class="actions">{{#cta_label}}<a class="btn" href="{{cta_url}}">{{cta_label}}</a>{{/cta_label}}{{#cta2_label}}<a class="btn btn-2" href="{{cta2_url}}">{{cta2_label}}</a>{{/cta2_label}}</div></div>
+{{#v_board}}<dl class="hero-board card">{{#facts}}<div><dt class="mono muted">{{label}}</dt><dd class="disp">{{value}}</dd></div>{{/facts}}</dl>{{/v_board}}
+{{^v_board}}{{#art}}<div class="art hero-art" aria-hidden="true"><!--art:{{art}}--></div>{{/art}}{{/v_board}}
+</div>
+{{^v_board}}{{#facts}}<div class="hero-fact"><span class="mono muted">{{label}}</span><b>{{value}}</b></div>{{/facts}}{{/v_board}}

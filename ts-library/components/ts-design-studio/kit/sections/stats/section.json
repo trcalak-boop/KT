@@ -1,0 +1,3 @@
+{"type":"stats","label":"Čísla","use":"ověřená čísla z podkladů; vymyšlená čísla nepoužívat","default":"row","head":true,"variants":{"row":"čísla v řadě","big":"velká čísla pod sebou"},
+"slots":{"items":{"type":"list","items":6,"fields":{"value":{"type":"text","max":14,"grounded":true},"label":{"type":"text","max":60}}}},
+"sample":{"title":"Pekárna v číslech","items":[{"value":"9 let","label":"vedeme stejný kvas"},{"value":"2","label":"moravské mlýny"},{"value":"36 h","label":"od těsta po pultu"}]}}

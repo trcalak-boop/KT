@@ -1,0 +1,46 @@
+openapi: 3.1.0
+info:
+  title: ts-crm-intake – poptávka z webu (tasstudio.eu /poptavka.php)
+  version: 1.0.0
+  description: Popis existujícího produkčního endpointu (ověřeno z kódu src/poptavka.php). Bez přihlášení, jen zápis nové poptávky.
+paths:
+  /poptavka.php:
+    post:
+      summary: Uloží poptávku jako nový nepřiřazený lead v CRM a zařadí oznámení e-mailem.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [contact_name, email, message, submission_id, consent]
+              properties:
+                submission_id: { type: string, description: idempotence – stejné id nevytvoří druhý lead }
+                contact_name: { type: string, maxLength: 160 }
+                company: { type: string, maxLength: 160 }
+                email: { type: string, format: email, maxLength: 160 }
+                phone: { type: string }
+                website: { type: string }
+                services: { type: array, items: { type: string } }
+                message: { type: string }
+                budget: { type: string, maxLength: 60 }
+                start_when: { type: string }
+                contact_pref: { type: string }
+                language: { type: string }
+                consent: { type: string }
+                utm_source: { type: string }
+                utm_medium: { type: string }
+                utm_campaign: { type: string }
+                utm_content: { type: string }
+                utm_term: { type: string }
+                click_id: { type: string, maxLength: 16, description: jen název parametru (gclid…), ne hodnota }
+                referrer: { type: string }
+                landing_page: { type: string, maxLength: 500 }
+                source_page: { type: string }
+                submission_page: { type: string }
+                first_visit_at: { type: string, maxLength: 40 }
+      responses:
+        '200': { description: 'ok: true (případně opakovani: true při stejném submission_id)' }
+        '400': { description: 'chyba: pole' }
+        '405': { description: 'chyba: metoda' }
+        '429': { description: 'chyba: limit (8 poptávek za hodinu z jedné adresy)' }
+        '500': { description: 'chyba: odeslani' }

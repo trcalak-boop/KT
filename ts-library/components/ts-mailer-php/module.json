@@ -1,0 +1,59 @@
+{
+  "name": "ts-mailer-php",
+  "version": "1.1.0",
+  "kind": "php-library",
+  "status": "demo",
+  "maturity": "tested",
+  "summary": "PHP: e-maily přes SMTP (STARTTLS/SSL, AUTH LOGIN) nebo mail() hostingu, HTML + text, Reply-To, fronta s opakováním, zámkem a idempotencí.",
+  "runtime": [
+    "php"
+  ],
+  "origin": {
+    "project": "tas-web",
+    "commit": "de4b7af",
+    "workingTree": "clean",
+    "files": [
+      {
+        "from": "web/admin/crm-poptavky.php",
+        "to": "core/TsMailer.php",
+        "sha256": "f40923357067fbeb7c88831e9198a2d3147b95594338b7f8902fe7abf7082f02",
+        "mode": "adapted"
+      }
+    ]
+  },
+  "dependencies": {},
+  "entrypoints": {
+    "php": "core/TsMailer.php",
+    "classes": "TsMailer, TsMailQueue"
+  },
+  "lockedFiles": [
+    "core/*.php",
+    "migrations/*.sql"
+  ],
+  "customerFiles": [],
+  "aiEditable": [
+    "konfigurace (SMTP, odesílatel, doména) – mimo git, mimo webroot",
+    "šablony textu a HTML e-mailů v projektu"
+  ],
+  "aiProtected": [
+    "core/TsMailer.php",
+    "migrations/*.sql",
+    "ochrana proti vložení hlaviček"
+  ],
+  "works": [
+    "Původní kód běží v produkci tasstudio.eu (oznámení o poptávkách přes mail(); SMTP zatím bez přístupů).",
+    "Knihovna: testy proti lokálnímu falešnému SMTP serveru (obálka, AUTH, tečky, odmítnutí, nedostupnost), fronta (idempotence, opakování, selhání).",
+    "Testovací režim redirectTo (všechny e-maily do testovací schránky) a probe() – kontrola SMTP serveru bez přihlášení."
+  ],
+  "missingForProduction": [
+    "Ověření TLS/STARTTLS proti skutečnému SMTP serveru (Active24) a SPF/DKIM/DMARC domény odesílatele.",
+    "Zpracování fronty bez cronu jen „při další akci“ – na hostingu ověřit cron.",
+    "Odhlášení z marketingových e-mailů není řešeno (jen transakční e-maily)."
+  ],
+  "tests": [
+    "tests/mailer_test.php"
+  ],
+  "skill": "claude-plugin/ts-studio/skills/php-backend/SKILL.md",
+  "api": "api/ts-mailer-php.md",
+  "license": "Interní – T&S Studio (vlastní kód)"
+}
